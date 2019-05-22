@@ -1,5 +1,114 @@
 # LeetCode 501 - 550
 
+### 508. Most Frequent Subtree Sum
+
+Given the root of a tree, you are asked to find the most frequent subtree sum. The subtree sum of a node is defined as the sum of all the node values formed by the subtree rooted at that node (including the node itself). So what is the most frequent subtree sum value? If there is a tie, return all the values with the highest frequency in any order.
+
+Example:
+
+```
+Input:
+  5
+ /  \
+2   -5
+Output: [2] (since 2 happens twice, while -5 only occur once)
+```
+
+Solution: hastmap+dfs
+
+```cpp
+vector<int> findFrequentTreeSum(TreeNode* root) {
+		if (!root) return vector<int>();
+    int global = 0;
+    unordered_map<int, int> sumfreq;
+    subTreeSum(sumfreq, root);
+    for (auto i: sumfreq) global = max(global, i.second);
+    vector<int> ret;
+    for (auto i: sumfreq) if (i.second == global) ret.push_back(i.first);
+    return ret;
+}
+
+int subTreeSum(unordered_map<int, int> &sumfreq, TreeNode* root) {
+    if (!root) return 0;
+    int sum = subTreeSum(sumfreq, root->left) + subTreeSum(sumfreq, root->right) + root->val;
+    ++sumfreq[sum];
+    return sum;
+}
+```
+
+### 515. Find Largest Value in Each Tree Row
+
+Find the largest value in each row of a binary tree.
+
+Example:
+
+```
+Input: 
+          1
+         / \
+        3   2
+       / \   \  
+      5   3   9 
+Output: [1, 3, 9]
+```
+
+Solution: dfs or bfs
+
+```cpp
+vector<int> largestValues(TreeNode* root) {
+    vector<int> ret;
+    if (!root) return ret;
+    queue<TreeNode*> q;
+    q.push(root);
+    int cap = 1, localmax;
+    TreeNode *cur;
+    while (cap) {
+        localmax = INT_MIN;
+        while (cap--) {
+            cur = q.front();
+            q.pop();
+            localmax = max(localmax, cur->val);
+            if (cur->left) q.push(cur->left);
+            if (cur->right) q.push(cur->right);
+        }
+        cap = q.size();
+        ret.push_back(localmax);
+    }
+    return ret;
+}
+```
+
+### 516. Longest Palindromic Subsequence
+
+Given a string s, find the longest palindromic subsequence's length in s.
+
+Example:
+
+```
+Input: "bbbab"
+Output: 4 ("bbbb")
+```
+
+Solution: dp，不同于5. Longest Palindromic Substring，因为是subsequence，dp\[i][j]不是表示起止位置是不是回文，而是表示起止位置内是否包含可以变成回文的子串，一定要理解
+
+```cpp
+int longestPalindromeSubseq(string s) {
+    int n = s.length();
+    if (n < 2) return n;
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    dp[n-1][n-1] = 1;
+    for (int i = n - 2; i >= 0; --i) {
+        dp[i][i] = 1;
+        for (int j = i + 1; j < n; ++j) {
+            if (s[i] == s[j]) dp[i][j] = max(dp[i][j-1], max(dp[i+1][j], dp[i+1][j-1] + 2));
+            else dp[i][j] = max(dp[i][j-1], dp[i+1][j]);
+        }
+    }
+    int global = dp[0][n-1];
+    return global;
+}
+```
+
 ### 521. Longest Uncommon Subsequence I
 
 Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence should not be **any **subsequence of the other strings.
@@ -70,6 +179,101 @@ bool isSubStringOf(string &s1, string &s2){
 }
 ```
 
+### 523. Continuous Subarray Sum
+
+Given a list of **non-negative** numbers and a target **integer** k, write a function to check if the array has a continuous subarray of size at least 2 that sums up to the multiple of **k**, that is, sums up to n*k where n is also an **integer**.
+
+Example:
+
+```
+Input: [23, 2, 4, 6, 7],  k=6
+Output: True ([2, 4] sums up to 6)
+```
+
+Solution: hashmap+mod
+
+```cpp
+bool checkSubarraySum(vector<int>& nums, int k) {
+    unordered_map<int, int> map;
+    map[0] = -1;
+    int running_sum = 0, prev;
+    for (int i = 0; i < nums.size(); ++i) {
+        running_sum += nums[i];
+        if (k) running_sum %= k;
+        if (map.find(running_sum) != map.end()) {
+            if (i - map[running_sum] > 1)
+                return true;
+        } else {
+            map[running_sum] = i;
+        }
+    }
+    return false;
+}
+```
+
+### 525. Contiguous Array
+
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example:
+
+```
+Input: [0,1]
+Output: 2 ([0, 1])
+```
+
+Solution: hashmap记录running sum，遇0减1，遇1加1
+
+```cpp
+int findMaxLength(vector<int>& nums) {
+    int n = nums.size();
+    if (n < 2) return 0;
+    unordered_map<int, int> sumpos;
+    sumpos[0] = -1;
+    int running = 0, cur, maxlen = 0;
+    for (int i = 0; i < n; ++i) {
+        cur = nums[i];
+        if (cur) ++running;
+        else --running;
+        if (sumpos.find(running) != sumpos.end()) maxlen = max(maxlen, i - sumpos[running]);
+        else sumpos[running] = i;
+    }
+    return maxlen;
+}
+```
+
+### 528. Random Pick with Weight
+
+Given an array `w` of positive integers, where `w[i]` describes the weight of index `i`, write a function `pickIndex` which randomly picks an index in proportion to its weight.
+
+Explanation of Input Syntax:
+
+The input is two lists: the subroutines called and their arguments. `Solution`'s constructor has one argument, the array `w`. `pickIndex` has no arguments. Arguments are always wrapped with a list, even if there aren't any.
+
+Example:
+
+```
+Input:
+actions = ["Solution","pickIndex","pickIndex","pickIndex","pickIndex","pickIndex"]
+arguments = [[[1,3]],[],[],[],[],[]]
+Output: [null,0,1,1,1,0]
+```
+
+Solution: 先用partial_sum求积分和，然后直接lower_bound获得随机位置
+
+```cpp
+class Solution {
+public:
+    vector<int> sums;
+    Solution(vector<int> w):sums(w) {
+        partial_sum(sums.begin(), sums.end(), sums.begin());
+    }
+    int pickIndex() {
+        return lower_bound(sums.begin(), sums.end(), (rand() % sums.back()) + 1) - sums.begin();
+    }
+};
+```
+
 ### 538. Convert BST to Greater Tree
 
 Given a Binary Search Tree \(BST\), convert it to a Greater Tree such that every key of the original BST is changed to the original key plus sum of all keys greater than the original key in BST.
@@ -102,6 +306,75 @@ void helper(TreeNode *root, int& prev) {
     root->val += prev;
     prev = root->val;
     if (root->left) helper(root->left, prev);
+}
+```
+
+### 540. Single Element in a Sorted Array
+
+Given a sorted array consisting of only integers where every element appears exactly twice except for one element which appears exactly once. Find this single element that appears only once.
+
+Example:
+
+```
+Input: [1,1,2,3,3,4,4,8,8]
+Output: 2
+```
+
+Solution: bit manipulation
+
+```cpp
+int singleNonDuplicate(vector<int>& nums) {
+    int ret = 0;
+    for (auto n: nums) ret ^= n;
+    return ret;
+}
+```
+
+### 542. 01 Matrix
+
+Given a matrix consists of 0 and 1, find the distance of the nearest 0 for each cell.
+
+The distance between two adjacent cells is 1.
+
+Example:
+
+```
+Input:
+[[0,0,0],
+ [0,1,0],
+ [0,0,0]]
+Output:
+[[0,0,0],
+ [0,1,0],
+ [0,0,0]]
+```
+
+Solution: two-pass dp
+
+```cpp
+vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return {};
+    int n = matrix.size(), m = matrix[0].size();
+    vector<vector<int>> dp(n,vector<int> (m, INT_MAX-1));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (!matrix[i][j]) dp[i][j] = 0;
+            else {
+                if (j > 0) dp[i][j] = min(dp[i][j], dp[i][j-1]+1);
+                if (i > 0) dp[i][j] = min(dp[i][j], dp[i-1][j]+1);
+            }
+        }
+    }
+    for (int i = n - 1; i >= 0; --i) {
+        for (int j = m-1; j >= 0; --j) {
+            if (!matrix[i][j]) continue;
+            else {
+                if (j < m - 1) dp[i][j] = min(dp[i][j], dp[i][j+1]+1);
+                if (i < n - 1) dp[i][j] = min(dp[i][j], dp[i+1][j]+1);
+            }
+        }
+    }
+    return dp;
 }
 ```
 
