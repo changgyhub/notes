@@ -366,7 +366,7 @@ vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
         }
     }
     for (int i = n - 1; i >= 0; --i) {
-        for (int j = m-1; j >= 0; --j) {
+        for (int j = m - 1; j >= 0; --j) {
             if (!matrix[i][j]) continue;
             else {
                 if (j < m - 1) dp[i][j] = min(dp[i][j], dp[i][j+1]+1);
