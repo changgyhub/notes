@@ -63,6 +63,70 @@ int leastInterval(vector<char>& tasks, int n) {
 }
 ```
 
+### 638. Shopping Offers
+
+In LeetCode Store, there are some kinds of items to sell. Each item has a price. However, there are some special offers, and a special offer consists of one or more different kinds of items with a sale price.
+
+You are given the each item's price, a set of special offers, and the number we need to buy for each item. The job is to output the lowest price you have to pay for **exactly** certain items as given, where you could make optimal use of the special offers.
+
+Each special offer is represented in the form of an array, the last number represents the price you need to pay for this special offer, other numbers represents how many specific items you could get if you buy this offer. You could use any of special offers as many times as you want.
+
+Example:
+
+```
+Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
+Output: 11
+(The price of A is $2, and $3 for B, $4 for C. 
+You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
+You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 for 1C. )
+```
+
+Solution: 递归+用hashmap做memoization（也可dp）
+
+```cpp
+unordered_map<string, int> map;
+
+int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+    string key;
+    for (int i = 0; i < needs.size(); ++i) {
+        key += to_string(needs[i]) + "#";
+    }
+
+    auto it = map.find(key);
+    if (it != map.end()) return it->second;
+
+    int m = 0;
+    for (int i = 0; i < needs.size(); ++i) {
+        m += price[i]*needs[i];
+    }
+
+    for (int i = 0; i < special.size(); ++i) {
+        int s = special[i][needs.size()];
+        if (m > s) {
+            bool found = true;
+            for (int j = 0; j < needs.size(); ++j) {
+                needs[j] = needs[j] - special[i][j];
+                if (needs[j] < 0) found = false;
+            }
+
+            if (found) {
+                int n = shoppingOffers(price, special, needs) + s;
+                m = min(m, n);
+            }
+
+            for (int j = 0; j < needs.size(); ++j) {
+                needs[j] = needs[j] + special[i][j];
+            }
+        }
+    }
+
+    map[key] = m;
+    return m;
+}
+```
+
+
+
 ### 647. Palindromic Substrings
 
 Given a string, your task is to count how many palindromic substrings in this string. The substrings with different start indexes or end indexes are counted as different substrings even they consist of same characters.

@@ -1,5 +1,29 @@
 # LeetCode 551 - 600
 
+### 559. Maximum Depth of N-ary Tree
+
+Given a n-ary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+Example: given a `3-ary` tree
+
+![img](../.gitbook/assets/narytreeexample.png)
+
+We should return its max depth, which is 3.
+
+Solution: dfs
+
+```cpp
+int maxDepth(Node* root) {
+    if (!root) return 0;
+    int local_max = 0;
+    for (auto * node: root->children) {
+        if (node)
+            local_max = max(local_max, maxDepth(node));
+    }
+    return local_max + 1;
+}
+```
+
 ### 560. Subarray Sum Equals K
 
 Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose sum equals to k.
@@ -118,3 +142,46 @@ int findUnsortedSubarray(vector<int>& nums) {
 }
 ```
 
+### 593. Valid Square
+
+Given the coordinates of four points in 2D space, return whether the four points could construct a square. The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+
+```
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+```
+
+Solution: 对角线垂直平分且相等，可以先sort一下顺序
+
+```cpp
+bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+    vector<pair<int, int>> square{{p1[0], p1[1]}, {p2[0], p2[1]}, {p3[0], p3[1]}, {p4[0], p4[1]}};
+    sort(square.begin(), square.end(), [](pair<int, int>& a, pair<int, int>& b){return a.first < b.first || (a.first == b.first && a.second < b.second);});
+    return dist(square[0], square[3]) == dist(square[1], square[2]) && bisect(square[3], square[0], square[1], square[2]);
+}
+
+double dist(pair<int, int>& a, pair<int, int>& b){
+    double c = b.second - a.second, d = b.first - a.first;
+    return c*c + d*d;
+}
+
+bool perpendicular(pair<int, int>& a, pair<int, int>& b, pair<int, int>& c, pair<int, int>& d) {
+    double l, r;
+    if (a.first == b.first) {
+        if (a.second == b.second) return false;
+        return c.second == d.second && c.first != d.first;
+    } l = (a.second - b.second) / (double)(a.first - b.first);
+    if (c.first == d.first) {
+        if (c.second == d.second) return false;
+        return a.second == b.second;
+    } r = (c.second - d.second) / (double)(c.first - d.first);
+    return abs(l * r + 1) < 1e-8;
+}
+
+bool bisect(pair<int, int>& a, pair<int, int>& b, pair<int, int>& c, pair<int, int>& d) {
+    if (!perpendicular(a, b, c, d)) return false;
+    return a.second + b.second == c.second + d.second && a.first + b.first == c.first + d.first;
+}
+```
