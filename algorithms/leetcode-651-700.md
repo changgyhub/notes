@@ -219,9 +219,7 @@ vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
         if (sum[i+1]-sum[i+1-k] > tot) {
             posLeft[i] = i+1-k;
             tot = sum[i+1]-sum[i+1-k];
-        }
-        else 
-            posLeft[i] = posLeft[i-1];
+        } else posLeft[i] = posLeft[i-1];
     }
     // DP for starting index of the right max sum interval
     // caution: the condition is ">= tot" for right interval, and "> tot" for left interval
@@ -229,9 +227,7 @@ vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
         if (sum[i+k]-sum[i] >= tot) {
             posRight[i] = i;
             tot = sum[i+k]-sum[i];
-        }
-        else
-            posRight[i] = posRight[i+1];
+        } else posRight[i] = posRight[i+1];
     }
     // test all possible middle interval
     for (int i = k; i <= n-2*k; i++) {
@@ -245,4 +241,3 @@ vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
     return ans;
 }
 ```
-
