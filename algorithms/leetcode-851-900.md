@@ -1,4 +1,4 @@
-# LeetCode 851-900
+LeetCode 851-900
 
 ### 857. Minimum Cost to Hire K Workers
 
@@ -270,4 +270,304 @@ int surfaceArea(vector<vector<int>>& grid) {
 }
 ```
 
-TODO: 893 - 900
+### 893. Groups of Special-Equivalent Strings
+
+You are given an array `A` of strings. Two strings `S` and `T` are *special-equivalent* if after any number of *moves*, S == T. A *move* consists of choosing two indices `i` and `j` with `i % 2 == j % 2`, and swapping `S[i]` with `S[j]`.
+
+Now, a *group of special-equivalent strings from A* is a non-empty subset S of `A` such that any string not in S is not special-equivalent with any string in S.
+
+Return the number of groups of special-equivalent strings from `A`.
+
+Example:
+
+```
+Input: ["abcd","cdab","cbad","xyzz","zzxy","zzyx"]
+Output: 3 (["abcd","cdab","cbad"], ["xyzz","zzxy"], ["zzyx"])
+```
+
+Solution: 十分巧妙的办法，把奇数字符和偶数字符sort一下之后，中间加个间隔符（比如#）concat到一起，然后放到hashset里，一定要背
+
+```cpp
+int numSpecialEquivGroups(vector<string>& A) {
+    unordered_set<string> hash;
+    for (auto &s: A) {
+        string l, r;
+        for (int i = 0; i < s.length(); ++i) {
+            l += s[i];
+            if (i < s.length()) r += s[++i];
+        }
+        sort(l.begin(), l.end());
+        sort(r.begin(), r.end());
+        l += '#' + r;
+        hash.insert(l);
+    }
+    return hash.size();
+}
+```
+
+### 894. All Possible Full Binary Trees
+
+A *full binary tree* is a binary tree where each node has exactly 0 or 2 children. Return a list of all possible full binary trees with `N` nodes.  Each element of the answer is the root node of one possible tree. Each `node` of each tree in the answer **must** have `node.val = 0`. You may return the final list of trees in any order.
+
+Example:
+
+```
+Input: 7
+Output: [[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]
+```
+
+Solution: divide and conquer，注意一个细节是需要对root硬拷贝，一定要背
+
+```cpp
+vector<TreeNode*> allPossibleFBT(int N) {
+    if (N % 2 == 0) return vector<TreeNode*>();
+    TreeNode* root = new TreeNode(0);
+    if (N == 1) return vector<TreeNode*>{root};
+    vector<TreeNode*> ret;
+    --N;
+    for (int i = 1; i <= N; i += 2) {
+        vector<TreeNode*> left = allPossibleFBT(i);
+        vector<TreeNode*> right = allPossibleFBT(N-i);
+        for (auto l: left) for (auto r: right) {
+            root->left = l;
+            root->right = r;
+            ret.push_back(copyroot(root));
+        }
+    }
+    return ret;
+}
+
+TreeNode* copyroot(TreeNode* root) {
+    if (!root) return NULL;
+    TreeNode* ret = new TreeNode(0);
+    ret->left = copyroot(root->left);
+    ret->right = copyroot(root->right);
+    return ret;
+}
+```
+
+### 895. Maximum Frequency Stack
+
+Implement `FreqStack`, a class which simulates the operation of a stack-like data structure.
+
+`FreqStack` has two functions:
+
+- `push(int x)`, which pushes an integer `x` onto the stack.
+- ``pop()``, which removes and returns the most frequent element in the stack.
+  - If there is a tie for most frequent element, the element closest to the top of the stack is removed and returned.
+
+Solution: 用hashmap<key, freq>记录frequency，用hashmap<freq, stack\<key\>>记录按stack排序的frequency group，另外需要一个变量储存max frequency
+
+```cpp
+class FreqStack {
+public:
+    unordered_map<int, int> freq;
+    unordered_map<int, stack<int>> group;
+    int maxfreq;
+
+    FreqStack() {
+        freq.clear();
+        group.clear();
+        maxfreq = 0;
+    }
+
+    void push(int x) {
+        int f = freq.find(x) == freq.end()? 1: freq[x] + 1;
+        freq[x] = f;
+        maxfreq = max(maxfreq, f);
+        if (group.find(f) == group.end()) group[f] = stack<int>();
+        group[f].push(x);
+    }
+
+    int pop() {
+        int x = group[maxfreq].top();
+        group[maxfreq].pop();
+        --freq[x];
+        if (group[maxfreq].empty()) --maxfreq;
+        return x;
+    }
+};
+```
+
+### 896. Monotonic Array
+
+An array is *monotonic* if it is either monotone increasing or monotone decreasing. An array `A` is monotone increasing if for all `i <= j`, `A[i] <= A[j]`.  An array `A` is monotone decreasing if for all `i <= j`, `A[i] >= A[j]`. Return `true` if and only if the given array `A` is monotonic.
+
+Solution: 遍历一遍即可
+
+```cpp
+bool isMonotonic(vector<int>& A) {
+    bool isIncreasing = true, isDecreasing = true;
+    int prev = A[0], cur, diff;
+    for (int i = 1; i < A.size(); ++i) {
+        cur = A[i], diff = cur - prev;
+        if (diff > 0) isDecreasing = false;
+        if (diff < 0) isIncreasing = false; 
+        if (!isDecreasing && !isIncreasing) break;
+        prev = cur;
+    }
+    return isIncreasing || isDecreasing;
+}
+```
+
+### 897. Increasing Order Search Tree
+
+Given a tree, rearrange the tree in **in-order** so that the leftmost node in the tree is now the root of the tree, and every node has no left child and only 1 right child.
+
+Solution:
+
+```
+Input: [5,3,6,2,4,null,8,1,null,null,null,7,9]
+
+       5
+      / \
+    3    6
+   / \    \
+  2   4    8
+ /        / \ 
+1        7   9
+
+Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+
+ 1
+  \
+   2
+    \
+     3
+      \
+       4
+        \
+         5
+          \
+           6
+            \
+             7
+              \
+               8
+                \
+                 9  
+```
+
+Solution: 设置一个prev和head，一定要注意inorder里面操作的顺序，必须改右->前进->改左，即要在下一次前进前改左，否则在inorder的helper(root->left)时会出现环路，一定要背
+
+```cpp
+TreeNode *prev, *head;
+
+TreeNode* increasingBST(TreeNode* root) {
+    head = new TreeNode(-1), prev = head;
+    helper(root);
+    return head->right;
+}
+
+void helper(TreeNode* root) {
+    if (!root) return;
+    helper(root->left);
+    prev->right = root;
+    prev = prev->right;
+    prev->left = NULL;
+    helper(root->right);
+}
+```
+
+### 898. Bitwise ORs of Subarrays
+
+We have an array `A` of non-negative integers. For every (contiguous) subarray `B = [A[i], A[i+1], ..., A[j]]` (with `i <= j`), we take the bitwise OR of all the elements in `B`, obtaining a result `A[i] | A[i+1] | ... | A[j]`. Return the number of possible results.  (Results that occur more than once are only counted once in the final answer.)
+
+Example:
+
+```
+Input: [1,1,2]
+Output: 3 (The possible subarrays are [1], [1], [2], [1, 1], [1, 2], [1, 1, 2].
+These yield the results 1, 1, 2, 1, 3, 3.
+There are 3 unique values, so the answer is 3.)
+```
+
+Solution: 三个hashmap处理，本题也可换成求和求积等形式，十分巧妙，一定要背
+
+```cpp
+int subarrayBitwiseORs(vector<int>& A) {
+    unordered_set<int> ret, prev;
+    for (int i : A) {
+        unordered_set<int> cur({i});
+        for (int j : prev) cur.insert(j | i);
+        ret.insert(cur.begin(), cur.end());
+        prev = cur;
+    }
+   return ret.size();
+}
+```
+
+### 899. Orderly Queue
+
+A string `S` of lowercase letters is given.  Then, we may make any number of *moves*. In each move, we choose one of the first `K` letters (starting from the left), remove it, and place it at the end of the string. Return the lexicographically smallest string we could have after any number of moves.
+
+Example:
+
+```
+Input: S = "baaca", K = 3
+Output: "aaabc" (move "b" to end, and move the 3rd character ("c") to end)
+```
+
+Solution: 如果K大于1，直接sort即可；如果K等于1，则找一下从哪里截断后前后交换最小，一定要理解
+
+```cpp
+string orderlyQueue(string S, int K) {
+    string ret = S;
+    if (K == 1) {
+        for(int i = 0; i < S.length(); i++) {
+            ret = min(ret, S.substr(i + 1) + S.substr(0, i + 1));
+        }
+    } else if (K > 1) {
+        sort(ret.begin(), ret.end());
+    }
+    return ret;
+}
+```
+
+### 900. RLE Iterator
+
+Write an iterator that iterates through a run-length encoded sequence.
+
+The iterator is initialized by `RLEIterator(int[] A)`, where `A` is a run-length encoding of some sequence.  More specifically, for all even `i`, `A[i]` tells us the number of times that the non-negative integer value `A[i+1]` is repeated in the sequence.
+
+The iterator supports one function: `next(int n)`, which exhausts the next `n` elements (`n >= 1`) and returns the last element exhausted in this way.  If there is no element left to exhaust, `next` returns `-1` instead.
+
+For example, we start with `A = [3,8,0,9,2,5]`, which is a run-length encoding of the sequence `[8,8,8,5,5]`.  This is because the sequence can be read as "three eights, zero nines, two fives".
+
+Example:
+
+```
+Input: ["RLEIterator","next","next","next","next"], [[[3,8,0,9,2,5]],[2],[1],[1],[2]]
+Output: [null,8,8,5,-1]
+```
+
+Solution: 正常实现即可
+
+```cpp
+class RLEIterator {
+public:
+    vector<int> nums;
+    int pos;
+    bool isValid;
+    RLEIterator(vector<int> A) {
+        pos = 0;
+        bool isValid = true;
+        nums = A;
+        if (nums.size() == 0 || nums.size() % 2) isValid = false;
+    }
+    
+    int next(int n) {
+        if (!isValid) return -1;
+        while (nums[pos] < n) {
+            n -= nums[pos];
+            pos += 2;
+            if (pos == nums.size()) {
+                isValid = false;
+                return -1;
+            }
+        }
+        nums[pos] -= n;
+        return n == 0? nums[pos-1]: nums[pos+1];
+    }
+};
+```
