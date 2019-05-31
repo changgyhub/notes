@@ -192,11 +192,10 @@ int minMoves2(vector<int>& nums) {
     return ret;
 }
 
-
 int find_median(vector<int>& nums) {
     int l = 0, r = nums.size() - 1, target = (nums.size() - 1)/2;
     while (l < r) {
-        int mid = quick_partition(nums, l, r);
+        int mid = quick_selection(nums, l, r);
         if (mid == target) return nums[mid];
         if (mid < target) l = mid + 1;
         else r = mid - 1;
@@ -204,8 +203,7 @@ int find_median(vector<int>& nums) {
     return nums[l];
 }
 
-
-int quick_partition(vector<int>& nums, int l, int r) {
+int quick_selection(vector<int>& nums, int l, int r) {
     int i = l + 1, j = r;
     while (true) {
         while (i < r && nums[i] <= nums[l]) ++i;
