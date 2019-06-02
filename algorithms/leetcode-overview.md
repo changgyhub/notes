@@ -2393,7 +2393,7 @@ public int climbStairs(int n) {
 
 题目描述：抢劫一排住户，但是不能抢邻近的住户，求最大抢劫量。
 
-定义 dp 数组用来存储最大的抢劫量，其中 dp\[i\] 表示抢到第 i 个住户时的最大抢劫量。由于不能抢劫邻近住户，因此如果抢劫了第 i 个住户那么只能抢劫 i - 2 或者 i - 3 的住户，所以dp\[i\] = max\(dp\[i-2\], dp\[i-3\]\) + nums\[i\]。
+定义 dp 数组用来存储最大的抢劫量，其中 dp\[i\] 表示抢到第 i 个住户时的最大抢劫量，dp\[i+1\] = max\(dp\[i\], nums\[i\] + dp\[i-1\]\)。对于这种1维的 dp 数组，可以压缩成几个相邻的变量。
 
 ```java
 public int rob(int[] nums) {
@@ -2404,29 +2404,13 @@ public int rob(int[] nums) {
     if (n == 1) {
         return nums[0];
     }
-    int pre3 = 0, pre2 = 0, pre1 = 0;
+    int pre2 = 0, pre1 = 0, cur = 0;
     for (int i = 0; i < n; i++) {
-        int cur = Math.max(pre2, pre3) + nums[i];
-        pre3 = pre2;
+        cur = Math.max(pre2 + nums[i], pre1);
         pre2 = pre1;
         pre1 = cur;
     }
-    return Math.max(pre1, pre2);
-}
-```
-
-更好理解的写法是dp\[i+1\] = max\(dp\[i\], nums\[i\] + dp\[i-1\]\)
-
-```cpp
-int rob(vector<int>& nums) {
-    if (nums.empty()) return 0;
-    int n = nums.size();
-    vector<int> dp(n+1, 0);
-    dp[1] = nums[0];
-    for (int i = 1; i < n; ++i) {
-        dp[i+1] = max(dp[i], nums[i] + dp[i-1]);
-    }
-    return dp[n];
+    return Math.max(pre1, cur);
 }
 ```
 
