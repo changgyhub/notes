@@ -541,3 +541,380 @@ int minAddToMakeValid(string S) {
     return left + right;
 }
 ```
+
+### 922. Sort Array By Parity II
+
+Given an array `A` of non-negative integers, half of the integers in A are odd, and half of the integers are even. Sort the array so that whenever `A[i]` is odd, `i` is odd; and whenever `A[i]` is even, `i` is even. You may return any answer array that satisfies this condition.
+
+Example:
+
+```
+Input: [4,2,5,7]
+Output: [4,5,2,7] or [4,7,2,5] or [2,5,4,7] or [2,7,4,5] 
+```
+
+Solution: 正常遍历
+
+```cpp
+vector<int> sortArrayByParityII(vector<int>& A) {
+    int n = A.size();
+    if (n < 2) return vector<int>(A);
+    vector<int> odds, evens, ret;
+    for (auto i: A) {
+        if (i % 2) odds.push_back(i);
+        else evens.push_back(i);
+    }
+    for (int i = 0; i < n/2; ++i){
+        ret.push_back(evens.back());
+        ret.push_back(odds.back());
+        evens.pop_back();
+        odds.pop_back();
+    }      
+    return ret;
+}
+```
+
+### 923. 3Sum With Multiplicity
+
+Given an integer array `A`, and an integer `target`, return the number of tuples `i, j, k`  such that `i < j < k`and `A[i] + A[j] + A[k] == target`. As the answer can be very large, return it **modulo 10^9 + 7**.  Each number is within range``0 <= A[i] <= 100``. 
+
+Example:
+
+```
+Input: A = [1,1,2,2,2,2], target = 5
+Output: 12 (A[i] = 1, A[j] = A[k] = 2 occurs 12 times)
+```
+
+Solution: 统计次数，之后和3Sum相同，需要注意组合数的计算方法
+
+```cpp
+int threeSumMulti(vector<int>& A, int target) {
+    vector<long long> stats(101, 0);
+    for (int n : A) ++stats[n];
+    int M = 1e9 + 7;
+    long long result = 0;
+    for (int i = 0; i <= 100; ++i) {
+        for (int j = i; j <= 100; ++j) {
+            int k = target - i -j;
+            if (k < 0 || k > 100) continue;
+            if (i == j && j == k) result = (result + stats[i]*(stats[i]-1)*(stats[i]-2)/6) % M;
+            else if (i == j) result = (result + stats[k]*stats[i]*(stats[i]-1)/2) % M;
+            else if(j < k) result = (result + stats[i]*stats[j]*stats[k]) % M;
+        }
+    }
+    return result;
+}
+```
+
+### 925. Long Pressed Name
+
+Your friend is typing his `name` into a keyboard.  Sometimes, when typing a character, the key might get *long pressed*, and the character will be typed 1 or more times. You examine the `typed` characters of the keyboard.  Return `True` if it is possible that it was your friends name, with some characters (possibly none) being long pressed.
+
+Example:
+
+```
+Input: name = "alex", typed = "aaleex"
+Output: true
+```
+
+Solution: 正常遍历
+
+```cpp
+bool isLongPressedName(string name, string typed) {
+    int na = name.size(), nb = typed.size();
+    if (nb < na) return false;
+    if (nb == na) return name == typed;
+    int i = 0, j = 0, prev;
+    while (j < nb) {
+        if (name[i] != typed[j]) {
+            if (i != 0 && prev == typed[j]) ++j;
+            else return false;
+        } else {
+            prev = name[i];
+            ++i;
+            ++j;
+        }
+    }
+    return i == na;
+}
+```
+
+### 926. Flip String to Monotone Increasing
+
+A string of `'0'`s and `'1'`s is *monotone increasing* if it consists of some number of `'0'`s (possibly 0), followed by some number of `'1'`s (also possibly 0.) We are given a string `S` of `'0'`s and `'1'`s, and we may flip any `'0'` to a `'1'` or a `'1'` to a `'0'`. Return the minimum number of flips to make `S` monotone increasing.
+
+Example:
+
+```
+Input: "010110"
+Output: 2 ("011111" or "000111")
+```
+
+Solution: 可以左右各一遍brute force，也可以一遍完成
+
+```cpp
+int minFlipsMonoIncr(string s) {
+    int zero = 0, czero = 0, one = 0, cone = 0, n = s.length();
+    bool flag = false;
+    for(int i = 0; i < n; ++i) {
+        if (s[i] == '0') {
+            cone = 1 + min(zero, one);
+        } else {
+            czero = 1 + zero;
+            cone = min(zero, one);
+        }
+        zero = czero;
+        one = cone;
+    }
+    return min(zero, one);
+}
+```
+
+### 929. Unique Email Addresses
+
+Every email consists of a local name and a domain name, separated by the @ sign. For example, in `alice@leetcode.com`, `alice` is the local name, and `leetcode.com` is the domain name. Besides lowercase letters, these emails may contain `'.'`s or `'+'`s.
+
+If you add periods (`'.'`) between some characters in the **local name** part of an email address, mail sent there will be forwarded to the same address without dots in the local name.  For example, `"alice.z@leetcode.com"` and `"alicez@leetcode.com"` forward to the same email address.
+
+If you add a plus (`'+'`) in the **local name**, everything after the first plus sign will be **ignored**. This allows certain emails to be filtered, for example `m.y+name@email.com` will be forwarded to `my@email.com`. It is possible to use both of these rules at the same time.
+
+Given a list of `emails`, we send one email to each address in the list.  How many different addresses actually receive mails? 
+
+Example:
+
+```
+Input: [
+  "test.email+alex@leetcode.com",
+  "test.e.mail+bob.cathy@leetcode.com",
+  "testemail+david@lee.tcode.com"
+]
+Output: 2
+```
+
+Solution: hashset
+
+```cpp
+int numUniqueEmails(vector<string>& emails) {
+    unordered_set<string> hashset;
+    for (auto & s : emails) {
+        string temp;
+        for (int i = 0; i < s.length(); ++i) {
+            if (s[i] == '@') {
+                temp += s.substr(i);
+                break;
+            }
+            if (s[i] == '+') {
+                while (s[i+1] != '@') ++i;
+            } else if (s[i] != '.') {
+                temp += s[i];
+            }
+        }
+        hashset.insert(temp);
+    }
+    return hashset.size();
+}
+```
+
+### 930. Binary Subarrays With Sum
+
+In an array `A` of `0`s and `1`s, how many **non-empty** subarrays have sum `S`?
+
+Example:
+
+```
+Input: A = [1,0,1,0,1], S = 2
+Output: 4 ([1,0,1], [1,0,1,0], [0,1,0,1], [1,0,1])
+```
+
+Solution: 双指针或者积分和统计频率，这里注意积分和的问题如果需要位置则可以记录<积分和，位置>，如果需要频率则可以记录<积分和, 频率>，一定要背
+
+```cpp
+int numSubarraysWithSum(vector<int>& A, int S) {
+    vector<int> prefixSum(A.size() + 1, 0);
+    int sum = 0;
+    int result = 0;
+    for (int i = 0; i < A.size(); ++i) {
+        sum += A[i];
+        int target = sum - S;
+        if (sum == S) ++result;
+        if (target >= 0 && target < A.size()) {
+            result += prefixSum[target];        
+        }
+        ++prefixSum[sum];
+    }
+    return result;
+}
+```
+
+### 931. Minimum Falling Path Sum
+
+Given a **square** array of integers `A`, we want the **minimum** sum of a *falling path* through `A`. A falling path starts at any element in the first row, and chooses one element from each row.  The next row's choice must be in a column that is different from the previous row's column by at most one.
+
+Example:
+
+```
+Input: [
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+]
+Output: 12 ([1,4,7])
+```
+
+Solution: dp
+
+```cpp
+int minFallingPathSum(vector<vector<int>>& A) {
+    int m = A.size(), n = A[0].size(), sum = INT_MAX;
+    vector<vector<int>> dp(m, vector<int>(n));
+    for (int j = 0; j < n; ++j) dp[0][j] = A[0][j];
+    for (int i = 1; i < m; ++i) {
+        dp[i][0] = min(dp[i-1][0], dp[i-1][1]) + A[i][0];
+        dp[i][n-1] = min(dp[i-1][n-2], dp[i-1][n-1]) + A[i][n-1];
+        for (int j = 1; j < n - 1; ++j)
+            dp[i][j] = min(min(dp[i-1][j-1], dp[i-1][j]), dp[i-1][j+1])+ A[i][j];
+    }
+    for (auto i: dp[m-1]) sum = min(sum, i);
+    return sum;
+}
+```
+
+###933. Number of Recent Calls
+
+Write a class `RecentCounter` to count recent requests. It has only one method: `ping(int t)`, where t represents some time in milliseconds. Return the number of `ping`s that have been made from 3000 milliseconds ago until now. Any ping with time in `[t - 3000, t]` will count, including the current ping. It is guaranteed that every call to `ping` uses a strictly larger value of `t` than before.
+
+Example:
+
+```
+Input: inputs = ["RecentCounter","ping","ping","ping","ping"], inputs = [[],[1],[100],[3001],[3002]]
+Output: [null,1,2,3,3]
+```
+
+Solution: deque
+
+```cpp
+class RecentCounter {
+public:
+    RecentCounter() {}
+    int ping(int t) {
+        while (!dq.empty() && dq.front() + 3000 < t) dq.pop_front();
+        dq.push_back(t);
+        return dq.size();
+    }
+private:
+    deque<int> dq;
+};
+```
+
+### 934. Shortest Bridge
+
+In a given 2D binary array `A`, there are two islands.  (An island is a 4-directionally connected group of `1`s not connected to any other 1s.) Now, we may change `0`s to `1`s so as to connect the two islands together to form 1 island. Return the smallest number of `0`s that must be flipped.  (It is guaranteed that the answer is at least 1.)
+
+Example:
+
+```
+Input: [
+    [1,1,1,1,1],
+    [1,0,0,0,1],
+    [1,0,1,0,1],
+    [1,0,0,0,1],
+    [1,1,1,1,1]
+]
+Output: 1
+```
+
+Solution: 先bfs找到一个岛，然后bfs找最短距离
+
+```cpp
+void dfs(queue<pair<int, int>>& points, vector<vector<int>>& A, int m, int n, int i, int j) {
+    if (i < 0 || j < 0 || i == m || j == n || A[i][j] == 2) return;
+    if (A[i][j] == 0) {
+        points.push({i, j});
+        return;
+    }
+    A[i][j] = 2;
+    dfs(points, A, m, n, i-1, j);
+    dfs(points, A, m, n, i+1, j);
+    dfs(points, A, m, n, i, j-1);
+    dfs(points, A, m, n, i, j+1);
+}
+
+int shortestBridge(vector<vector<int>>& A) {
+    int m = A.size(), n = A[0].size();
+    queue<pair<int, int>> points;
+    bool flipped = false;
+    for (int i = 0; i < m; ++i) {
+        if (flipped) break;
+        for (int j = 0; j < n; ++j) {
+            if (A[i][j] == 1) {
+                dfs(points, A, m, n, i, j);
+                flipped = true;
+                break;
+            }
+        }
+
+    }
+    int i, j, idx, jdy;
+    int dx[4] = {-1, 1, 0, 0}, dy[4] = {0, 0, 1, -1};
+    int level = 0;
+    while (!points.empty()){
+        ++level;
+        int n_points = points.size();
+        while (n_points--) {
+            auto point = points.front();
+            points.pop();
+            i = point.first, j = point.second;
+            for (int k = 0; k < 4; ++k) {
+                idx = i + dx[k], jdy = j + dy[k];
+                if (idx >= 0 && jdy >= 0 && idx < m && jdy < n) {
+                    if (A[idx][jdy] == 2) continue;
+                    if (A[idx][jdy] == 1) return level;
+                    points.push({idx, jdy});
+                    A[idx][jdy] = 2;
+                }
+            }
+        }
+    }
+    return 0;
+}
+```
+
+### 935. Knight Dialer
+
+A chess knight can move as indicated in the chess diagram below:
+
+![](../.gitbook/assets3/knight_keypad.png)
+
+This time, we place our chess knight on any numbered key of a phone pad (indicated above), and the knight makes `N-1` hops.  Each hop must be from one key to another numbered key. Each time it lands on a key (including the initial placement of the knight), it presses the number of that key, pressing `N` digits total.
+
+How many distinct numbers can you dial in this manner? Since the answer may be large, **output the answer modulo 10^9 + 7**.
+
+Example:
+
+```
+Input: 3
+Output: 46
+```
+
+Solution: 这种state machine转移状态的题都可以用dp，一定要背
+
+```cpp
+const int MOD = 1e9 + 7;
+int knightDialer( int N ){
+    vector<long> cur(10, 1), next(10, 1);
+    for (int i = 2; i <= N; ++i){
+        next[ 0 ] = (cur[ 4 ] + cur[ 6 ]) % MOD;
+        next[ 1 ] = (cur[ 6 ] + cur[ 8 ]) % MOD;
+        next[ 2 ] = (cur[ 7 ] + cur[ 9 ]) % MOD;
+        next[ 3 ] = (cur[ 4 ] + cur[ 8 ]) % MOD;
+        next[ 4 ] = (cur[ 0 ] + cur[ 3 ] + cur[ 9 ]) % MOD;
+        next[ 5 ] = 0;
+        next[ 6 ] = (cur[ 0 ] + cur[ 1 ] + cur[ 7 ]) % MOD;
+        next[ 7 ] = (cur[ 2 ] + cur[ 6 ]) % MOD;
+        next[ 8 ] = (cur[ 1 ] + cur[ 3 ]) % MOD;
+        next[ 9 ] = (cur[ 2 ] + cur[ 4 ]) % MOD;
+        cur.swap(next);
+    }
+    return accumulate(cur.begin(), cur.end(), 0L) % MOD;
+}
+```
