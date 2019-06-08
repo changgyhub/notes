@@ -903,18 +903,272 @@ const int MOD = 1e9 + 7;
 int knightDialer( int N ){
     vector<long> cur(10, 1), next(10, 1);
     for (int i = 2; i <= N; ++i){
-        next[ 0 ] = (cur[ 4 ] + cur[ 6 ]) % MOD;
-        next[ 1 ] = (cur[ 6 ] + cur[ 8 ]) % MOD;
-        next[ 2 ] = (cur[ 7 ] + cur[ 9 ]) % MOD;
-        next[ 3 ] = (cur[ 4 ] + cur[ 8 ]) % MOD;
-        next[ 4 ] = (cur[ 0 ] + cur[ 3 ] + cur[ 9 ]) % MOD;
-        next[ 5 ] = 0;
-        next[ 6 ] = (cur[ 0 ] + cur[ 1 ] + cur[ 7 ]) % MOD;
-        next[ 7 ] = (cur[ 2 ] + cur[ 6 ]) % MOD;
-        next[ 8 ] = (cur[ 1 ] + cur[ 3 ]) % MOD;
-        next[ 9 ] = (cur[ 2 ] + cur[ 4 ]) % MOD;
+        next[0] = (cur[4] + cur[6]) % MOD;
+        next[1] = (cur[6] + cur[8]) % MOD;
+        next[2] = (cur[7] + cur[9]) % MOD;
+        next[3] = (cur[4] + cur[8]) % MOD;
+        next[4] = (cur[0] + cur[3] + cur[9]) % MOD;
+        next[5] = 0;
+        next[6] = (cur[0] + cur[1] + cur[7]) % MOD;
+        next[7] = (cur[2] + cur[6]) % MOD;
+        next[8] = (cur[1] + cur[3]) % MOD;
+        next[9] = (cur[2] + cur[4]) % MOD;
         cur.swap(next);
     }
     return accumulate(cur.begin(), cur.end(), 0L) % MOD;
 }
 ```
+
+### 937. Reorder Log Files
+
+You have an array of `logs`.  Each log is a space delimited string of words. For each log, the first word in each log is an alphanumeric *identifier*.  Then, either:
+
+- Each word after the identifier will consist only of lowercase letters, or;
+- Each word after the identifier will consist only of digits.
+
+We will call these two varieties of logs *letter-logs* and *digit-logs*.  It is guaranteed that each log has at least one word after its identifier. Reorder the logs so that all of the letter-logs come before any digit-log.  The letter-logs are ordered lexicographically ignoring identifier, with the identifier used in case of ties.  The digit-logs should be put in their original order. Return the final order of the logs.
+
+Example:
+
+```
+Input: ["a1 9 2 3 1","g1 act car","zo4 4 7","ab1 off key dog","a8 act zoo"]
+Output: ["g1 act car","a8 act zoo","ab1 off key dog","a1 9 2 3 1","zo4 4 7"]
+```
+
+Solution: brute force，注意在sort的时候，可以把identifier和后面内容分成pair的两部分，就可以不用map了
+
+```cpp
+vector<string> reorderLogFiles(vector<string>& logs) {
+    vector<string> digit_logs, res;
+    vector<pair<string, string>> letter_logs;
+    for (const string & s: logs) {
+        int pos = s.find(" ") + 1;
+        if (s[pos] - '0' >= 0 && s[pos] - '0' <= 9) {
+            digit_logs.push_back(s);
+        } else letter_logs.push_back({s.substr(pos), s.substr(0, pos)});
+    }
+    sort(letter_logs.begin(), letter_logs.end());
+    for (auto p: letter_logs) {
+        res.emplace_back(p.second + p.first);
+    }
+    res.insert(res.end(), digit_logs.begin(), digit_logs.end());
+    return res;
+}
+```
+
+### 938. Range Sum of BST
+
+Given the `root` node of a binary search tree, return the sum of values of all nodes with value between `L` and `R`(inclusive). The binary search tree is guaranteed to have unique values.
+
+Example:
+
+```
+Input: root = [10,5,15,3,7,13,18,1,null,6], L = 6, R = 10
+Output: 23
+```
+
+Solution: divide，比中序遍历要快，一定要背
+
+```cpp
+int rangeSumBST(TreeNode* root, int L, int R) {
+    if (!root) return 0;
+    if (root->val > R) return rangeSumBST(root->left, L, R);
+    if (root->val < L) return rangeSumBST(root->right, L, R);
+    return root->val + rangeSumBST(root->left, L, R) + rangeSumBST(root->right, L, R);
+}
+```
+
+### 939. Minimum Area Rectangle
+
+Given a set of points in the xy-plane, determine the minimum area of a rectangle formed from these points, with sides parallel to the x and y axes. If there isn't any rectangle, return 0.
+
+Example:
+
+```
+Input: [[1,1],[1,3],[3,1],[3,3],[2,2]]
+Output: 4
+```
+
+Solution: 先按照行列存一个map<row, vector\<col\>>，然后sort vector使得每行的col index按顺序排列；之后对row做两个for loop，loop内对两个row从左到右分别找col相等的时候的所有位置，就可以算最小面积了，一定要背
+
+```cpp
+ int minAreaRect(vector<vector<int>>& points) {
+    map<int, vector<int>> rows;
+    for (auto& p : points) rows[p[0]].push_back(p[1]);        
+    for (auto& it : rows) sort(it.second.begin(), it.second.end());        
+    int ans = INT_MAX;
+    for (auto& it1 : rows) {
+        if (it1.second.size() <= 1) continue;
+        for (auto& it2 : rows) {
+            if (it2.first <= it1.first) continue;
+            if (it2.second.size() <= 1) continue;                
+            int i = 0, j = 0, last = -1;
+            while (i < it1.second.size() && j < it2.second.size()) {
+                if (it1.second[i] < it2.second[j]) {
+                    ++i;
+                } else if (it1.second[i] > it2.second[j]) {
+                    ++j;
+                } else {
+                    if (last >= 0) ans = min(ans, (it2.first - it1.first) * (it1.second[i] - last));
+                    last = it1.second[i];
+                    ++i;
+                    ++j;
+                }
+            }
+        }
+    }
+    return ans == INT_MAX? 0: ans;
+ }
+```
+
+### 940. Distinct Subsequences II
+
+Given a string `S`, count the number of distinct, non-empty subsequences of `S` . Since the result may be large, **return the answer modulo 10^9 + 7**.
+
+Example:
+
+```
+Input: "abc"
+Output: 7 (["a", "b", "c", "ab", "ac", "bc", "abc"])
+```
+
+Solution: 用一个dp记录每个字符最后出现的位置，另一个dp算subsequence和，一定要理解和背
+
+```cpp
+int distinctSubseqII(string S) {
+    int n = S.length(); 
+    vector<int> last(26, -1); 
+    vector<long long> dp(n+1, 1);
+    int pos, mod = 1e9 + 7;
+    for (int i = 1; i <= n; ++i)  { 
+        pos = S[i-1] - 'a';
+        dp[i] = 2 * dp[i-1]; 
+        if (last[pos] != -1) dp[i] -= dp[last[pos]]; 
+        if (dp[i] < 0) dp[i] += mod;
+        dp[i] %= mod;
+        last[pos] = i-1; 
+    } 
+    return dp[n] - 1; 
+}
+```
+
+### 941. Valid Mountain Array
+
+Given an array `A` of integers, return `true` if and only if it is a *valid mountain array*.
+
+Recall that A is a mountain array if and only if `A.length >= 3` and there exists some ``0 < i < A.length - 1`` such that ``A[0] < A[1] < ... A[i-1] < A[i]`` and ``A[i] > A[i+1] > ... > A[B.length - 1]``.
+
+Example:
+
+```
+Input: [0,3,2,1]
+Output: true
+```
+
+Solution: 遍历一遍就好
+
+```cpp
+bool validMountainArray(vector<int>& A) {
+    int n = A.size();
+    if (n < 3) return false;
+    int i = 0;
+    while (i < n - 1 && A[i] < A[i+1]) ++i;
+    if (i == n - 1 || i == 0) return false;
+    while (i < n - 1 && A[i] > A[i+1]) ++i;
+    return i == n - 1;
+}
+```
+
+### 942. DI String Match
+
+Given a string `S` that **only** contains "I" (increase) or "D" (decrease), let `N = S.length`. Return **any** permutation `A` of `[0, 1, ..., N]` such that for all `i = 0, ..., N-1`:
+
+- If `S[i] == "I"`, then `A[i] < A[i+1]`
+- If `S[i] == "D"`, then `A[i] > A[i+1]`
+
+Example:
+
+```
+Input: "DDI"
+Output: [3,2,0,1]
+```
+
+Solution: 遍历一遍就好，十分巧妙，一定要背
+
+```cpp
+vector<int> diStringMatch(string S) {
+    int n = S.length();
+    int maxint = n, minint = 0;
+    vector<int> res;
+    for (int i = 0; i < n; ++i) {
+        if (S[i] == 'I') res.push_back(minint++);
+        else res.push_back(maxint--);
+    }
+    res.push_back(maxint);
+    return res;
+}
+```
+
+### 944. Delete Columns to Make Sorted
+
+We are given an array `A` of `N` lowercase letter strings, all of the same length. Now, we may choose any set of deletion indices, and for each string, we delete all the characters in those indices. Suppose we chose a set of deletion indices `D` such that after deletions, each remaining column in A is in **non-decreasing** sorted order. Return the minimum possible value of `D.length`.
+
+Example:
+
+```
+Input: ["cba","daf","ghi"]
+Output: 1 (D = {1}, remaining columns are ["c","d","g"] and ["a","f","i"])
+```
+
+Solution: 按列遍历即可
+
+```cpp
+int minDeletionSize(vector<string>& A) {
+    int res = 0;
+    for (int j = 0; j < A[0].size(); ++j) {
+        for (int i = 0; i < A.size() - 1; ++i) {
+            if (A[i][j] > A[i+1][j]) {
+                ++res;
+                break;
+            }
+        }
+    }
+    return res;
+}
+```
+
+### 947. Most Stones Removed with Same Row or Column
+
+On a 2D plane, we place stones at some integer coordinate points.  Each coordinate point may have at most one stone. A *move* consists of removing a stone that shares a column or row with another stone on the grid. What is the largest possible number of moves we can make?
+
+Example:
+
+```
+Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+Output: 5
+```
+
+Solution: 转化成并查集问题，一定要背
+
+```cpp
+int removeStones(vector<vector<int>>& stones) {
+    for (int i = 0; i < stones.size(); ++i)
+        uni(stones[i][0], ~stones[i][1]);
+    return stones.size() - islands;
+}
+
+unordered_map<int, int> f;
+int islands = 0;
+
+int find(int x) {
+    if (!f.count(x)) f[x] = x, ++islands;
+    if (x != f[x]) f[x] = find(f[x]);
+    return f[x];
+}
+
+void uni(int x, int y) {
+    x = find(x), y = find(y);
+    if (x != y) f[x] = y, islands--;
+}
+```
+
