@@ -1,4 +1,4 @@
-# LeetCode 901-950
+# LeetCode 901 - 950
 
 ### 901. Online Stock Span
 
@@ -1168,7 +1168,6 @@ int find(int x) {
 
 void uni(int x, int y) {
     x = find(x), y = find(y);
-    if (x != y) f[x] = y, islands--;
+    if (x != y) f[x] = y, --islands;
 }
 ```
-

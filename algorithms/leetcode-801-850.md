@@ -1,4 +1,4 @@
-# LeetCode 801-850
+# LeetCode 801 - 850
 
 ### 803. Bricks Falling When Hit
 
