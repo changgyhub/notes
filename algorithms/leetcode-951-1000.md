@@ -8,6 +8,13 @@ Example:
 
 ```
 Input: root1 = [1,2,3,4,5,6,null,null,null,7,8], root2 = [1,3,2,null,6,4,5,null,null,null,null,8,7]
+       1               1
+    /     \         /     \
+   2       3       3       2
+  / \     /         \     / \
+ 4   5   6           6   4   5
+    / \                     / \
+   7   8                   8   7
 Output: true
 ```
 
@@ -347,6 +354,9 @@ Example:
 
 ```
 Input: [1,0,2]
+    1
+   / \
+  0   2
 Output: 2
 ```
 
@@ -632,6 +642,11 @@ Example:
 
 ```
 Input: [3,9,20,null,null,15,7]
+      3
+     / \
+    9   20
+       /  \
+      15   7
 Output: [[9],[3,15],[20],[7]]
 ```
 
@@ -949,9 +964,8 @@ Solution: 先定位车，然后上下左右各遍历一遍即可
 
 ```cpp
 int cap(vector<vector<char>>& b, int x,int y, int dx, int dy) {
-    while(x >= 0 && x < b.size() && y >= 0 && y < b[x].size() && b[x][y] != 'B') {
-        if(b[x][y] == 'p')
-            return 1;
+    while (x >= 0 && x < b.size() && y >= 0 && y < b[x].size() && b[x][y] != 'B') {
+        if (b[x][y] == 'p') return 1;
         x += dx;
         y += dy;
     }    
@@ -959,16 +973,10 @@ int cap(vector<vector<char>>& b, int x,int y, int dx, int dy) {
 }
 
 int numRookCaptures(vector<vector<char>>& board) {
-    int i=0,j=0;
-    for(i=0;i<board.size();i++) {
-        for(j=0;j<board[i].size();j++) {
-            if(board[i][j] == 'R')
-                return cap(board, i,j, -1, 0) + 
-                cap(board, i,j, 0,-1) +
-                cap(board, i,j, 0,1) +
-                cap(board, i,j, 1, 0);
-        }
-    }
+    for (int i = 0; i < board.size(); ++i)
+        for (int j = 0; j < board[i].size(); ++j)
+            if (board[i][j] == 'R')
+                return cap(board, i, j, -1, 0) + cap(board, i, j, 0, -1) + cap(board, i, j, 0, 1) + cap(board, i, j, 1, 0);
     return 0;
 }
 ```
