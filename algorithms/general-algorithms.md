@@ -2,7 +2,7 @@
 description: '改编自https://github.com/CyC2018/Interview-Notebook'
 ---
 
-# General Algorithms
+# General Algorithms [Java Version]
 
 * 一、前言
 * 二、算法分析

@@ -2,7 +2,7 @@
 description: '改编自https://github.com/CyC2018/Interview-Notebook'
 ---
 
-# LeetCode Overview
+# LeetCode Overview [Java Version]
 
 * 算法思想
   * 贪心思想
