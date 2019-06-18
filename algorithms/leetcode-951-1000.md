@@ -145,6 +145,88 @@ int findmax(const vector<int>& A, int k) {
 }
 ```
 
+### 970. Powerful Integers
+
+Given two positive integers `x` and `y`, an integer is *powerful* if it is equal to `x^i + y^j` for some integers `i >= 0` and `j >= 0`. Return a list of all *powerful* integers that have value less than or equal to `bound`. You may return the answer in any order without duplicates.
+
+Example:
+
+```
+Input: x = 2, y = 3, bound = 10
+Output: [2,3,4,5,7,9,10] (
+    2 = 2^0 + 3^0
+    3 = 2^1 + 3^0
+    4 = 2^0 + 3^1
+    5 = 2^1 + 3^1
+    7 = 2^2 + 3^1
+    9 = 2^3 + 3^0
+    10 = 2^0 + 3^2
+)
+```
+
+Solution: 两个while loop即可，注意1的N次方还是1
+
+```cpp
+vector<int> powerfulIntegers(int x, int y, int bound) {
+    unordered_set<int> res_set;
+    int i = 0, j = 0, sum = pow(x, i) + pow(y, j);
+    while (sum <= bound) {
+        if (x == 1 && i == 1) break;
+        while (sum <= bound) {
+            if (y == 1 && j == 1) break;
+            res_set.insert(sum);
+            sum = pow(x, i) + pow(y, ++j);
+        }
+        j = 0, sum = pow(x, ++i) + pow(y, j);
+    }
+    return vector<int>(res_set.begin(), res_set.end());
+}
+```
+
+### 971. Flip Binary Tree To Match Preorder Traversal
+
+Given a binary tree with `N` nodes, each node has a different value from `{1, ..., N}`. A node in this binary tree can be *flipped* by swapping the left child and the right child of that node.
+
+Consider the sequence of `N` values reported by a preorder traversal starting from the root.  Call such a sequence of `N` values the *voyage* of the tree. Our goal is to flip the **least number** of nodes in the tree so that the voyage of the tree matches the `voyage` we are given.
+
+If we can do so, then return a list of the values of all nodes flipped.  You may return the answer in any order. If we cannot do so, then return the list `[-1]`.
+
+Example:
+
+```
+Input: root = [1,2,3], voyage = [1,3,2]
+  1
+ / \
+2   3
+Output: [1]
+```
+
+Solution: dfs，利用一个swap可以巧妙地只对root而不是voyage做操作，一定要背
+
+```cpp
+vector<int> flipMatchVoyage(TreeNode* root, vector<int>& voyage) {
+    if (!root) return vector<int>{-1};
+    vector<int> res;
+    int idx = 0;
+    traversal(root, voyage, res, idx);
+    return res;
+}
+void traversal(TreeNode* root, vector<int>& voyage, vector<int>& res, int& idx) {
+    if (root->val != voyage[idx]) {
+        res = {-1};
+        return;
+    }
+    if (root->left) {
+        if (voyage[idx+1] != root->left->val) {
+            res.push_back(root->val);
+            swap(root->left, root->right);
+        }
+        if (root->left) traversal(root->left, voyage, res, ++idx);
+    }
+    if (root->right) traversal(root->right, voyage, res, ++idx);
+}
+```
+
 ### 973. K Closest Points to Origin
 
 We have a list of `points` on the plane.  Find the `K` closest points to the origin `(0, 0)`. You may return in any order.
@@ -802,6 +884,30 @@ public:
 };
 ```
 
+### 991. Broken Calculator
+
+On a broken calculator that has a number showing on its display, we can perform two operations:
+
+- **Double**: Multiply the number on the display by 2, or;
+- **Decrement**: Subtract 1 from the number on the display.
+
+Initially, the calculator is displaying the number `X`. Return the minimum number of operations needed to display the number `Y`.
+
+Example:
+
+```
+Input: X = 5, Y = 8
+Output: 2 (5 -> 4 -> 8)
+```
+
+Solution: 数学题
+
+```cpp
+int brokenCalc(int X, int Y) {
+    return X >= Y? X - Y: Y % 2? 1 + brokenCalc(X, Y + 1): 1 + brokenCalc(X, Y / 2);
+}
+```
+
 ### 993. Cousins in Binary Tree
 
 In a binary tree, the root node is at depth `0`, and children of each depth `k` node are at depth `k+1`. Two nodes of a binary tree are *cousins* if they have the same depth, but have **different parents**. Given two values `x` and `y`, return if the nodes corresponding to the values `x` and `y` are cousins. No nodes share the same value.
@@ -933,6 +1039,51 @@ int findJudge(int N, vector<vector<int>>& trust) {
         if (!trust_someone[i] && trusted_cnt[i] == N-1) return i;
     }
     return -1;
+}
+```
+
+### 998. Maximum Binary Tree II
+
+We are given the `root` node of a *maximum tree:* a tree where every node has a value greater than any other value in its subtree. Just as in the [654. Maximum Binary Tree](https://leetcode.com/problems/maximum-binary-tree/), the given tree was constructed from an list `A` (`root = Construct(A)`) recursively with the following `Construct(A)` routine:
+
+- If `A` is empty, return `null`.
+- Otherwise, let `A[i]` be the largest element of `A`.  Create a `root` node with value `A[i]`.
+- The left child of `root` will be `Construct([A[0], A[1], ..., A[i-1]])`
+- The right child of `root` will be `Construct([A[i+1], A[i+2], ..., A[A.length - 1]])`
+- Return `root`.
+
+Note that we were not given A directly, only a root node `root = Construct(A)`. Suppose `B` is a copy of `A` with the value `val` appended to it.  It is guaranteed that `B` has unique values. Return `Construct(B)`.
+
+Example:
+
+```
+Input: root = [4,1,3,null,null,2], val = 5
+  4
+ / \
+1   3
+   /
+  2
+Output: [5,4,null,1,3,null,null,2]
+    5
+   /
+  4
+ / \
+1   3
+   /
+  2
+```
+
+Solution: dfs，注意细节
+
+```cpp
+TreeNode* insertIntoMaxTree(TreeNode* root, int val) {
+    if (!root || val > root->val) {
+        TreeNode* n = new TreeNode(val);
+        n->left = root;
+        return n;
+    }
+    root->right = insertIntoMaxTree(root->right, val);
+    return root;
 }
 ```
 
