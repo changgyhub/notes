@@ -4228,7 +4228,7 @@ Java 中的 **HashSet** 用于存储一个集合，可以查找元素是否在�
 
 Java 中的 **HashMap** 主要用于映射关系，从而把两个元素联系起来。
 
-在对一个内容进行压缩或者其它转换时，利用 HashMap 可以把原始内容和转换后的内容联系起来。例如在一个简化 url 的系统中[Leetcdoe : 535. Encode and Decode TinyURL \(Medium\)](https://leetcode.com/problems/encode-and-decode-tinyurl/description/)，利用 HashMap 就可以存储精简后的 url 到原始 url 的映射，使得不仅可以显示简化的 url，也可以根据简化的 url 得到原始 url 从而定位到正确的资源。
+在对一个内容进行压缩或者其它转换时，利用 HashMap 可以把原始内容和转换后的内容联系起来。例如在一个简化 url 的系统中 [535. Encode and Decode TinyURL \(Medium\)](https://leetcode.com/problems/encode-and-decode-tinyurl/description/)，利用 HashMap 就可以存储精简后的 url 到原始 url 的映射，使得不仅可以显示简化的 url，也可以根据简化的 url 得到原始 url 从而定位到正确的资源。
 
 HashMap 也可以用来对元素进行计数统计，此时键为元素，值为计数。和 HashSet 类似，如果元素有穷并且范围不大，可以用整型数组来进行统计。
 
@@ -5417,7 +5417,7 @@ public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
 
 **判断路径和是否等于一个数**
 
-[Leetcdoe : 112. Path Sum \(Easy\)](https://leetcode.com/problems/path-sum/description/)
+[112. Path Sum \(Easy\)](https://leetcode.com/problems/path-sum/description/)
 
 ```markup
 Given the below binary tree and sum = 22,
