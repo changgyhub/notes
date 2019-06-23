@@ -352,6 +352,27 @@ public:
 };
 ```
 
+### 912. Sort an Array
+
+Given an array of integers `nums`, sort the array in ascending order.
+
+Example:
+
+```
+Input: [5,2,3,1]
+Output: [1,2,3,5]
+```
+
+Solution: 原题可能想着可以用桶排序解决小整数，但实际上直接排序即可
+
+```cpp
+vector<int> sortArray(vector<int>& nums) {
+    vector<int> ret(nums);
+    sort(ret.begin(), ret.end());
+    return ret;
+}
+```
+
 ### 914. X of a Kind in a Deck of Cards
 
 In a deck of cards, each card has an integer written on it.
@@ -511,6 +532,58 @@ int maxSubarraySumCircular(vector<int>& A) {
     }
     return max_subsum > 0 ? max(max_subsum, total - min_subsum) : max_subsum;
 }
+```
+
+### 919. Complete Binary Tree Inserter
+
+A *complete* binary tree is a binary tree in which every level, except possibly the last, is completely filled, and all nodes are as far left as possible.
+
+Write a data structure `CBTInserter` that is initialized with a complete binary tree and supports the following operations:
+
+- `CBTInserter(TreeNode root)` initializes the data structure on a given tree with head node `root`;
+- `CBTInserter.insert(int v)` will insert a `TreeNode` into the tree with value `node.val = v` so that the tree remains complete, **and returns the value of the parent of the inserted TreeNode**;
+- `CBTInserter.get_root()` will return the head node of the tree.
+
+Example:
+
+```
+Input: inputs = ["CBTInserter","insert","insert","get_root"], inputs = [[[1,2,3,4,5,6]],[7],[8],[]]
+Output: [null,3,4,[1,2,3,4,5,6,7,8]]
+```
+
+Solution: 相比于用node的奇偶来遍历，不如直接把node存在一个vector里，每次找好父亲位置直接push_back，一定要背
+
+```cpp
+class CBTInserter {
+private:
+    vector<TreeNode*> trees = {NULL};
+public:
+    CBTInserter(TreeNode* root) {
+        if (!root) return;
+        queue<TreeNode*> q;
+        q.push(root);
+        while (!q.empty()) {
+            auto node = q.front();
+            q.pop();
+            trees.push_back(node);
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+    }
+    
+    int insert(int v) {
+        int id = trees.size(), parent = id / 2;
+        TreeNode* node = new TreeNode(v);
+        trees.push_back(node);
+        if (id % 2 == 0) trees[parent]->left = node;
+        else trees[parent]->right = node;
+        return trees[parent]->val;
+    }
+    
+    TreeNode* get_root() {
+        return trees[1];
+    }
+};
 ```
 
 ### 921. Minimum Add to Make Parentheses Valid
@@ -776,6 +849,32 @@ int minFallingPathSum(vector<vector<int>>& A) {
     }
     for (auto i: dp[m-1]) sum = min(sum, i);
     return sum;
+}
+```
+
+### 932. Beautiful Array
+
+For some fixed `N`, an array `A` is *beautiful* if it is a permutation of the integers `1, 2, ..., N`, such that for every `i < j`, there is **no** `k` with `i < k < j` such that `A[k] * 2 = A[i] + A[j]`. Given `N`, return **any** beautiful array `A`. It is guaranteed that one exists.
+
+Example:
+
+```
+Input: 5
+Output: [3,1,2,5,4]
+```
+
+Solution: 数学题
+
+```cpp
+vector<int> beautifulArray(int N) {
+    vector<int> res{1};
+    while (res.size() < N) {
+        vector<int> tmp;
+        for (int & i: res) if (i * 2 - 1 <= N) tmp.push_back(i * 2 - 1);
+        for (int & i: res) if (i * 2 <= N) tmp.push_back(i * 2);
+        res.swap(tmp);
+    }
+    return res;
 }
 ```
 
@@ -1137,6 +1236,58 @@ int minDeletionSize(vector<string>& A) {
 }
 ```
 
+### 945. Minimum Increment to Make Array Unique
+
+Given an array of integers A, a *move* consists of choosing any `A[i]`, and incrementing it by `1`. Return the least number of moves to make every value in `A` unique.
+
+Example:
+
+```
+Input: [3,2,1,2,1,7]
+Output: 6 (After 6 moves, the array could be [3, 4, 1, 2, 5, 7])
+```
+
+Example: 排序后遍历一遍，处理十分巧妙，一定要背
+
+```cpp
+int minIncrementForUnique(vector<int>& A, int res = 0) {
+    sort(A.begin(), A.end());
+    for (int i = 1; i < A.size(); ++i) {
+        res += max(0, A[i-1] - A[i] + 1);
+        A[i] += max(0, A[i-1] - A[i] + 1);
+    }
+    return res;
+}
+```
+
+### 946. Validate Stack Sequences
+
+Given two sequences `pushed` and `popped` **with distinct values **and same length, return `true` if and only if this could have been the result of a sequence of push and pop operations on an initially empty stack. 
+
+Example:
+
+```
+Input: pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+Output: true
+```
+
+Solution: stack + 贪心
+
+```cpp
+bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
+    int count = 0;
+    stack<int> st;
+    for (const int & i: pushed) {
+        st.push(i);
+        while (!st.empty() && st.top() == popped[count]) {
+            st.pop();
+            ++count;
+        }
+    }
+    return st.empty();
+}
+```
+
 ### 947. Most Stones Removed with Same Row or Column
 
 On a 2D plane, we place stones at some integer coordinate points.  Each coordinate point may have at most one stone. A *move* consists of removing a stone that shares a column or row with another stone on the grid. What is the largest possible number of moves we can make?
@@ -1169,5 +1320,113 @@ int find(int x) {
 void uni(int x, int y) {
     x = find(x), y = find(y);
     if (x != y) f[x] = y, --islands;
+}
+```
+
+### 948. Bag of Tokens
+
+You have an initial power `P`, an initial score of `0` points, and a bag of tokens. Each token can be used at most once, has a value `token[i]`, and has potentially two ways to use it.
+
+- If we have at least `token[i]` power, we may play the token face up, losing `token[i]` power, and gaining `1` point.
+- If we have at least `1` point, we may play the token face down, gaining `token[i]` power, and losing `1` point.
+
+Return the largest number of points we can have after playing any number of tokens.
+
+Example:
+
+```
+Input: tokens = [100,200,300,400], P = 200
+Output: 2
+```
+
+Solution: 双指针
+
+```cpp
+int bagOfTokensScore(vector<int>& tokens, int P) {
+    int current_point = 0, max_point = 0, i = 0, j = tokens.size() - 1;
+    sort(tokens.begin(), tokens.end());
+    while (i <= j && current_point >= 0) {
+        if (tokens[i] <= P) {
+            P -= tokens[i++];
+            max_point = max(max_point, ++current_point);
+        } else {
+            P += tokens[j--];
+            --current_point;
+        }
+    }
+    return max_point;
+}
+```
+
+### 949. Largest Time for Given Digits
+
+Given an array of 4 digits, return the largest 24 hour time that can be made. If no valid time can be made, return an empty string.
+
+Example:
+
+```
+Input: [1,2,3,4]
+Output: "23:41"
+```
+
+Solution: next permutation
+
+```cpp
+string largestTimeFromDigits(vector<int>& A) {
+    string res = "";
+    sort(A.begin(), A.end());
+    do {
+        if((A[0] == 2 && A[1] <= 3 || A[0] < 2) && A[2] <= 5) {
+            string temp = to_string(A[0]) + to_string(A[1]) + ":" + to_string(A[2]) + to_string(A[3]);
+            if (temp > res) res = temp;
+        }       
+    } while (next_permutation(A.begin(), A.end()));
+    return res;
+}
+```
+
+### 950. Reveal Cards In Increasing Order
+
+In a deck of cards, every card has a unique integer.  You can order the deck in any order you want.
+
+Initially, all the cards start face down (unrevealed) in one deck. Now, you do the following steps repeatedly, until all cards are revealed:
+
+1. Take the top card of the deck, reveal it, and take it out of the deck.
+2. If there are still cards in the deck, put the next top card of the deck at the bottom of the deck.
+3. If there are still unrevealed cards, go back to step 1.  Otherwise, stop.
+
+Return an ordering of the deck that would reveal the cards in **increasing order.** The first entry in the answer is considered to be the top of the deck.
+
+Example:
+
+```
+Input: [17,13,11,2,3,5,7]
+Output: [2,13,3,11,5,17,7] (We get the deck in the order [17,13,11,2,3,5,7] and reorder it to  [2,13,3,11,5,17,7], where 2 is the top of the deck.
+We reveal 2, and move 13 to the bottom.  The deck is now [3,11,5,17,7,13].
+We reveal 3, and move 11 to the bottom.  The deck is now [5,17,7,13,11].
+We reveal 5, and move 17 to the bottom.  The deck is now [7,13,11,17].
+We reveal 7, and move 13 to the bottom.  The deck is now [11,17,13].
+We reveal 11, and move 17 to the bottom.  The deck is now [13,17].
+We reveal 13, and move 17 to the bottom.  The deck is now [17].
+We reveal 17.
+Since all the cards revealed are in increasing order, the answer is correct.)
+```
+
+Solution: 倒着处理一遍即可，因为涉及到前后端操作，用deque最方便
+
+```cpp
+vector<int> deckRevealedIncreasing(vector<int>& deck) {
+    deque<int> dq;
+    vector<int> sorted(deck);
+    sort(sorted.begin(), sorted.end(), greater<int>());
+    for (const int& i: sorted) {
+        if (dq.empty()) dq.push_back(i);
+        else {
+            dq.push_front(dq.back());
+            dq.pop_back();
+            dq.push_front(i);
+        }
+    }
+    return vector<int>(dq.begin(), dq.end());
 }
 ```

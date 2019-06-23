@@ -29,6 +29,321 @@ bool flipEquiv(TreeNode* root1, TreeNode* root2) {
 }
 ```
 
+### 953. Verifying an Alien Dictionary
+
+In an alien language, surprisingly they also use english lowercase letters, but possibly in a different `order`. The `order` of the alphabet is some permutation of lowercase letters.
+
+Given a sequence of `words` written in the alien language, and the `order` of the alphabet, return `true` if and only if the given `words` are sorted lexicographicaly in this alien language.
+
+Example:
+
+```
+Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
+Output: true
+```
+
+Solution: hashing
+
+```cpp
+bool isAlienSorted(vector<string>& words, string order) {
+    unordered_map<char, int> hash;
+    for (int i = 0; i < order.length(); ++i) hash[order[i]] = i;
+    for (int i = 0; i < words.size() - 1; ++i) {
+        int n = words[i].length(), m = words[i+1].length(), j = 0;
+        while (j < n && j < m) {
+            if (hash[words[i][j]] < hash[words[i+1][j]]) break;
+            if (hash[words[i][j]] > hash[words[i+1][j]]) return false;
+            ++j;
+        }
+        if (j == m && n > m) return false;
+    }
+    return true;
+}
+```
+
+### 954. Array of Doubled Pairs
+
+Given an array of integers `A` with even length, return `true` if and only if it is possible to reorder it such that `A[2 * i + 1] = 2 * A[2 * i]` for every `0 <= i < len(A) / 2`.
+
+Example:
+
+```
+Input: [4,-2,2,-4]
+Output: true
+```
+
+Solution: 分正负，mapping部分可以用排序+hashing，也可以直接用treemap
+
+```cpp
+bool canReorderDoubled(vector<int>& A) {
+    map<int, int> positives, negatives;
+    for (int & a: A) {
+        if (a >= 0) ++positives[a];
+        else ++negatives[-a];
+    }
+    while (!positives.empty()) {
+        int even = positives.rbegin()->first, odd = even / 2;
+        if (even % 2 || !positives.count(odd)) return false;
+        --positives[even], --positives[odd];
+        if (!positives[even]) positives.erase(even);
+        if (!positives[odd]) positives.erase(odd);
+    }
+    while (!negatives.empty()) {
+        int even = negatives.rbegin()->first, odd = even / 2;
+        if (even % 2 || !negatives.count(odd)) return false;
+        --negatives[even], --negatives[odd];
+        if (!negatives[even]) negatives.erase(even);
+        if (!negatives[odd]) negatives.erase(odd);
+    }
+    return true;
+}
+```
+
+### 955. Delete Columns to Make Sorted II
+
+We are given an array `A` of `N` lowercase letter strings, all of the same length. Now, we may choose any set of deletion indices, and for each string, we delete all the characters in those indices. Suppose we chose a set of deletion indices `D` such that after deletions, the final array has its elements in **lexicographic** order (`A[0] <= A[1] <= A[2] ... <= A[A.length - 1]`). Return the minimum possible value of `D.length`.
+
+Example:
+
+```
+Input: ["zyx","wvu","tsr"]
+Output: 3 (We have to delete every column)
+```
+
+Solution: 逐列比较，需要注意的是要维持一个boolean array记录当前有哪些行是严格递增关系（即后面的顺序不重要），一定要背
+
+```cpp
+int minDeletionSize(vector<string>& A) {
+    int res = 0, n = A.size(), m = A[0].length(), i, j;
+    vector<bool> sorted(n - 1, false);
+    for (j = 0; j < m; ++j) {
+        for (i = 0; i < n - 1; ++i) {
+            if (!sorted[i] && A[i][j] > A[i+1][j]) {
+                ++res;
+                break;
+            }
+        }
+        if (i < n - 1) continue;
+        for (i = 0; i < n - 1; ++i) {
+            if (A[i][j] < A[i+1][j]) {
+                sorted[i] = true;
+            }
+        }
+    }
+    return res;
+}
+```
+
+### 957. Prison Cells After N Days
+
+There are 8 prison cells in a row, and each cell is either occupied or vacant. Each day, whether the cell is occupied or vacant changes according to the following rules:
+
+- If a cell has two adjacent neighbors that are both occupied or both vacant, then the cell becomes occupied.
+- Otherwise, it becomes vacant.
+
+We describe the current state of the prison in the following way: `cells[i] == 1` if the `i`-th cell is occupied, else `cells[i] == 0`. Given the initial state of the prison, return the state of the prison after `N` days.
+
+Example:
+
+```
+Input: cells = [0,1,0,1,1,0,0,1], N = 7
+Output: [0,0,1,1,0,0,0,0] (
+Day 0: [0, 1, 0, 1, 1, 0, 0, 1]
+Day 1: [0, 1, 1, 0, 0, 0, 0, 0]
+Day 2: [0, 0, 0, 0, 1, 1, 1, 0]
+Day 3: [0, 1, 1, 0, 0, 1, 0, 0]
+Day 4: [0, 0, 0, 0, 0, 1, 0, 0]
+Day 5: [0, 1, 1, 1, 0, 1, 0, 0]
+Day 6: [0, 0, 1, 0, 1, 1, 0, 0]
+Day 7: [0, 0, 1, 1, 0, 0, 0, 0])
+```
+
+Solution: brute force，可以记录第一次的情况，如果遇到重复可以mod加速
+
+```cpp
+vector<int> prisonAfterNDays(vector<int>& cells, int N) {
+    int n = cells.size(), cycle = 0;
+    vector<int> cur(n, 0), shortcut;
+    while (N-- > 0) {
+        for (int i = 1; i < n - 1; ++i) cur[i] = cells[i-1] == cells[i+1];
+        if (shortcut.empty()) shortcut = cur;
+        else if (shortcut == cur) N %= cycle;
+        ++cycle;
+        cells = cur;
+    }
+    return cur;
+}
+```
+
+### 958. Check Completeness of a Binary Tree
+
+Given a binary tree, determine if it is a *complete binary tree*.
+
+Example:
+
+```
+Input: [1,2,3,4,5,6]
+     1
+   /   \
+  2     3
+ / \   /
+4   5 6
+Output: true
+```
+
+Solution: bfs
+
+```cpp
+bool isCompleteTree(TreeNode* root) {
+    vector<TreeNode*> bfs;
+    bfs.push_back(root);
+    int i = 0;
+    while (i < bfs.size() && bfs[i]) {
+        if (!bfs[i]->left && bfs[i]->right) return false;
+        bfs.push_back(bfs[i]->left);
+        bfs.push_back(bfs[i]->right);
+        ++i;
+    }
+    while (i < bfs.size() && !bfs[i]) ++i;
+    return i == bfs.size();
+}
+```
+
+### 959. Regions Cut By Slashes
+
+In a N x N `grid` composed of 1 x 1 squares, each 1 x 1 square consists of a `/`, `\`, or blank space.  These characters divide the square into contiguous regions. (Note that backslash characters are escaped, so a `\` is represented as `"\\"`.) Return the number of regions.
+
+Example:
+
+![](../.gitbook/assets3/region_cut.png)
+
+```
+Input: [
+  "//",
+  "/ "
+]
+Output: 3
+```
+
+Solution: union and find，对于每个pixel，分成如下图的四部分，上1右2下3左4，用并查集表示每个部分是否相连，最后判断多少个集合即可
+
+![](../.gitbook/assets3/region_full.png)
+
+```cpp
+int count, n;
+vector<int> f;
+int regionsBySlashes(vector<string>& grid) {
+    n = grid.size();
+    count = n * n * 4;
+    for (int i = 0; i < n * n * 4; ++i) f.push_back(i);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (i > 0) uni(g(i - 1, j, 2), g(i, j, 0));
+            if (j > 0) uni(g(i, j - 1, 1), g(i ,j, 3));
+            if (grid[i][j] != '/') {
+                uni(g(i, j, 0), g(i, j, 1));
+                uni(g(i, j, 2), g(i, j, 3));
+            }
+            if (grid[i][j] != '\\') {
+                uni(g(i, j, 0), g(i, j, 3));
+                uni(g(i, j, 2), g(i, j, 1));
+            }
+        }
+    }
+    return count;
+}
+
+int find(int x) {
+    return x != f[x]? f[x] = find(f[x]): f[x];
+}
+void uni(int x, int y) {
+    x = find(x), y = find(y);
+    if (x != y) {
+        f[x] = y;
+        --count;
+    }
+}
+int g(int i, int j, int k) {
+    return (i * n + j) * 4 + k;
+}
+```
+
+### 961. N-Repeated Element in Size 2N Array
+
+In a array `A` of size `2N`, there are `N+1` unique elements, and exactly one of these elements is repeated N times. Return the element repeated `N` times.
+
+Example:
+
+```
+Input: [5,1,5,2,5,3,5,4]
+Output: 5
+```
+
+Solution: 用随机来实现O(1)，一定要背
+
+```cpp
+int repeatedNTimes(vector<int>& A) {
+    int i = 0, j = 0, n = A.size();
+    while (i == j || A[i] != A[j]) i = rand() % n, j = rand() % n;
+    return A[i];
+}
+```
+
+### 962. Maximum Width Ramp
+
+Given an array `A` of integers, a *ramp* is a tuple `(i, j)` for which `i < j` and `A[i] <= A[j]`.  The width of such a ramp is `j - i`. Find the maximum width of a ramp in `A`.  If one doesn't exist, return 0.
+
+Example:
+
+```
+Input: [6,0,8,2,1,5]
+Output: 4 (The maximum width ramp is achieved at (i, j) = (1, 5): A[1] = 0 and A[5] = 5)
+```
+
+Solution: 做一个从左到右最小值和从右到左最大值的前缀和，然后双指针，一定要背
+
+```cpp
+int maxWidthRamp(vector<int>& A) {
+    if (A.empty()) return 0;
+    int n = A.size();
+    vector<int> leftMin(n), rightMax(n);
+
+    leftMin[0] = A[0];
+    for (int i = 1; i < n; ++i) leftMin[i] = min(A[i], leftMin[i-1]);
+    rightMax[n-1] = A[n-1];
+    for (int i = n - 2; i >= 0; --i) rightMax[i] = max(A[i], rightMax[i+1]);
+
+    int i = 0, j = 1, ans = 0;
+    while (i < n && j < n) {
+        if (leftMin[i] <= rightMax[j]) ans = max(ans, j++ - i);
+        else i++;
+    }
+    return ans;
+}
+```
+
+### 965. Univalued Binary Tree
+
+A binary tree is *univalued* if every node in the tree has the same value. Return `true` if and only if the given tree is univalued.
+
+Example:
+
+```
+Input: [1,1,1,1,1,null,1]
+Output: true
+```
+
+Solution: dfs
+
+```cpp
+bool isUnivalTree(TreeNode* root) {
+    if (!root) return true;
+    if (root->left && (!isUnivalTree(root->left) || root->val != root->left->val)) return false;
+    if (root->right && (!isUnivalTree(root->right) || root->val != root->right->val)) return false;
+    return true;
+}
+```
+
 ### 967. Numbers With Same Consecutive Differences
 
 Return all **non-negative** integers of length `N` such that the absolute difference between every two consecutive digits is `K`. Note that **every** number in the answer **must not** have leading zeros **except** for the number `0` itself. You may return the answer in any order.
