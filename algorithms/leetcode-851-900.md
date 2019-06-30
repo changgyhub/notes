@@ -77,6 +77,94 @@ TreeNode* subtreeWithAllDeepest(TreeNode* root) {
 }
 ```
 
+### 870. Advantage Shuffle
+
+Given two arrays `A` and `B` of equal size, the *advantage of Awith respect to B* is the number of indices `i` for which `A[i] > B[i]`. Return **any** permutation of `A` that maximizes its advantage with respect to `B`.
+
+Example:
+
+```
+Input: A = [2,7,11,15], B = [1,10,4,11]
+Output: [2,11,7,15]
+```
+
+Solution: multiset + upper bound，一定要背
+
+```cpp
+vector<int> advantageCount(vector<int>& A, vector<int>& B) {
+    multiset<int> s(A.begin(), A.end());
+    vector<int> res;
+    for (int i = 0; i < B.size(); ++i) {
+        auto p = *s.rbegin() <= B[i] ? s.begin() : s.upper_bound(B[i]);
+        res.push_back(*p);
+        s.erase(p);
+    }
+    return res;
+}
+```
+
+### 873. Length of Longest Fibonacci Subsequence
+
+A sequence `X_1, X_2, ..., X_n` is *fibonacci-like* if: `n >= 3` and `X_i + X_{i+1} = X_{i+2}` for all `i + 2 <= n`
+
+Given a **strictly increasing** array `A` of positive integers forming a sequence, find the **length** of the longest fibonacci-like subsequence of `A`.  If one does not exist, return 0.
+
+Example:
+
+```
+Input: [1,3,7,11,12,14,18]
+Output: 3 ([1,11,12], [3,11,14] or [7,11,18])
+```
+
+Solution: dp，一定要背
+
+```cpp
+int lenLongestFibSubseq(vector<int>& A) {
+    unordered_map<int, int> pos;
+    int n = A.size(), res = 0;
+    vector<vector<int>> dp(n, vector<int>(n));
+    for (int j = 0; j < n; ++j) {
+        pos[A[j]] = j;
+        for (int i = 0; i < j; ++i) {
+            int k = pos.count(A[j] - A[i])? pos[A[j] - A[i]]: -1;
+            dp[i][j] = A[j] - A[i] < A[i] && k >= 0? dp[k][i] + 1: 2;
+            res = max(res, dp[i][j]);
+        }
+    }
+    return res > 2? res: 0;
+}
+```
+
+### 875. Koko Eating Bananas
+
+Koko loves to eat bananas.  There are `N` piles of bananas, the `i`-th pile has `piles[i]` bananas.  The guards have gone and will come back in `H` hours.
+
+Koko can decide her bananas-per-hour eating speed of `K`.  Each hour, she chooses some pile of bananas, and eats K bananas from that pile.  If the pile has less than `K` bananas, she eats all of them instead, and won't eat any more bananas during this hour. Koko likes to eat slowly, but still wants to finish eating all the bananas before the guards come back.
+
+Return the minimum integer `K` such that she can eat all the bananas within `H` hours.
+
+Example:
+
+```
+Input: piles = [3,6,7,11], H = 8
+Output: 4
+```
+
+Solution: 二分
+
+```cpp
+int minEatingSpeed(vector<int>& piles, int H) {
+    int l = 1, r = INT_MAX - 1, m, total;
+    while (l < r) {
+        m = (l + r) / 2, total = 0;
+        for (int & p : piles) total += (p + m - 1) / m;
+        if (total > H) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
+```
+
 ### 876. Middle of the Linked List
 
 Given a non-empty, singly linked list with head node `head`, return a middle node of linked list. If there are two middle nodes, return the second middle node.
@@ -91,6 +179,58 @@ ListNode* middleNode(ListNode* head) {
         slow = slow->next;
     }
     return fast->next? slow->next: slow;
+}
+```
+
+### 877. Stone Game
+
+Alex and Lee play a game with piles of stones.  There are an even number of piles **arranged in a row**, and each pile has a positive integer number of stones `piles[i]`.
+
+The objective of the game is to end with the most stones.  The total number of stones is odd, so there are no ties.
+
+Alex and Lee take turns, with Alex starting first.  Each turn, a player takes the entire pile of stones from either the beginning or the end of the row.  This continues until there are no more piles left, at which point the person with the most stones wins.
+
+Assuming Alex and Lee play optimally, return `True` if and only if Alex wins the game.
+
+Example:
+
+```
+Input: [5,3,4,5]
+Output: true (Alex starts first, and can only take the first 5 or the last 5.
+Say he takes the first 5, so that the row becomes [3, 4, 5].
+If Lee takes 3, then the board is [4, 5], and Alex takes 5 to win with 10 points.
+If Lee takes the last 5, then the board is [3, 4], and Alex takes 4 to win with 9 points.
+This demonstrated that taking the first 5 was a winning move for Alex, so we return true.)
+```
+
+Solution: 二人有限的、偶数次、确定的完全信息游戏，先手必胜
+
+```cpp
+bool stoneGame(vector<int>& piles) {
+    return true;
+}
+```
+
+### 881. Boats to Save People
+
+The `i`-th person has weight `people[i]`, and each boat can carry a maximum weight of `limit`. Each boat carries at most 2 people at the same time, provided the sum of the weight of those people is at most `limit`. Return the minimum number of boats to carry every given person.
+
+Example:
+
+```
+Input: people = [3,2,2,1], limit = 3
+Output: 3 ([[1, 2], [2], [3])
+```
+
+Solution: sort + 双指针
+
+```cpp
+int numRescueBoats(vector<int>& people, int limit, int boats = 0) {
+    sort(people.begin(), people.end());
+    for (int i = 0, j = people.size() - 1; i <= j; ++boats, --j) {
+        if (people[i] + people[j] <= limit) ++i;
+    }
+    return boats;
 }
 ```
 
