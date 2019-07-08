@@ -343,19 +343,18 @@ Input: 10
 Output: false
 ```
 
-Solution: 可以边算边比，不用加完了再比（数越大，这种方法的优势越明显；小一点的数可以直接revert再比较）。如果不放心可以用long。
+Solution: 分成一半来比
 
 ```cpp
 bool isPalindrome(int x) {
-    if (x < 0) return false;
-    int base = pow(10, floor(log10(x)));
-    while (base > 0) {
-        if (x % 10 != x / base) return false;
-        x %= base;
+    if (x == 0) return true;
+    if (x < 0 || x % 10 == 0) return false;
+    int right = 0;
+    while (x > right) {
+        right = right * 10 + x % 10;
         x /= 10;
-        base /= 100;
     }
-    return true;
+    return x == right || x == right / 10;
 }
 ```
 
