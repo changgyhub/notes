@@ -12,8 +12,8 @@
 
 1. 有时直接双指针或者stack也很快：stack可以用vector来写，很多贪心、特殊字符匹配等题目都可以用stack
 2. 需要中间比两边大或小的题，可以正反各遍历一次
-3. 可以用BFS/DFS的可能也可以DP
-4. 递归一般都可用vector/loop替代
+3. DFS+Memoization基本等价DP，需要个数的时候用DP，需要输出的时候用DFS/backtracking
+4. Backtracking修改一般有两种情况，一种是修改最后一位输出，比如排列组合；一种是修改visited，比如矩阵里搜字符串
 5. 记录重复，可以换用set储存再转成要求的形式，可以加flag，也可以开一个bool数组，实在不行就排序删重。
 6. 水漫dfs时注意防止重复遍历，要么隐藏式加判断条件，要么开一个visited
 7. set的实现是红黑树，可以用来做快速insert、delete
