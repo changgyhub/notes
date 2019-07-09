@@ -689,14 +689,14 @@ Solution: 递归、while loop或者bfs; 除了要把当前node的left的next连�
 ```cpp
 // recursive
 void connect(TreeLinkNode *root) {
-        if (!root) return;
-        if (root->left) {
-            root->left->next = root->right;
-            if (root->next) root->right->next = root->next->left;
-        }
-        connect(root->left);
-        connect(root->right);
+    if (!root) return;
+    if (root->left) {
+        root->left->next = root->right;
+        if (root->next) root->right->next = root->next->left;
     }
+    connect(root->left);
+    connect(root->right);
+}
 
 // while loop
 void connect(TreeLinkNode *root) {
@@ -1627,7 +1627,7 @@ Given a linked list, return the node where the cycle begins. If there is no cycl
 Solution: 快慢指针判圈法
 
 ```cpp
-```cpp
+​```cpp
 ListNode *detectCycle(ListNode *head) {
     ListNode *slow = head, *fast = head;
     do {
@@ -1811,7 +1811,7 @@ cache.get(3);       // returns 3
 cache.get(4);       // returns 4
 ```
 
-Solution: hashmap&gt;::iterator&gt; + list&gt;。存iterator的原因是方便调用list的splice函数来直接更新cash hit的pair。一定要背
+Solution: hashmap<int, list<pair<int, int>>::iterator> + list<pair<int, int>>。存iterator的原因是方便调用list的splice函数来直接更新cash hit的pair。一定要背
 
 ```cpp
 class LRUCache{  
