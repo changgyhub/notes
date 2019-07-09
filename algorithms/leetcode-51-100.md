@@ -1532,10 +1532,10 @@ vector<vector<int>> subsetsWithDup(vector<int>& nums) {
 void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int begin) {
     res.push_back(t);
     for (int i = begin; i < nums.size(); i++) {
+        if (i != begin && nums[i] == nums[i-1]) continue; // new in Q90
         t.push_back(nums[i]);
         helper(nums, res, t, i+1);
         t.pop_back();
-        while (i < nums.size() - 1 && nums[i] == nums[i+1]) ++i; // new in Q90
     }   
 }
 
