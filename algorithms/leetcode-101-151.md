@@ -689,14 +689,14 @@ Solution: 递归、while loop或者bfs; 除了要把当前node的left的next连�
 ```cpp
 // recursive
 void connect(TreeLinkNode *root) {
-        if (!root) return;
-        if (root->left) {
-            root->left->next = root->right;
-            if (root->next) root->right->next = root->next->left;
-        }
-        connect(root->left);
-        connect(root->right);
+    if (!root) return;
+    if (root->left) {
+        root->left->next = root->right;
+        if (root->next) root->right->next = root->next->left;
     }
+    connect(root->left);
+    connect(root->right);
+}
 
 // while loop
 void connect(TreeLinkNode *root) {
@@ -1627,7 +1627,7 @@ Given a linked list, return the node where the cycle begins. If there is no cycl
 Solution: 快慢指针判圈法
 
 ```cpp
-```cpp
+​```cpp
 ListNode *detectCycle(ListNode *head) {
     ListNode *slow = head, *fast = head;
     do {
