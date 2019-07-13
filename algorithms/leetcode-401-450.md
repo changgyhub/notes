@@ -585,7 +585,7 @@ Output: 2 ([[1,0],[0,0],[2,0]] and [[1,0],[2,0],[0,0]])
 
 Solution: 按距离做hashmap，然后计算排列可能，一定要好好理解
 
-```
+```cpp
 int numberOfBoomerangs(vector<pair<int, int>>& points) {
     int res = 0;
     for (int i = 0; i < points.size(); ++i) {
