@@ -56,9 +56,9 @@ Where does the qualitative specification come from? Examples:
 
 ### 2.6 Familiar Models as Bayes Nets
 
-Bernoulli Naïve Bayes \(one $$y$$ to M $$x$$\): $$p(\bm{x}, y) = p(y) \prod_{i=1}^M p(x_i|y)$$
+Bernoulli Naïve Bayes \(one $$y$$ to M $$x$$\): $$p(\boldsymbol{x}, y) = p(y) \prod_{i=1}^M p(x_i|y)$$
 
-Logistic Regression \(M $$x$$ to one $$y$$\): $$p(\bm{x}, y) = p(y|\bm{x})\prod_{i=1}^M p(x)$$, where $$p(y|\bm{x})$$ is LR result
+Logistic Regression \(M $$x$$ to one $$y$$\): $$p(\boldsymbol{x}, y) = p(y|\boldsymbol{x})\prod_{i=1}^M p(x)$$, where $$p(y|\boldsymbol{x})$$ is LR result
 
 1D Gaussian \($$\mu, \sigma^2$$ to $$x$$\): $$p(x, \mu, \sigma^2) = p(\mu)p(\sigma^2)p(x|\mu, \sigma^2)$$
 

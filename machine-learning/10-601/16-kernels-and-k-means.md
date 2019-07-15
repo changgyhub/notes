@@ -102,18 +102,18 @@ Useful for
 
 Coordinate Descent:
 
-1. Goal: Minimize a $$\mathcal{J}(\bm{\Theta})$$, $$\hat{\bm{\Theta}} = \arg \min_{\bm{\Theta}} \mathcal{J}(\bm{\Theta})$$
-2. Algorithm: Pick one dimension $$\Theta_i$$ of $$\bm{\Theta}$$, and minimize along that dimension
+1. Goal: Minimize a $$\mathcal{J}(\boldsymbol{\Theta})$$, $$\hat{\boldsymbol{\Theta}} = \arg \min_{\boldsymbol{\Theta}} \mathcal{J}(\boldsymbol{\Theta})$$
+2. Algorithm: Pick one dimension $$\Theta_i$$ of $$\boldsymbol{\Theta}$$, and minimize along that dimension
 
 Block Coordinate Descent:
 
-1. Goal: Minimize a $$\mathcal{J}(\bm{\alpha}, \bm{\beta})$$, $$\hat{\bm{\alpha}}, \hat{\bm{\beta}} = \arg \min_{\bm{\alpha}, \bm{\beta} } \mathcal{J}(\bm{\alpha}, \bm{\beta})$$
+1. Goal: Minimize a $$\mathcal{J}(\boldsymbol{\alpha}, \boldsymbol{\beta})$$, $$\hat{\boldsymbol{\alpha}}, \hat{\boldsymbol{\beta}} = \arg \min_{\boldsymbol{\alpha}, \boldsymbol{\beta} } \mathcal{J}(\boldsymbol{\alpha}, \boldsymbol{\beta})$$
 2. Idea: Minimize over entire group of parameters
 3. Algorithm:
-   1. Initialize $$\bm{\alpha}$$ and $$\bm{\beta}$$
+   1. Initialize $$\boldsymbol{\alpha}$$ and $$\boldsymbol{\beta}$$
    2. Repeat until stopping criterion satisfied
-      1. $$\bm{\alpha} = \arg \min_{\bm{\alpha}} \mathcal{J}(\bm{\alpha}, \bm{\beta})$$
-      2. $$\bm{\beta} = \arg \min_{\bm{\beta}} \mathcal{J}(\bm{\alpha}, \bm{\beta})$$
+      1. $$\boldsymbol{\alpha} = \arg \min_{\boldsymbol{\alpha}} \mathcal{J}(\boldsymbol{\alpha}, \boldsymbol{\beta})$$
+      2. $$\boldsymbol{\beta} = \arg \min_{\boldsymbol{\beta}} \mathcal{J}(\boldsymbol{\alpha}, \boldsymbol{\beta})$$
 
 Note the recipe for objective:
 
@@ -122,22 +122,22 @@ Note the recipe for objective:
 
 ### 3.5 K-Means
 
-Input: Unlabeled data $$\mathcal{D} = \{\bm{x}^{(1)}, \bm{x}^{(2)}, \cdots, \bm{x}^{(N)}\}$$
+Input: Unlabeled data $$\mathcal{D} = \{\boldsymbol{x}^{(1)}, \boldsymbol{x}^{(2)}, \cdots, \boldsymbol{x}^{(N)}\}$$
 
-Goal: Find an assignment of points to $$K$$ clusters $$\{\bm{z}^{(1)}, \bm{z}^{(2)}, \cdots, \bm{z}^{(N)}\}$$ where $$\bm{z}^{(i)} \in \{1, 2, \cdots, K\}$$
+Goal: Find an assignment of points to $$K$$ clusters $$\{\boldsymbol{z}^{(1)}, \boldsymbol{z}^{(2)}, \cdots, \boldsymbol{z}^{(N)}\}$$ where $$\boldsymbol{z}^{(i)} \in \{1, 2, \cdots, K\}$$
 
-Decision Rule: Assign $$\bm{x}^{(i)}$$ to the nearest cluster center $$\bm{c}_j$$
+Decision Rule: Assign $$\boldsymbol{x}^{(i)}$$ to the nearest cluster center $$\boldsymbol{c}_j$$
 
-Objective: $$\hat{\bm{c}}, \hat{\bm{z}} = \arg\min_{\bm{c}, \bm{z}} \sum_{i=1}^N || \bm{x}^{(i)} - \bm{c}_{\bm{z}^{(i)}}  ||_2^2$$
+Objective: $$\hat{\boldsymbol{c}}, \hat{\boldsymbol{z}} = \arg\min_{\boldsymbol{c}, \boldsymbol{z}} \sum_{i=1}^N || \boldsymbol{x}^{(i)} - \boldsymbol{c}_{\boldsymbol{z}^{(i)}}  ||_2^2$$
 
 Algorithm \(Lloyd’s method\):
 
-1. Initialize cluster centers $$\bm{c}_1, \bm{c}_2, \cdots, \bm{c}_K$$ and cluster assignments $$\bm{z}^{(1)}, \bm{z}^{(2)}, \cdots, \bm{z}^{(N)}$$
+1. Initialize cluster centers $$\boldsymbol{c}_1, \boldsymbol{c}_2, \cdots, \boldsymbol{c}_K$$ and cluster assignments $$\boldsymbol{z}^{(1)}, \boldsymbol{z}^{(2)}, \cdots, \boldsymbol{z}^{(N)}$$
 2. Repeat until objective stops changing
-   1.  $$\bm{c} = \arg\min_{\bm{c}} \sum_{i=1}^N || \bm{x}^{(i)} - \bm{c}_{\bm{z}^{(i)}}  ||_2^2$$
-      * $$\bm{c}_j = \arg\min_{\bm{c}_j} \sum_{i: \bm{z}^{(i)}=j} || \bm{x}^{(i)} - \bm{c}_j  ||_2^2 = \text{mean}(\sum_{i: \bm{z}^{(i)}=j}\bm{x}^{(i)})$$
-   2.  $$\bm{z} = \arg\min_{\bm{z}} \sum_{i=1}^N || \bm{x}^{(i)} - \bm{c}_{\bm{z}^{(i)}}  ||_2^2$$
-      * $$\bm{z}^{(j)} = \arg\min_{i} || \bm{x}^{(j)} - \bm{c}_i  ||_2^2 =$$ closest cluster center to $$\bm{x}^{(j)}$$
+   1.  $$\boldsymbol{c} = \arg\min_{\boldsymbol{c}} \sum_{i=1}^N || \boldsymbol{x}^{(i)} - \boldsymbol{c}_{\boldsymbol{z}^{(i)}}  ||_2^2$$
+      * $$\boldsymbol{c}_j = \arg\min_{\boldsymbol{c}_j} \sum_{i: \boldsymbol{z}^{(i)}=j} || \boldsymbol{x}^{(i)} - \boldsymbol{c}_j  ||_2^2 = \text{mean}(\sum_{i: \boldsymbol{z}^{(i)}=j}\boldsymbol{x}^{(i)})$$
+   2.  $$\boldsymbol{z} = \arg\min_{\boldsymbol{z}} \sum_{i=1}^N || \boldsymbol{x}^{(i)} - \boldsymbol{c}_{\boldsymbol{z}^{(i)}}  ||_2^2$$
+      * $$\boldsymbol{z}^{(j)} = \arg\min_{i} || \boldsymbol{x}^{(j)} - \boldsymbol{c}_i  ||_2^2 =$$ closest cluster center to $$\boldsymbol{x}^{(j)}$$
 
 Local optimum: every point is assigned to its nearest center and every center is the mean value of its points.
 
@@ -151,8 +151,8 @@ There are possibly bad cases:
 
 **Furthest Traversal**
 
-1. Choose $$\bm{c}_1$$ arbitrarily \(or at random\)
-2. For $$j = 2, 3, \cdots, K$$, pick $$\bm{c}_j$$ among data that is farthest from previously chosen $$\bm{c}$$s.
+1. Choose $$\boldsymbol{c}_1$$ arbitrarily \(or at random\)
+2. For $$j = 2, 3, \cdots, K$$, pick $$\boldsymbol{c}_j$$ among data that is farthest from previously chosen $$\boldsymbol{c}$$s.
 
 It fixes the Gaussian problem, but it can be thrown off by outliers.
 

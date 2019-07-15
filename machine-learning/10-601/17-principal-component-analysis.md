@@ -46,9 +46,9 @@ Identifying the axes is known as Principal Components Analysis, and can be obtai
 
 ### 2.5 Vector Projection
 
-Length of project $$\bm{x}$$to $$\bm{v}$$ is $$ a = \frac{\bm{v}^T\bm{x}}{||\bm{v}||_2}$$. If $$||\bm{v}|| = 1$$, then $$a = \bm{v}^T\bm{x}$$
+Length of project $$\boldsymbol{x}$$to $$\boldsymbol{v}$$ is $$ a = \frac{\boldsymbol{v}^T\boldsymbol{x}}{||\boldsymbol{v}||_2}$$. If $$||\boldsymbol{v}|| = 1$$, then $$a = \boldsymbol{v}^T\boldsymbol{x}$$
 
-Then we have the projection as $$\bm{u} = \frac{\bm{v}^T\bm{x}}{||\bm{v}||_2} \bm{v}$$
+Then we have the projection as $$\boldsymbol{u} = \frac{\boldsymbol{v}^T\boldsymbol{x}}{||\boldsymbol{v}||_2} \boldsymbol{v}$$
 
 ### 2.6 Equivalence of Maximizing Variance and Minimizing Reconstruction Error
 
@@ -64,17 +64,17 @@ The vector that maximizes the variance is the eigenvector of sample covariance m
 
 ![](../../.gitbook/assets/image%20%28741%29.png)
 
-Recall: $$\bm{v}$$ is an eigenvector of $$\Sigma$$ if $$\Sigma\bm{v} = \lambda\bm{v}$$ for same eigenvalue $$\lambda \in \mathbb{R}$$. The eigenvectors of a symmetric matrix \(covariance matrix\) are orthogonal to each other.
+Recall: $$\boldsymbol{v}$$ is an eigenvector of $$\Sigma$$ if $$\Sigma\boldsymbol{v} = \lambda\boldsymbol{v}$$ for same eigenvalue $$\lambda \in \mathbb{R}$$. The eigenvectors of a symmetric matrix \(covariance matrix\) are orthogonal to each other.
 
 ### 2.8 PCA Algorithm
 
-Process: Repeatedly chooses a next vector $$\bm{v}_j$$ that minimizes the reconstruction error s.t. $$\bm{v}_1, \bm{v}_2, \cdots, \bm{v}_{j-1}$$ are orthogonal to $$\bm{v}_j$$.
+Process: Repeatedly chooses a next vector $$\boldsymbol{v}_j$$ that minimizes the reconstruction error s.t. $$\boldsymbol{v}_1, \boldsymbol{v}_2, \cdots, \boldsymbol{v}_{j-1}$$ are orthogonal to $$\boldsymbol{v}_j$$.
 
 Algorithm:
 
 1. With projection matrix $$V \in \mathbb{R}^{K \times M}$$ as the first $$K$$ eigenvectors of $$\Sigma$$
-2. Project down: $$\bm{v}^{(i)} = V \bm{x}^{(i)}$$
-3. Reconstruct up: $$\hat{\bm{x}}^{(i)} = V^T \bm{v}^{(i)}$$
+2. Project down: $$\boldsymbol{v}^{(i)} = V \boldsymbol{x}^{(i)}$$
+3. Reconstruct up: $$\hat{\boldsymbol{x}}^{(i)} = V^T \boldsymbol{v}^{(i)}$$
 
 Ways to compute $$V$$:
 

@@ -16,36 +16,36 @@
 
 ### 1.3 Decision Functions
 
-Perceptron: $$h_{ \bm{\theta}} (\bm{x}) = \text{sign}(\bm{\theta}^T \bm{x})$$
+Perceptron: $$h_{ \boldsymbol{\theta}} (\boldsymbol{x}) = \text{sign}(\boldsymbol{\theta}^T \boldsymbol{x})$$
 
-Linear Regression: $$h_{ \bm{\theta}} (\bm{x}) = \bm{\theta}^T \bm{x}$$
+Linear Regression: $$h_{ \boldsymbol{\theta}} (\boldsymbol{x}) = \boldsymbol{\theta}^T \boldsymbol{x}$$
 
-Neural Network \(classical\):  $$h_{ \bm{\theta}} (\bm{x}) = \sigma (\bm{w}_2^T \sigma (\bm{w}_1^T \bm{x} + b_1) + b_2)$$
+Neural Network \(classical\):  $$h_{ \boldsymbol{\theta}} (\boldsymbol{x}) = \sigma (\boldsymbol{w}_2^T \sigma (\boldsymbol{w}_1^T \boldsymbol{x} + b_1) + b_2)$$
 
-Discriminative Models: $$h_{ \bm{\theta}} (\bm{x}) = \text{argmax}_y~p_{ \bm{\theta}}(y|\bm{x})$$
+Discriminative Models: $$h_{ \boldsymbol{\theta}} (\boldsymbol{x}) = \text{argmax}_y~p_{ \boldsymbol{\theta}}(y|\boldsymbol{x})$$
 
-* Binary Logistic Regression: $$p_{ \bm{\theta}}(y = 1|\bm{x}) = \text{sigmoid}(\bm{\theta}^T \bm{x})$$
-* Multinomial Logistic Regression: $$p_{ \bm{\theta}}(y = 1|\bm{x}) \propto \exp(\bm{\theta}^T \bm{x})$$
+* Binary Logistic Regression: $$p_{ \boldsymbol{\theta}}(y = 1|\boldsymbol{x}) = \text{sigmoid}(\boldsymbol{\theta}^T \boldsymbol{x})$$
+* Multinomial Logistic Regression: $$p_{ \boldsymbol{\theta}}(y = 1|\boldsymbol{x}) \propto \exp(\boldsymbol{\theta}^T \boldsymbol{x})$$
 
-Generative Models: $$h_{\bm{\theta}} (\bm{x}) = \text{argmax}_y~p_{ \bm{\theta}}(y, \bm{x})$$
+Generative Models: $$h_{\boldsymbol{\theta}} (\boldsymbol{x}) = \text{argmax}_y~p_{ \boldsymbol{\theta}}(y, \boldsymbol{x})$$
 
-* Naïve Bayes: $$p(y, \bm{x}) = p(y) \prod_{x=i}^M p(x_i | y)$$
+* Naïve Bayes: $$p(y, \boldsymbol{x}) = p(y) \prod_{x=i}^M p(x_i | y)$$
 
 ### 1.4 Objective Functions
 
-MSE: $$\mathcal{J}(\bm\theta) = \frac{1}{2} \sum_{i=1}^N (y^{(i)} - h_{ \bm{\theta}} (\bm{x}^{(i)}))^2$$
+MSE: $$\mathcal{J}(\boldsymbol\theta) = \frac{1}{2} \sum_{i=1}^N (y^{(i)} - h_{ \boldsymbol{\theta}} (\boldsymbol{x}^{(i)}))^2$$
 
-MCLE: $$\mathcal{J}(\bm\theta) = - \log \prod_{i=1}^N p_{ \bm{\theta}}(y^{(i)}|\bm{x}^{(i)})$$
+MCLE: $$\mathcal{J}(\boldsymbol\theta) = - \log \prod_{i=1}^N p_{ \boldsymbol{\theta}}(y^{(i)}|\boldsymbol{x}^{(i)})$$
 
-MLE: $$\mathcal{J}(\bm\theta) = - \log \prod_{i=1}^N p_{ \bm{\theta}}(y^{(i)}, \bm{x}^{(i)})$$
+MLE: $$\mathcal{J}(\boldsymbol\theta) = - \log \prod_{i=1}^N p_{ \boldsymbol{\theta}}(y^{(i)}, \boldsymbol{x}^{(i)})$$
 
-L2 Regularization: $$\mathcal{J}'(\bm\theta) = \mathcal{J}(\bm\theta) + \lambda ||\bm\theta||_2^2$$
+L2 Regularization: $$\mathcal{J}'(\boldsymbol\theta) = \mathcal{J}(\boldsymbol\theta) + \lambda ||\boldsymbol\theta||_2^2$$
 
-L1 Regularization: $$\mathcal{J}'(\bm\theta) = \mathcal{J}(\bm\theta) + \lambda ||\bm\theta||_1$$
+L1 Regularization: $$\mathcal{J}'(\boldsymbol\theta) = \mathcal{J}(\boldsymbol\theta) + \lambda ||\boldsymbol\theta||_1$$
 
 ### 1.5 Optimization Method
 
-Gradient Descent: while not converge, $$\bm\theta = \bm\theta - \eta \nabla \mathcal{J}(\bm\theta)$$
+Gradient Descent: while not converge, $$\boldsymbol\theta = \boldsymbol\theta - \eta \nabla \mathcal{J}(\boldsymbol\theta)$$
 
 Stochastic Gradient Descent
 

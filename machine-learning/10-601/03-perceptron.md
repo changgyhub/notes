@@ -6,21 +6,21 @@
 
 Key idea of perceptron: try to learn the hyperplane separating two sets of data.
 
-A vector $$\bm{a}$$is orthogonal to vector $$\bm{b}$$ iff $$\bm{a}^T \bm{b} = \bm{a} \cdot \bm{b} = 0$$
+A vector $$\boldsymbol{a}$$is orthogonal to vector $$\boldsymbol{b}$$ iff $$\boldsymbol{a}^T \boldsymbol{b} = \boldsymbol{a} \cdot \boldsymbol{b} = 0$$
 
-The $$l_2$$norm of vector $$\bm{a}$$is $$||\bm{a}||_2 = \sqrt{\bm{a} \cdot \bm{a}} = \sqrt{\sum_{i=1}^M a_i^2}$$
+The $$l_2$$norm of vector $$\boldsymbol{a}$$is $$||\boldsymbol{a}||_2 = \sqrt{\boldsymbol{a} \cdot \boldsymbol{a}} = \sqrt{\sum_{i=1}^M a_i^2}$$
 
-Vector projection of $$\bm{a}$$ onto $$\bm{b}$$ is $$ \bm{c} = (\frac{\bm{a}^T\bm{b}}{||\bm{b}||_2^2} )\bm{b}$$
+Vector projection of $$\boldsymbol{a}$$ onto $$\boldsymbol{b}$$ is $$ \boldsymbol{c} = (\frac{\boldsymbol{a}^T\boldsymbol{b}}{||\boldsymbol{b}||_2^2} )\boldsymbol{b}$$
 
-A hyperplane is $$\mathcal{H} = \{\bm{x} | \bm{w}^T \bm{x} + b = 0\}$$
+A hyperplane is $$\mathcal{H} = \{\boldsymbol{x} | \boldsymbol{w}^T \boldsymbol{x} + b = 0\}$$
 
-A half-spaces is the space separated by a hyperplane: $$\mathcal{H}_+ = {\bm{x} | \bm{w}^T \bm{x} + b > 0}$$ and $$\mathcal{H}_- = \{\bm{x} | \bm{w}^T \bm{x} + b < 0\}$$
+A half-spaces is the space separated by a hyperplane: $$\mathcal{H}_+ = {\boldsymbol{x} | \boldsymbol{w}^T \boldsymbol{x} + b > 0}$$ and $$\mathcal{H}_- = \{\boldsymbol{x} | \boldsymbol{w}^T \boldsymbol{x} + b < 0\}$$
 
 ### 1.2 Perceptron
 
-The perceptron is $$h(\bm{x}) = \text{sign} (\bm{w}^T \bm{x} + b)$$, where sign\(x\) = 1 if x &gt;= 0 else -1
+The perceptron is $$h(\boldsymbol{x}) = \text{sign} (\boldsymbol{w}^T \boldsymbol{x} + b)$$, where sign\(x\) = 1 if x &gt;= 0 else -1
 
-Note that $$0 = \bm{w}^T \bm{x}+b$$ is orthogonal to $$\bm{w}$$
+Note that $$0 = \boldsymbol{w}^T \boldsymbol{x}+b$$ is orthogonal to $$\boldsymbol{w}$$
 
 ## 2. Online Learning vs Batch Learning
 
@@ -41,33 +41,33 @@ Online Learning: Gradually learn as each example is received
 
 For i = 1, 2, 3...
 
-* Receive an unlabeled instance $$\bm{x}^{(i)}$$
-* Predict $$y' = h_{\bm{\theta}}(\bm{x}^{(i)})$$
+* Receive an unlabeled instance $$\boldsymbol{x}^{(i)}$$
+* Predict $$y' = h_{\boldsymbol{\theta}}(\boldsymbol{x}^{(i)})$$
 * Receive the true label $$y^{(i)}$$
 * Suffer loss if a mistake was made, $$y' \neq y^{(i)}$$
-* Update parameters $$\bm{\theta}$$
+* Update parameters $$\boldsymbol{\theta}$$
 
 Goal: Minimize the number of mistakes
 
 ### 2.4 \(Online\) Perceptron Algorithm
 
-Initialize parameters: weights $$\bm{w} = [w_1, w_2, \cdots, w_M]^T = \bm{0}$$, bias $$b = 0$$.
+Initialize parameters: weights $$\boldsymbol{w} = [w_1, w_2, \cdots, w_M]^T = \boldsymbol{0}$$, bias $$b = 0$$.
 
 for i = 1, 2, 3, ...
 
-1. Receive next example $$(\bm{x}^{(i)}, y^{(i)})$$
-2. Predict $$\hat{y} = \text{sign} (\bm{w}^T \bm{x^{(i)}} + b)$$
+1. Receive next example $$(\boldsymbol{x}^{(i)}, y^{(i)})$$
+2. Predict $$\hat{y} = \text{sign} (\boldsymbol{w}^T \boldsymbol{x^{(i)}} + b)$$
 3. Switch on cases
-   * If false negative, i.e. $$\hat{y} \neq y^{(i)} = 1$$, $$\bm{w} = \bm{w} + \bm{x}^{(i)}, b = b + 1$$
-   * If false positive, i.e. $$\hat{y} \neq y^{(i)} = -1$$, $$\bm{w} = \bm{w} - \bm{x}^{(i)}, b = b - 1$$
+   * If false negative, i.e. $$\hat{y} \neq y^{(i)} = 1$$, $$\boldsymbol{w} = \boldsymbol{w} + \boldsymbol{x}^{(i)}, b = b + 1$$
+   * If false positive, i.e. $$\hat{y} \neq y^{(i)} = -1$$, $$\boldsymbol{w} = \boldsymbol{w} - \boldsymbol{x}^{(i)}, b = b - 1$$
 
-Note: the hypothesis space of perceptron algorithm is all possible linear \(hyperplane\) decision boundaries: $$\mathcal{H} = \{ h(\cdot) ~|~ \exists \bm{w} \in \mathbb{R}^M, ~b \in R, ~\text{s.t.} ~h(\bm{x}) = \bm{w}^T \bm{x} + b \}$$
+Note: the hypothesis space of perceptron algorithm is all possible linear \(hyperplane\) decision boundaries: $$\mathcal{H} = \{ h(\cdot) ~|~ \exists \boldsymbol{w} \in \mathbb{R}^M, ~b \in R, ~\text{s.t.} ~h(\boldsymbol{x}) = \boldsymbol{w}^T \boldsymbol{x} + b \}$$
 
 Why this algorithm works?
 
-* for $$|\bm{w}|_2 = 1$$, $$\bm{w}^T \bm{x}$$ is the length of vector project of $$\bm{x}$$ onto $$\bm{w}$$
-* wrongly predicted $$\bm{x}$$ corrects $$\bm{w}$$
-* b shifts the zero points where $$\bm{w}$$ starts
+* for $$|\boldsymbol{w}|_2 = 1$$, $$\boldsymbol{w}^T \boldsymbol{x}$$ is the length of vector project of $$\boldsymbol{x}$$ onto $$\boldsymbol{w}$$
+* wrongly predicted $$\boldsymbol{x}$$ corrects $$\boldsymbol{w}$$
+* b shifts the zero points where $$\boldsymbol{w}$$ starts
 
 Note: the inductive bias of perceptron algorithm is that
 

@@ -76,7 +76,9 @@ L2 prefer small value, L0 prefer zero value, L1 prefer small and zero values
 
 ### 3.6 Regularization as MAP
 
-L1 and L2 regularization can be interpreted as maximum a-posteriori \(MAP\) estimation of the parameters \(To be discussed later in the course\)
+L1 regularization equals MAP estimation of parameters with Laplace prior $f(x) = \frac{1}{2b}\exp(-\frac{|x - a|}{b})$ with location parameter $\alpha = 0$.
+
+L2 regularization equals MAP estimation of parameters with Gaussian prior with zero mean.
 
 ### 3.7 Takeaways
 

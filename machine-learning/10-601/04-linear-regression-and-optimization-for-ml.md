@@ -4,27 +4,27 @@
 
 ### 1.1 Definitions
 
-$$D = \{(\bm{x}^{(1)}, y^{(1)}), \cdots, (\bm{x}^{(N)}, y^{(N)})\}$$ where $$\bm{x}^{(i)} \in \mathbb{R}^M$$ \(input, features\) and $$y^{(i)} \in \mathbb{R}$$ \(output, values\) 
+$$D = \{(\boldsymbol{x}^{(1)}, y^{(1)}), \cdots, (\boldsymbol{x}^{(N)}, y^{(N)})\}$$ where $$\boldsymbol{x}^{(i)} \in \mathbb{R}^M$$ \(input, features\) and $$y^{(i)} \in \mathbb{R}$$ \(output, values\) 
 
-For linear regression, $$ y = \bm{w}^T \bm{x} + b$$
+For linear regression, $$ y = \boldsymbol{w}^T \boldsymbol{x} + b$$
 
-Residual $$e_i = y^{(i)} - (\bm{w}^T \bm{x}^{(i)} + b)$$ is the distance \(vertically\) from observed value to predicted value
+Residual $$e_i = y^{(i)} - (\boldsymbol{w}^T \boldsymbol{x}^{(i)} + b)$$ is the distance \(vertically\) from observed value to predicted value
 
 ### 1.2 Notation Trick
 
-Define $$x_0 = 1$$, $$ y = \bm{\theta}^T \bm{x}$$ where $$\bm{\theta} = [b, w_1, \cdots, w_M]$$and $$\bm{x} = [1, x_1, \cdots, x_M]$$
+Define $$x_0 = 1$$, $$ y = \boldsymbol{\theta}^T \boldsymbol{x}$$ where $$\boldsymbol{\theta} = [b, w_1, \cdots, w_M]$$and $$\boldsymbol{x} = [1, x_1, \cdots, x_M]$$
 
 ### 1.3 Linear Regression as Function Approximation
 
-\(1\) Assume D is generated as $$\bm{x}^{(i)} \sim p^* (\bm{x}), ~y^{(i)} \sim c^* (\bm{x}^{(i)})$$, where $$p^*$$ and $$c^*$$ are unknown
+\(1\) Assume D is generated as $$\boldsymbol{x}^{(i)} \sim p^* (\boldsymbol{x}), ~y^{(i)} \sim c^* (\boldsymbol{x}^{(i)})$$, where $$p^*$$ and $$c^*$$ are unknown
 
-\(2\) Choose hypothesis space $$\mathcal{H} = \{  h_{\bm{\theta}} |  h_{\bm{\theta}}(\bm{x}) =  \bm{\theta}^T \bm{x}, ~ \bm{\theta} \in \mathbb{R}^{M+1}, x_0 = 1\}$$
+\(2\) Choose hypothesis space $$\mathcal{H} = \{  h_{\boldsymbol{\theta}} |  h_{\boldsymbol{\theta}}(\boldsymbol{x}) =  \boldsymbol{\theta}^T \boldsymbol{x}, ~ \boldsymbol{\theta} \in \mathbb{R}^{M+1}, x_0 = 1\}$$
 
-\(3\) Choose a objective function with a goal of minimizing the mean squared error $$\mathcal{J}_D(\bm{\theta}) = \frac{1}{N} \sum_{i=1}^N e_i^2 = \frac{1}{N} \sum_{i=1}^N ( y^{(i)} - (\bm{w}^T \bm{x}^{(i)} + b))^2$$ 
+\(3\) Choose a objective function with a goal of minimizing the mean squared error $$\mathcal{J}_D(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^N e_i^2 = \frac{1}{N} \sum_{i=1}^N ( y^{(i)} - (\boldsymbol{w}^T \boldsymbol{x}^{(i)} + b))^2$$ 
 
-\(4\) Solve optimization problem $$\hat{\bm{\theta}} = \text{argmin}_{\bm{\theta}} \mathcal{J}_D(\bm{\theta})$$
+\(4\) Solve optimization problem $$\hat{\boldsymbol{\theta}} = \text{argmin}_{\boldsymbol{\theta}} \mathcal{J}_D(\boldsymbol{\theta})$$
 
-\(5\) Predict, given next $$\bm{x}$$, $$y = h_{\hat{\bm{\theta}}}(\bm{x}) = \hat{\bm{\theta}}^T \bm{x}$$
+\(5\) Predict, given next $$\boldsymbol{x}$$, $$y = h_{\hat{\boldsymbol{\theta}}}(\boldsymbol{x}) = \hat{\boldsymbol{\theta}}^T \boldsymbol{x}$$
 
 ## 2. Optimization for ML
 
@@ -38,11 +38,11 @@ Define $$x_0 = 1$$, $$ y = \bm{\theta}^T \bm{x}$$ where $$\bm{\theta} = [b, w_1,
 
 Derivatives: Many ways of understanding:
 
-1. Derive as tangent $$\frac{d \mathcal{J}(\bm{\theta})}{d\bm{\theta}}$$
-2. Derive as s a limit  $$\lim_{e \rightarrow 0} \frac{\mathcal{J(\bm{\theta} + e) - J(\bm{\theta})}}{e}$$
+1. Derive as tangent $$\frac{d \mathcal{J}(\boldsymbol{\theta})}{d\boldsymbol{\theta}}$$
+2. Derive as s a limit  $$\lim_{e \rightarrow 0} \frac{\mathcal{J(\boldsymbol{\theta} + e) - J(\boldsymbol{\theta})}}{e}$$
 3. Derive as tangent plane
 
-The gradient of $$\mathcal{J}(\bm{\theta})$$ is $$\nabla \mathcal{J}(\bm{\theta}) = [\frac{d \mathcal{J}(\bm{\theta})}{d\bm{\theta}_1}, \cdots, \frac{d \mathcal{J}(\bm{\theta})}{d\bm{\theta}_M}]^T$$
+The gradient of $$\mathcal{J}(\boldsymbol{\theta})$$ is $$\nabla \mathcal{J}(\boldsymbol{\theta}) = [\frac{d \mathcal{J}(\boldsymbol{\theta})}{d\boldsymbol{\theta}_1}, \cdots, \frac{d \mathcal{J}(\boldsymbol{\theta})}{d\boldsymbol{\theta}_M}]^T$$
 
 Zero derivative: maxima, minima, or saddle point
 
@@ -52,20 +52,20 @@ Convexity:
 
 ### 2.3 Closed Form Optimization
 
-For a M-dim function $$\mathcal{J}(\bm{\theta})$$
+For a M-dim function $$\mathcal{J}(\boldsymbol{\theta})$$
 
-1. Solve $$\nabla \mathcal{J}(\bm{\theta}) = \bm{0}$$ for $$\hat{\bm{\theta}}$$
+1. Solve $$\nabla \mathcal{J}(\boldsymbol{\theta}) = \boldsymbol{0}$$ for $$\hat{\boldsymbol{\theta}}$$
 2. Test for min, max, or saddle point using Hessian matrix
 
 ### 2.4 Closed-form Solution to Linear Regression
 
-Define the "design matrix" $$\bm{X}$$, where $$i$$-th row is $$[1, x_1^{(i)}, \cdots, x_M^{(i)}]$$
+Define the "design matrix" $$\boldsymbol{X}$$, where $$i$$-th row is $$[1, x_1^{(i)}, \cdots, x_M^{(i)}]$$
 
-Then $$\mathcal{J}_D(\bm{\theta})   = \sum_{i=1}^N ( y^{(i)} - (\bm{w}^T \bm{x}^{(i)} + b))^2 =  (\bm{X} \bm{\theta} - y)^T(\bm{X} \bm{\theta} - y)$$,
+Then $$\mathcal{J}_D(\boldsymbol{\theta})   = \sum_{i=1}^N ( y^{(i)} - (\boldsymbol{w}^T \boldsymbol{x}^{(i)} + b))^2 =  (\boldsymbol{X} \boldsymbol{\theta} - y)^T(\boldsymbol{X} \boldsymbol{\theta} - y)$$,
 
-$$\nabla \mathcal{J}_D(\bm{\theta}) = \bm{X}^T\bm{X} \bm{\theta} - \bm{X}^T y = \bm{0} \Longrightarrow \bm{\theta} = (\bm{X}^T\bm{X})^{-1} \bm{X}^T y$$
+$$\nabla \mathcal{J}_D(\boldsymbol{\theta}) = \boldsymbol{X}^T\boldsymbol{X} \boldsymbol{\theta} - \boldsymbol{X}^T y = \boldsymbol{0} \Longrightarrow \boldsymbol{\theta} = (\boldsymbol{X}^T\boldsymbol{X})^{-1} \boldsymbol{X}^T y$$
 
-Hence , $$\hat{\bm{\theta}} = \text{argmin}_{\bm{\theta}} \mathcal{J}_D(\bm{\theta}) = (\bm{X}^T\bm{X})^{-1} \bm{X}^T y $$, which is called the Normal Equation
+Hence , $$\hat{\boldsymbol{\theta}} = \text{argmin}_{\boldsymbol{\theta}} \mathcal{J}_D(\boldsymbol{\theta}) = (\boldsymbol{X}^T\boldsymbol{X})^{-1} \boldsymbol{X}^T y $$, which is called the Normal Equation
 
 ### 2.5 Regression Examples
 
@@ -79,10 +79,10 @@ Hence , $$\hat{\bm{\theta}} = \text{argmin}_{\bm{\theta}} \mathcal{J}_D(\bm{\the
 
 ### 3.1 Optimal Method No.0: Random Guessing
 
-1. Pick a random $$\bm{\theta}$$
-2. Evaluate $$\mathcal{J}(\bm{\theta})$$
+1. Pick a random $$\boldsymbol{\theta}$$
+2. Evaluate $$\mathcal{J}(\boldsymbol{\theta})$$
 3. Repeat
-4. Return best $$\hat{\bm{\theta}}$$
+4. Return best $$\hat{\boldsymbol{\theta}}$$
 
 ### 3.2 Motivation for Gradient Descent
 
@@ -109,23 +109,23 @@ Cases to consider gradient descent
 
 Starting Point: Either
 
-1. $$\bm{\theta} = 0$$
-2. $$\bm{\theta}$$ randomly
+1. $$\boldsymbol{\theta} = 0$$
+2. $$\boldsymbol{\theta}$$ randomly
 
 Convergence: There are many possible ways to detect convergence. For example
 
-1. We could check whether the L2 norm of the gradient is below some small tolerance $$||\nabla_{\bm{\theta}} \mathcal{J}(\bm{\theta})||_2 < \epsilon$$
+1. We could check whether the L2 norm of the gradient is below some small tolerance $$||\nabla_{\boldsymbol{\theta}} \mathcal{J}(\boldsymbol{\theta})||_2 < \epsilon$$
 2. Alternatively we could check that the reduction in the objective function from one iteration to the next is small
 
 ### 3.6 Gradient Descent for Linear Regression
 
-$$ \mathcal{J}(\bm{\theta}) = \frac{1}{N} \sum_{i=1}^n \frac{1}{2} (y^{(i)} - \bm{\theta}^T \bm{x}^{(i)})^2$$
+$$ \mathcal{J}(\boldsymbol{\theta}) = \frac{1}{N} \sum_{i=1}^n \frac{1}{2} (y^{(i)} - \boldsymbol{\theta}^T \boldsymbol{x}^{(i)})^2$$
 
-$$ \frac{\partial \mathcal{J}_i(\bm{\theta})}{\partial \bm{\theta}_j} = - (y^{(i)} - \bm{\theta}^T \bm{x}^{(i)}) \bm{x}_m^{(i)}$$
+$$ \frac{\partial \mathcal{J}_i(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}_j} = - (y^{(i)} - \boldsymbol{\theta}^T \boldsymbol{x}^{(i)}) \boldsymbol{x}_m^{(i)}$$
 
-$$\nabla \mathcal{J}_i(\bm{\theta}) = - (y^{(i)} - \bm{\theta}^T \bm{x}^{(i)}) \bm{x}^{(i)}$$
+$$\nabla \mathcal{J}_i(\boldsymbol{\theta}) = - (y^{(i)} - \boldsymbol{\theta}^T \boldsymbol{x}^{(i)}) \boldsymbol{x}^{(i)}$$
 
-$$\nabla \mathcal{J}(\bm{\theta}) = - \sum_{i=1}^n (y^{(i)} - \bm{\theta}^T \bm{x}^{(i)}) \bm{x}^{(i)}$$
+$$\nabla \mathcal{J}(\boldsymbol{\theta}) = - \sum_{i=1}^n (y^{(i)} - \boldsymbol{\theta}^T \boldsymbol{x}^{(i)}) \boldsymbol{x}^{(i)}$$
 
 ### 3.7 Stochastic Gradient Descent \(SGD\)
 

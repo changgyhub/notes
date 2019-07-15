@@ -20,11 +20,11 @@ To define a generative model of emails of two different classes \(e.g. real vs. 
 
 Note: Classification for Bernoulli Naïve Bayes is same as Generic Naïve Bayes
 
-Note: $$p_{\phi, \bm{\theta}}(\bm{x}, y) = p(\bm{x}, y | \phi, \bm{\theta})$$
+Note: $$p_{\phi, \boldsymbol{\theta}}(\boldsymbol{x}, y) = p(\boldsymbol{x}, y | \phi, \boldsymbol{\theta})$$
 
 ### 2.2 Naïve Bayes Assumption
 
-Naïve Bayes Assumption: $$p(\bm{x}|y) = \prod_{x=i}^M p(x_i | y)$$, each pair of $$x_p, x_q$$ are conditionally independent given $$y$$
+Naïve Bayes Assumption: $$p(\boldsymbol{x}|y) = \prod_{x=i}^M p(x_i | y)$$, each pair of $$x_p, x_q$$ are conditionally independent given $$y$$
 
 ### 2.3 What’s wrong with the Naïve Bayes Assumption?
 
@@ -67,7 +67,7 @@ Naïve Bayes has one key advantage over methods like Perceptron, Logistic Regres
 
 ### 4.1 MLE for Naïve Bayes
 
-For Bernoulli Naïve Bayes: take log of $$p_{\phi, \bm{\theta}}(\bm{x}, y)$$, which is the log likelihood; then take derivative with respect to $$\phi, \bm{\theta}$$  and set them to zero, we have
+For Bernoulli Naïve Bayes: take log of $$p_{\phi, \boldsymbol{\theta}}(\boldsymbol{x}, y)$$, which is the log likelihood; then take derivative with respect to $$\phi, \boldsymbol{\theta}$$  and set them to zero, we have
 
 ![](../../.gitbook/assets/image%20%28616%29.png)
 

@@ -5,16 +5,16 @@
 ### 1.1  Definition
 
 $$
-\min_\bm{\Theta} \mathcal{J}(\bm{\Theta})\\
-\text{s.t. } \bm{g}(\bm{\Theta}) \le \bm{b}
+\min_\boldsymbol{\Theta} \mathcal{J}(\boldsymbol{\Theta})\\
+\text{s.t. } \boldsymbol{g}(\boldsymbol{\Theta}) \le \boldsymbol{b}
 $$
 
 ### 1.2 Linear Programming
 
 $$
-\min_\bm{x} \bm{c}^T\bm{x}\\
-\text{s.t. } \bm{A}\bm{x} \le \bm{b}\\[3pt]
-\text{where } \bm{c}\in\mathbb{R}^m, \bm{A}\in\mathbb{R}^{n \times m}, \bm{b}\in\mathbb{R}^n
+\min_\boldsymbol{x} \boldsymbol{c}^T\boldsymbol{x}\\
+\text{s.t. } \boldsymbol{A}\boldsymbol{x} \le \boldsymbol{b}\\[3pt]
+\text{where } \boldsymbol{c}\in\mathbb{R}^m, \boldsymbol{A}\in\mathbb{R}^{n \times m}, \boldsymbol{b}\in\mathbb{R}^n
 $$
 
 We can use interior point method or simplex algorithm to solve.
@@ -22,12 +22,12 @@ We can use interior point method or simplex algorithm to solve.
 ### 1.3 Quadratic Programming
 
 $$
-\min_\bm{x} \frac{1}{2} \bm{x}^T \bm{Q}\bm{x} + \bm{c}^T\bm{x}\\
-\text{s.t. } \bm{A}\bm{x} \le \bm{b}\\[3pt]
-\text{where } \bm{c}\in\mathbb{R}^m, \bm{A}\in\mathbb{R}^{n \times m}, \bm{b}\in\mathbb{R}^n,  \bm{Q} \in \mathbb{R}^{m \times m}
+\min_\boldsymbol{x} \frac{1}{2} \boldsymbol{x}^T \boldsymbol{Q}\boldsymbol{x} + \boldsymbol{c}^T\boldsymbol{x}\\
+\text{s.t. } \boldsymbol{A}\boldsymbol{x} \le \boldsymbol{b}\\[3pt]
+\text{where } \boldsymbol{c}\in\mathbb{R}^m, \boldsymbol{A}\in\mathbb{R}^{n \times m}, \boldsymbol{b}\in\mathbb{R}^n,  \boldsymbol{Q} \in \mathbb{R}^{m \times m}
 $$
 
-We can use interior point method, ellipsoid method \(assume $$\bm{Q}$$ convex, in polynomial time\), conjugate gradient method.
+We can use interior point method, ellipsoid method \(assume $$\boldsymbol{Q}$$ convex, in polynomial time\), conjugate gradient method.
 
 ![](../../.gitbook/assets/image%20%28676%29.png)
 

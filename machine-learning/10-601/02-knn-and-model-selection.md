@@ -28,9 +28,9 @@ Predict: Assign the most common label of the nearest $$k$$ points in $$D$$
 
 KNN requires a distance function $$g: \mathbb{R}^M \times \mathbb{R}^M \rightarrow \mathbb{R}$$
 
-Euclidean distance: $$g(\bm{u}, \bm{v}) = \sqrt{\sum_{m=1}^M (u_m - v_m)^2}$$
+Euclidean distance: $$g(\boldsymbol{u}, \boldsymbol{v}) = \sqrt{\sum_{m=1}^M (u_m - v_m)^2}$$
 
-Manhattan distance: $$g(\bm{u}, \bm{v}) = \sqrt{\sum_{m=1}^M |u_m - v_m|}$$
+Manhattan distance: $$g(\boldsymbol{u}, \boldsymbol{v}) = \sqrt{\sum_{m=1}^M |u_m - v_m|}$$
 
 ### 2.4 Questions on KNN
 

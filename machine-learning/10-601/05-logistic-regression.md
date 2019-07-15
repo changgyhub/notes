@@ -6,22 +6,22 @@
 
 Choose the parameters that make the data "most likely"
 
-Assumptions: $$\mathcal{D} = \{\bm{v}^{(i)}\}_{i=1}^N$$, data generated iid from distribution $$p^*(\bm{v}|\bm{\theta}^*)$$, i.e. $$\bm{v} \sim p^*(\cdot|\bm{\theta}^*)$$, and $$p^*$$ comes from a family of distributions parameterized by $$\bm{\theta}^* \in \bm{\Theta}$$.
+Assumptions: $$\mathcal{D} = \{\boldsymbol{v}^{(i)}\}_{i=1}^N$$, data generated iid from distribution $$p^*(\boldsymbol{v}|\boldsymbol{\theta}^*)$$, i.e. $$\boldsymbol{v} \sim p^*(\cdot|\boldsymbol{\theta}^*)$$, and $$p^*$$ comes from a family of distributions parameterized by $$\boldsymbol{\theta}^* \in \boldsymbol{\Theta}$$.
 
-We can also write $$p(\mathcal{D}|\bm{\theta}) = \prod_{i=1}^N p(\bm{v}^{(i)}|\bm{\theta})$$, which is the likelihood.
+We can also write $$p(\mathcal{D}|\boldsymbol{\theta}) = \prod_{i=1}^N p(\boldsymbol{v}^{(i)}|\boldsymbol{\theta})$$, which is the likelihood.
 
-MLE is defined as $$\hat{\bm{\theta}} = \text{argmax}_{\bm{\theta} \in \bm{\Theta}} p(\mathcal{D}|\bm{\theta}) = \text{argmax}_{\bm{\theta} \in \bm{\Theta}} \log p(\mathcal{D}|\bm{\theta})$$
+MLE is defined as $$\hat{\boldsymbol{\theta}} = \text{argmax}_{\boldsymbol{\theta} \in \boldsymbol{\Theta}} p(\mathcal{D}|\boldsymbol{\theta}) = \text{argmax}_{\boldsymbol{\theta} \in \boldsymbol{\Theta}} \log p(\mathcal{D}|\boldsymbol{\theta})$$
 
 ### 1.2 Bernoulli Classifier
 
-For data $$\{(\bm{x}^{(i)}, y^{(i)})\}$$ describing \(features, label\), we
+For data $$\{(\boldsymbol{x}^{(i)}, y^{(i)})\}$$ describing \(features, label\), we
 
-1. Ignore features $$\bm{x}$$
-2. Model $$y \sim \text{Bernoulli}(\phi)$$such that $$p(y|\bm{x}) = \phi$$ if $$y=1$$ otherwise $$1-\phi$$
-3. Use conditional log likelihood: $$\mathcal{L}(\phi) = \sum_{i=1}^N \log p(y^{(i)} | \bm{x}^{(i)}) = \sum_{i=1}^N y^{(i)}\log\phi + (1-y^{(i)})\log(1-\phi))$$
+1. Ignore features $$\boldsymbol{x}$$
+2. Model $$y \sim \text{Bernoulli}(\phi)$$such that $$p(y|\boldsymbol{x}) = \phi$$ if $$y=1$$ otherwise $$1-\phi$$
+3. Use conditional log likelihood: $$\mathcal{L}(\phi) = \sum_{i=1}^N \log p(y^{(i)} | \boldsymbol{x}^{(i)}) = \sum_{i=1}^N y^{(i)}\log\phi + (1-y^{(i)})\log(1-\phi))$$
 4. $$\hat{\phi} = \text{argmax}_{\phi \in [0,1]} \mathcal{L}(\phi) = \text{sum}(Y)/\text{len}(Y)$$
 
-If we use Bayes Classifier based on this, it turns out to be a majority vote classifier: $$h(\bm{x}) = \text{argmax}_{y \in [0,1]} p(y | \bm{x})$$
+If we use Bayes Classifier based on this, it turns out to be a majority vote classifier: $$h(\boldsymbol{x}) = \text{argmax}_{y \in [0,1]} p(y | \boldsymbol{x})$$
 
 ## 2. Logistic Regression
 
@@ -41,10 +41,10 @@ Softmax here is just logistic regression.
 
 Base on section 1.2
 
-1. We use $$\bm{x}$$
-2. Model $$\phi = \sigma(\bm{\theta}^T \bm{x})$$ where $$\sigma(u) = \frac{1}{1 + e^{-u}}$$, $$y \sim \text{Bernoulli}(\phi)$$ such that $$p(y|\bm{x}) = \phi$$ if $$y=1$$ otherwise $$1-\phi$$
-3. $$\mathcal{J}(\bm{\theta})  = - \frac{1}{N}\mathcal{L}(\bm{\theta}) = - \frac{1}{N}\sum_{i=1}^N \log p(y^{(i)} | \bm{x}^{(i)}) $$
-4. We derive that $$\nabla \mathcal{J}_i(\bm{\theta}) = - (y^{(i)} - \sigma(\bm{\theta}^T \bm{x}^{(i)})) \bm{x}^{(i)}$$to solve $$\hat{\bm{\theta}} = \text{argmax}_{\bm{\theta}} \mathcal{L}(\bm{\theta}) = \text{argmin}_{\bm{\theta}} \mathcal{J}(\bm{\theta})$$
+1. We use $$\boldsymbol{x}$$
+2. Model $$\phi = \sigma(\boldsymbol{\theta}^T \boldsymbol{x})$$ where $$\sigma(u) = \frac{1}{1 + e^{-u}}$$, $$y \sim \text{Bernoulli}(\phi)$$ such that $$p(y|\boldsymbol{x}) = \phi$$ if $$y=1$$ otherwise $$1-\phi$$
+3. $$\mathcal{J}(\boldsymbol{\theta})  = - \frac{1}{N}\mathcal{L}(\boldsymbol{\theta}) = - \frac{1}{N}\sum_{i=1}^N \log p(y^{(i)} | \boldsymbol{x}^{(i)}) $$
+4. We derive that $$\nabla \mathcal{J}_i(\boldsymbol{\theta}) = - (y^{(i)} - \sigma(\boldsymbol{\theta}^T \boldsymbol{x}^{(i)})) \boldsymbol{x}^{(i)}$$to solve $$\hat{\boldsymbol{\theta}} = \text{argmax}_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = \text{argmin}_{\boldsymbol{\theta}} \mathcal{J}(\boldsymbol{\theta})$$
 5. Use gradient descent or SGD to optimize
 
 ## 3. Details of Logistic Regression
@@ -78,9 +78,9 @@ Base on section 1.2
 
 Note
 
-1. in multinomial case, $$\bm{\theta}$$ is of shape $$k \times M$$, where $$k$$ is the number of classes and $$M$$ is the dimension of $$\bm{x}$$
-2. Conditional log likelihood is defined as $$\mathcal{L}(\bm{\theta}) = \sum_{i=1}^M \log p(y^{(i)} | \bm{x}^{(i)})$$
-3. Loss function is $$\mathcal{J}(\bm{\theta}) =- \sum_{i=1}^M \log p(y^{(i)} | \bm{x}^{(i)})$$
+1. in multinomial case, $$\boldsymbol{\theta}$$ is of shape $$k \times M$$, where $$k$$ is the number of classes and $$M$$ is the dimension of $$\boldsymbol{x}$$
+2. Conditional log likelihood is defined as $$\mathcal{L}(\boldsymbol{\theta}) = \sum_{i=1}^M \log p(y^{(i)} | \boldsymbol{x}^{(i)})$$
+3. Loss function is $$\mathcal{J}(\boldsymbol{\theta}) =- \sum_{i=1}^M \log p(y^{(i)} | \boldsymbol{x}^{(i)})$$
 
 ![](../../.gitbook/assets/image%20%28445%29.png)
 

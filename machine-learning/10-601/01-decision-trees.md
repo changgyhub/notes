@@ -28,8 +28,8 @@ Leaf node: predict y
 
 ### 2.2 Function Approximation - Problem Setting
 
-* Set of possible inputs $$X$$, $$\bm{x} \in X$$ is a discrete vector of attributes
-* Set of possible outputs $$Y$$, $$\bm{y} \in Y$$ is discrete
+* Set of possible inputs $$X$$, $$\boldsymbol{x} \in X$$ is a discrete vector of attributes
+* Set of possible outputs $$Y$$, $$\boldsymbol{y} \in Y$$ is discrete
 * Unknown target function $$C^*: X \rightarrow Y$$, the oracle or a perfect doctor
 * Set of candidate hypothesis $$H = \{h | h: X \rightarrow Y\}$$, a decision tree
 
@@ -41,13 +41,13 @@ Leaf node: predict y
 
 def train\(D\): store D
 
-def test\($$\bm{x}$$: attributes of a patient\): return y = majority\_class\(D\), where majority\_class means the output class that appears most often in D
+def test\($$\boldsymbol{x}$$: attributes of a patient\): return y = majority\_class\(D\), where majority\_class means the output class that appears most often in D
 
 ### 2.5 Error Rate \(Misclassification Rate\)
 
-Let D be a dataset $$D = {(\bm{x}^{(1)}, \bm{y}^{(1)}), (\bm{x}^{(2)}, \bm{y}^{(2)}), \dots, (\bm{x}^{(N)}, \bm{y}^{(N)})}$$, $$h(\bm{x})$$be a classifier
+Let D be a dataset $$D = {(\boldsymbol{x}^{(1)}, \boldsymbol{y}^{(1)}), (\boldsymbol{x}^{(2)}, \boldsymbol{y}^{(2)}), \dots, (\boldsymbol{x}^{(N)}, \boldsymbol{y}^{(N)})}$$, $$h(\boldsymbol{x})$$be a classifier
 
-$$error(h, D) = [\sum_{i=1}^N \mathbb{I}(h(\bm{x^{(i)}}) \neq \bm{y}^{(i)})]/N$$, which is the number of mistakes/examples in D
+$$error(h, D) = [\sum_{i=1}^N \mathbb{I}(h(\boldsymbol{x^{(i)}}) \neq \boldsymbol{y}^{(i)})]/N$$, which is the number of mistakes/examples in D
 
 ### 2.6 Decision Tree Learning \(ID3, CART, etc\)
 

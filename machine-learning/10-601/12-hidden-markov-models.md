@@ -136,7 +136,7 @@ Note: Solving the MLE needs Lagrange multiplier since we have the constraint $$\
 
 #### 5.1.1 Evaluation
 
-Compute the probability of a given sequence of observations: $$p(\bm{x}) = \sum_{\bm{y}} p(\bm{x}, \bm{y})$$
+Compute the probability of a given sequence of observations: $$p(\boldsymbol{x}) = \sum_{\boldsymbol{y}} p(\boldsymbol{x}, \boldsymbol{y})$$
 
 A brute force solution:
 
@@ -147,13 +147,13 @@ def eval(x):
 
 #### 5.1.2. Viterbi Decoding
 
-Find the most-likely sequence of hidden states, given a sequence of observations: $$\bm{y} = \arg \max_{\bm{y}} p(\bm{y}|\bm{x})$$
+Find the most-likely sequence of hidden states, given a sequence of observations: $$\boldsymbol{y} = \arg \max_{\boldsymbol{y}} p(\boldsymbol{y}|\boldsymbol{x})$$
 
 #### 5.1.3. Marginals
 
 Compute the marginal distribution for a hidden state, given a sequence of observations:
 
-$$p(y_t = k | \bm{x}) = \sum_{\bm{y} \text{ s.t.}y_t = k} p(\bm{y}|\bm{x})$$
+$$p(y_t = k | \boldsymbol{x}) = \sum_{\boldsymbol{y} \text{ s.t.}y_t = k} p(\boldsymbol{y}|\boldsymbol{x})$$
 
 #### 5.1.4 Minimum Bayes Risk \(MBR\) Decoding
 
@@ -166,7 +166,7 @@ Find the lowest loss sequence of hidden states, given a sequence of observations
 Note:
 
 1. Before implementing forward backward algorithm, first implement the brute force algorithm to check the result
-2. For $$|\bm{y}| = T$$ and $$y_t \in \{1, \cdots, K\}$$, there are $$K^T$$possible values of $$\bm{y}$$
+2. For $$|\boldsymbol{y}| = T$$ and $$y_t \in \{1, \cdots, K\}$$, there are $$K^T$$possible values of $$\boldsymbol{y}$$
 3. Some probability formulas:
 
 $$

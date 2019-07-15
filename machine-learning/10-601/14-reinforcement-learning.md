@@ -204,7 +204,7 @@ $$\epsilon$$-greedy variant: at step 2.2
 
 ### 6.5 Case 2: Nondeterministic Environment
 
-Let $$K_n(s,a)$$ be the number of visits of $$(s,a)$$ at time $$n$$.When $$p(s'|s, a)$$ is stochastic, the algorithm is
+Let $$K_n(s,a)$$ be the number of visits of $$(s,a)$$ at time $$n$$. When $$p(s'|s, a)$$ is stochastic, the algorithm is
 
 1. Initialize $$Q(s,a) = 0 ~~\forall s, a$$
 2. Do forever
@@ -217,7 +217,7 @@ It is essentially weighted average of Q-value: the more we update $$Q(s,a)$$, th
 
 Remarks:
 
-1. $$Q$$converges to $$Q^*$$with probability 1 under certain assumptions \(e.g. visit each state infinitely often\)
+1. $$Q$$ converges to $$Q^*$$with probability 1 under certain assumptions \(e.g. visit each state infinitely often\)
 2. Q-learning is exploration-insensitive. That is, any visitation strategy \(step 2.2\) will work as long as it has certain properties \(e.g. visit each state infinitely often\)
 3. Usually needs many thousands of iterations or more to converge.
 4. For visitation $$\langle s, a, r, s' \rangle$$, we can store them and use in any order \(e.g. experience replay\)
