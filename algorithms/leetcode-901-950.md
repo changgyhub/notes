@@ -1088,7 +1088,7 @@ Output: 4
 Solution: 先按照行列存一个map<row, vector\<col\>>，然后sort vector使得每行的col index按顺序排列；之后对row做两个for loop，loop内对两个row从左到右分别找col相等的时候的所有位置，就可以算最小面积了，一定要背
 
 ```cpp
- int minAreaRect(vector<vector<int>>& points) {
+int minAreaRect(vector<vector<int>>& points) {
     map<int, vector<int>> rows;
     for (auto& p : points) rows[p[0]].push_back(p[1]);        
     for (auto& it : rows) sort(it.second.begin(), it.second.end());        
@@ -1114,7 +1114,7 @@ Solution: 先按照行列存一个map<row, vector\<col\>>，然后sort vector使
         }
     }
     return ans == INT_MAX? 0: ans;
- }
+}
 ```
 
 ### 940. Distinct Subsequences II
