@@ -727,17 +727,14 @@ Solution: 可以左右各一遍brute force，也可以一遍完成
 
 ```cpp
 int minFlipsMonoIncr(string s) {
-    int zero = 0, czero = 0, one = 0, cone = 0, n = s.length();
-    bool flag = false;
+    int zero = 0, one = 0, n = s.length();
     for(int i = 0; i < n; ++i) {
         if (s[i] == '0') {
-            cone = 1 + min(zero, one);
+            one = 1 + min(zero, one);
         } else {
-            czero = 1 + zero;
-            cone = min(zero, one);
+            one = min(zero, one);
+            ++zero;
         }
-        zero = czero;
-        one = cone;
     }
     return min(zero, one);
 }
