@@ -300,9 +300,10 @@ Input: [6,0,8,2,1,5]
 Output: 4 (The maximum width ramp is achieved at (i, j) = (1, 5): A[1] = 0 and A[5] = 5)
 ```
 
-Solution: 做一个从左到右最小值和从右到左最大值的前缀和，然后双指针，一定要背
+Solution: 法1：做一个从左到右最小值和从右到左最大值的前缀和，然后双指针；法2：stack存递减序列，然后从后往前遍历一遍，十分重要，一定要背
 
 ```cpp
+// Solution 1: Prefix Sum
 int maxWidthRamp(vector<int>& A) {
     if (A.empty()) return 0;
     int n = A.size();
@@ -319,6 +320,18 @@ int maxWidthRamp(vector<int>& A) {
         else i++;
     }
     return ans;
+}
+// Solution 2: Stack
+int maxWidthRamp(vector<int>& A) {
+    stack<int> s;
+    int res = 0, n = A.size();
+    for (int i = 0; i < n; ++i)
+        if (s.empty() || A[s.top()] > A[i])
+            s.push(i);
+    for (int i = n - 1; i > res; --i)
+        while (!s.empty() && A[s.top()] <= A[i])
+            res = max(res, i - s.top()), s.pop();
+    return res;
 }
 ```
 
@@ -604,21 +617,19 @@ Input: A = [4,5,0,-2,-3,1], K = 5
 Output: 7 ([4,5,0,-2,-3,1], [5], [5,0], [5,0,-2,-3], [0], [0,-2,-3], [-2,-3])
 ```
 
-Solution: 前缀和，一个小技巧是可以用另外一个vector统计每个余数出现的频率f，这样每个余数的组合方式就是C(f, 2)，一定要背
+Solution: 统计前缀和频率f，每个余数的组合方式是C(f, 2)，一定要背
 
 ```cpp
 int subarraysDivByK(vector<int>& A, int K) {
-    int n = A.size(), res = 0;
-    vector<int> prefixSum(n + 1);
-    for (int i = 0; i < n; ++i) prefixSum[i+1] = prefixSum[i] + A[i];
-    
-    vector<int> freq(K);
-    for (int x: prefixSum) ++freq[(x % K + K ) % K];
-
-    int ans = 0;
-    for (int f: freq) ans += f * (f - 1) / 2;
-
-    return ans;
+    int n = A.size(), res = 0, prefix_sum = 0;
+    vector<int> count(K);
+    count[0] = 1;
+    for (const int & a: A) {
+        prefix_sum += a;
+        ++count[(prefix_sum % K + K) % K];
+    }
+    for (int c: count) res += c * (c - 1) / 2;
+    return res;
 }
 ```
 
@@ -787,9 +798,9 @@ Example:
 
 ```
 Input: [
-		[1,0,0,0],
-		[0,0,0,0],
-		[0,0,2,-1]
+  [1,0,0,0],
+  [0,0,0,0],
+  [0,0,2,-1]
 ]
 Output: 2 (We have the following two paths: 
 1. (0,0),(0,1),(0,2),(0,3),(1,3),(1,2),(1,1),(1,0),(2,0),(2,1),(2,2)
