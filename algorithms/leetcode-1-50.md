@@ -1447,10 +1447,9 @@ Output: [
 Solution: backtrack，每次递归要传当前值，目标值（或者合并为差值），当前迭代位置；backtrack可以写成loop也可以写成放或不放。一定要背
 
 ```cpp
-svector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
     vector<vector<int>> result;
     vector<int> path;
-    sort(candidates.begin(), candidates.end());
     backtrack(candidates, 0, 0, target, path, result);
     return result;
 }
