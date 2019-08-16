@@ -33,8 +33,7 @@
 
 ### 二分法
 
-1. 如果左闭右开，left = start, right = end，while里面是小于号，loop外return任意一侧，且要考虑right可能超过INT\_MAX的情况；判断相等可以直接return，也可以等结束时return任意一侧
-2. 如果左闭右闭，left = start, right = end - 1，while里面是小于等于号，loop里判断相等直接return；也可以while里面是小于号，loop外return正确的那一侧
+1. 可以左闭右开也可以左闭右闭，但是注意左闭右闭时要用right = mid和left = mid + 1，而不是right = mid - 1和left = mid，因为算mid整除2的时候会向下取整。最后可以用-1来修正最终取整方式。
 3. 注意分清要lower bound还是upper bound，分别如下
 
 ```cpp
