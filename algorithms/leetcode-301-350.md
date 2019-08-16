@@ -333,6 +333,55 @@ int nthSuperUglyNumber(int n, vector<int>& primes) {
 }
 ```
 
+### 315. Count of Smaller Numbers After Self
+
+You are given an integer array *nums* and you have to return a new *counts* array. The *counts* array has the property where `counts[i]` is the number of smaller elements to the right of `nums[i]`.
+
+Example:
+
+```
+Input: [5,2,6,1]
+Output: [2,1,1,0] 
+```
+
+Solution: 从后往前建立二叉树（最好是AVL），Node记录当前出现次数以及比其小的Node的总出现次数，一定要背
+
+```cpp
+struct Node {
+    int less_count, self_count, val;
+    Node *left, *right;
+    Node (int val) : less_count(0), self_count(1), val(val), left(nullptr), right(nullptr) {}
+};
+class Solution {
+public:
+    pair<Node*, int> insertVal(Node *node, int val) {
+        if (!node) return make_pair(new Node(val), 0);
+        if (node->val == val) {
+            ++(node->self_count);
+            return make_pair(node, node->less_count);
+        }
+        if (node->val > val) {
+            ++(node->less_count);
+            auto ret = insertVal(node->left, val);
+            node->left = ret.first;
+            return make_pair(node, ret.second);
+        }
+        auto ret = insertVal(node->right, val);
+        node->right = ret.first;
+        return make_pair(node, node->self_count + node->less_count + ret.second);
+    }
+    
+    vector<int> countSmaller(vector<int>& nums) {
+        int n = nums.size();
+        if (!n) return {};
+        vector<int> ret(n, 0);
+        Node *root = new Node(nums.back());
+        for (int i = nums.size() - 2; i >= 0; --i) ret[i] = insertVal(root, nums[i]).second;
+        return ret;
+    }
+};
+```
+
 ### 318. Maximum Product of Word Lengths
 
 Given a string array words, find the maximum value of length(word[i]) * length(word[j]) where the two words do not share common letters. You may assume that each word will contain only lower case letters. If no such two words exist, return 0.
@@ -728,6 +777,32 @@ vector<int> countBits(int num) {
 }
 ```
 
+### 340. Longest Substring with At Most K Distinct Characters
+
+Given a string, find the length of the longest substring T that contains at most *k* distinct characters.
+
+Example:
+
+```
+Input: s = "eceba", k = 2
+Output: 3 (T is "ece" which its length is 3)
+```
+
+Solution: 滑动窗口，与其用vector储存频率+一个int来统计目前不同的字符数，不如直接用hashmap，根据size判断是否超过k，一定要背
+
+```cpp
+int lengthOfLongestSubstringKDistinct(string s, int k) {
+    unordered_map<char, int> counts;
+    int res = 0;
+    for (int i = 0, j = 0; j < s.size(); ++j) {
+        counts[s[j]]++;
+        while (counts.size() > k) if (--counts[s[i++]] == 0) counts.erase(s[i - 1]);
+        res = max(res, j - i + 1);
+    }
+    return res;
+}
+```
+
 ### 341. Flatten Nested List Iterator
 
 Given a nested list of integers, implement an iterator to flatten it.
@@ -902,6 +977,95 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
     }
     return ans;
 }
+```
+
+### 348. Design Tic-Tac-Toe
+
+Design a Tic-tac-toe game that is played between two players on a *n* x *n* grid.
+
+You may assume the following rules:
+
+1. A move is guaranteed to be valid and is placed on an empty block.
+2. Once a winning condition is reached, no more moves is allowed.
+3. A player who succeeds in placing *n* of their marks in a horizontal, vertical, or diagonal row wins the game.
+
+Example:
+
+```
+Given n = 3, assume that player 1 is "X" and player 2 is "O" in the board.
+
+TicTacToe toe = new TicTacToe(3);
+
+toe.move(0, 0, 1); -> Returns 0 (no one wins)
+|X| | |
+| | | |    // Player 1 makes a move at (0, 0).
+| | | |
+
+toe.move(0, 2, 2); -> Returns 0 (no one wins)
+|X| |O|
+| | | |    // Player 2 makes a move at (0, 2).
+| | | |
+
+toe.move(2, 2, 1); -> Returns 0 (no one wins)
+|X| |O|
+| | | |    // Player 1 makes a move at (2, 2).
+| | |X|
+
+toe.move(1, 1, 2); -> Returns 0 (no one wins)
+|X| |O|
+| |O| |    // Player 2 makes a move at (1, 1).
+| | |X|
+
+toe.move(2, 0, 1); -> Returns 0 (no one wins)
+|X| |O|
+| |O| |    // Player 1 makes a move at (2, 0).
+|X| |X|
+
+toe.move(1, 0, 2); -> Returns 0 (no one wins)
+|X| |O|
+|O|O| |    // Player 2 makes a move at (1, 0).
+|X| |X|
+
+toe.move(2, 1, 1); -> Returns 1 (player 1 wins)
+|X| |O|
+|O|O| |    // Player 1 makes a move at (2, 1).
+|X|X|X|
+```
+
+Solution: 类似于九皇后，可以通过开辅助数组统计每个玩家的频次，避免开到`O(n^2)`的空间，一定要背
+
+```cpp
+class TicTacToe {
+    int sz;
+    vector<vector<int>> hor;
+    vector<vector<int>> ver;
+    vector<int> diag;
+    vector<int> antidiag;
+public:
+    /** Initialize your data structure here. */
+    TicTacToe(int n) : sz(n) {
+        hor   = vector<vector<int>> (2, vector<int>(n, 0));
+        ver   = vector<vector<int>> (2, vector<int>(n, 0));
+        diag  = vector<int> (2, 0);
+        antidiag = vector<int> (2, 0);
+    }
+    
+    /** Player {player} makes a move at ({row}, {col}).
+        @param row The row of the board.
+        @param col The column of the board.
+        @param player The player, can be either 1 or 2.
+        @return The current winning condition, can be either:
+                0: No one wins.
+                1: Player 1 wins.
+                2: Player 2 wins. */
+    int move(int row, int col, int player) {
+        if (++hor[player - 1][row] == sz) return player;
+        if (++ver[player - 1][col] == sz) return player;
+        if (row == col && ++diag[player - 1] == sz) return player;
+        if (row + col == sz - 1 && ++antidiag[player - 1] == sz) return player;
+        return 0;
+    }
+};
 ```
 
 ### 349. Intersection of Two Arrays
