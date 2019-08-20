@@ -1,5 +1,41 @@
 # LeetCode 401 - 450
 
+### 402. Remove K Digits
+
+Given a non-negative integer *num* represented as a string, remove *k* digits from the number so that the new number is the smallest possible.
+
+**Note:**
+
+- The length of *num* is less than 10002 and will be ≥ *k*.
+- The given *num* does not contain any leading zero.
+
+Example:
+
+```
+Input: num = "1432219", k = 3
+Output: "1219" (Remove the three digits 4, 3, and 2 to form the new number 1219 which is the smallest)
+
+Input: num = "10200", k = 1
+Output: "200" (Remove the leading 1 and the number is 200. Note that the output must not contain leading zeroes)
+```
+
+Solution: stack，特别考虑0，一定要背（很难想到是stack，原理是应该优先移除前面的大数）
+
+```cpp
+string removeKdigits(string num, int k) {
+       string ans = "";
+       for (const char & c : num) {
+           while (!ans.empty() && ans.back() > c && k) {
+               ans.pop_back();
+               --k;
+           }
+           if (!ans.empty() || c != '0') ans.push_back(c);
+       }
+       while (!ans.empty() && k--) ans.pop_back();
+       return ans.empty() ?"0" :ans;
+}
+```
+
 ### 403. Frog Jump
 
 A frog is crossing a river. The river is divided into x units and at each unit there may or may not exist a stone. The frog can jump on a stone, but it must not jump into the water.
