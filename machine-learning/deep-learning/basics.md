@@ -121,5 +121,6 @@ $$
 
 ![](../../.gitbook/assets/image%20%28168%29.png)
 
- 
+# 6. Faster R-CNN
 
+![](../../.gitbook/assets3/faster_r_cnn.png)
