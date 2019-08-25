@@ -119,6 +119,57 @@ int maxChunksToSorted(vector<int>& arr) {
 }
 ```
 
+### 772. Basic Calculator III
+
+Implement a basic calculator to evaluate a simple expression string.
+
+The expression string may contain open `(` and closing parentheses `)`, the plus `+` or minus sign `-`, **non-negative**integers and empty spaces ``.
+
+The expression string contains only non-negative integers, `+`, `-`, `*`, `/` operators , open `(` and closing parentheses `)` and empty spaces ``. The integer division should truncate toward zero.
+
+You may assume that the given expression is always valid. All intermediate results will be in the range of `[-2147483648, 2147483647]`.
+
+Example:
+
+```
+Input: (2+6* 3+5- (3*14/7+2)*5)+3
+Output: -12
+```
+
+Solution: 比Q227多了括号，因此需要recursive操作，一定要背
+
+```cpp
+int calculate(string s) {
+    int i = 0;
+    return parseExpr(s, i);
+}
+
+int parseExpr(const string& s, int& i) {
+    char op = '+';
+    long base = 0, temp = 0;
+    while (i < s.length() && op != ')') {  // New in Q772
+        if (s[i] != ' ') {
+            long n = s[i] == '(' ? parseExpr(s, ++i) : parseNum(s, i);  // New in Q772
+            switch (op) {
+                case '+' : base += temp; temp = n; break;
+                case '-' : base += temp; temp = -n; break;
+                case '*' : temp *= n; break;
+                case '/' : temp /= n; break;
+            }            
+            if (i < s.length()) op = s[i];
+        }
+        ++i;
+    }
+    return base + temp;
+}
+
+long parseNum(const string& s, int& i) {
+    long n = 0;
+    while (i < s.length() && isdigit(s[i])) n = 10 * n + (s[i++] - '0');
+    return n;
+}
+```
+
 ### 779. K-th Symbol in Grammar
 
 On the first row, we write a `0`. Now in every subsequent row, we look at the previous row and replace each occurrence of `0` with `01`, and each occurrence of `1` with `10`. Given row `N` and index `K`, return the `K`-th indexed symbol in row `N`. (The values of `K` are 1-indexed)

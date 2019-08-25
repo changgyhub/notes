@@ -250,6 +250,37 @@ int findPeakElement(vector<int> &nums) {
 }
 ```
 
+### 163. Missing Ranges
+
+Given a sorted integer array **nums**, where the range of elements are in the **inclusive range** **[lower, upper]**, return its missing ranges.
+
+Example:
+
+```
+Input: nums = [0, 1, 3, 50, 75], lower = 0 and upper = 99,
+Output: ["2", "4->49", "51->74", "76->99"]
+```
+
+Solution: 正常遍历处理，注意细节
+
+```cpp
+string print(long long x, long long y){
+    return x == y? to_string(x): to_string(x) + "->" + to_string(y);
+}
+vector<string> findMissingRanges(vector<int>& nums, int lower, int upper) {
+    if (nums.empty()) return {print(lower, upper)};
+    vector<string> res;
+    if (nums.front() != lower) res.push_back(print(lower, nums.front() - 1));        
+    for (int i = 0; i < int(nums.size())-1; ++i){
+        long long l = static_cast<long long>(nums[i]) + 1;
+        long long r = static_cast<long long>(nums[i+1]) - 1;
+        if (l <= r) res.push_back(print(l, r));
+    }
+    if (nums.back() != upper) res.push_back(print(nums.back() + 1, upper));
+    return res;
+}
+```
+
 ### 164. Maximum Gap
 
 Given an unsorted array, find the maximum difference between the successive elements in its sorted form.

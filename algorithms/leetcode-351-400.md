@@ -130,6 +130,43 @@ int countNumbersWithUniqueDigits(int n) {
 }
 ```
 
+### 364. Nested List Weight Sum II
+
+Given a nested list of integers, return the sum of all integers in the list weighted by their depth.
+
+Each element is either an integer, or a list -- whose elements may also be integers or other lists.
+
+Different from the [previous question](https://leetcode.com/problems/nested-list-weight-sum/) where weight is increasing from root to leaf, now the weight is defined from bottom up. i.e., the leaf level integers have weight 1, and the root level integers have the largest weight.
+
+Example:
+
+```
+Input: [1,[4,[6]]]
+Output: 17 (One 1 at depth 3, one 4 at depth 2, and one 6 at depth 1; 1*3 + 4*2 + 6*1 = 17)
+```
+
+Solution: dfs，一定要背
+
+```cpp
+int depthSumInverse(vector<NestedInteger>& nestedList) {
+    if (nestedList.empty()) return 0;
+    int res = 0, total = 0, depth = 0;
+    dfs(res, total, depth, 1, nestedList);
+    return total * (depth + 1) - res;
+}
+void dfs(int& res, int& total, int& depth, int level, vector<NestedInteger>& nestedList){
+    for (auto &x: nestedList){
+        if (x.isInteger()) {
+            res += x.getInteger() * level;
+            total += x.getInteger();
+            depth = max(depth, level);
+        } else {
+            dfs(res, total, depth, level + 1, x.getList());
+        }
+    }
+}
+```
+
 ### 365. Water and Jug Problem
 
 You are given two jugs with capacities x and y litres. There is an infinite amount of water supply available. You need to determine whether it is possible to measure exactly z litres using these two jugs. If z liters of water is measurable, you must have z liters of water contained within one or both buckets by the end. Operations allowed are: \(1\) Fill any of the jugs completely with water; \(2\) Empty any of the jugs; \(3\) Pour water from one jug into another till the other jug is completely full or the first jug itself is empty.
@@ -174,6 +211,40 @@ int gcd(int x, int y) {
 int lcm(int x, int y) {
     int gcd = gcd(a, b);
     return gcd? (a * b / gcd) : 0;
+}
+```
+
+### 366. Find Leaves of Binary Tree
+
+Given a binary tree, collect a tree's nodes as if you were doing this: Collect and remove all leaves, repeat until the tree is empty.
+
+Example:
+
+```
+Input: [1,2,3,4,5]
+     1
+    / \
+   2   3
+  / \     
+ 4   5    
+Output: [[4,5,3],[2],[1]]
+```
+
+Solution: dfs with return，注意细节
+
+```cpp
+vector<vector<int>> findLeaves(TreeNode* root) {
+    vector<vector<int>> ret;
+    if (root) helper(ret, root);
+    return ret;
+}
+int helper(vector<vector<int>>& ret, TreeNode* root) {
+    int level = 0;
+    if (root->left) level = max(level, 1 + helper(ret, root->left));
+    if (root->right) level = max(level, 1 + helper(ret, root->right));
+    if (ret.size() == level) ret.push_back(vector<int>());
+    ret[level].push_back(root->val);
+    return level;
 }
 ```
 

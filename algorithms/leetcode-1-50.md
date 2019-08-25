@@ -436,6 +436,47 @@ int maxArea(vector<int>& height) {
 }
 ```
 
+### 13. Roman to Integer
+
+Roman numerals are represented by seven different symbols: `I`, `V`, `X`, `L`, `C`, `D` and `M`.
+
+```
+Symbol       Value
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+```
+
+Given a roman numeral, convert it to an integer. Input is guaranteed to be within the range from 1 to 3999.
+
+Example:
+
+```
+Input: "MCMXCIV"
+Output: 1994 (M = 1000, CM = 900, XC = 90 and IV = 4)
+```
+
+Solution: 从后往前遍历
+
+```cpp
+int romanToInt(string s) {
+    unordered_map<char, int> hash {{'I', 1}, {'V', 5}, {'X', 10}, {'L', 50}, {'C', 100}, {'D', 500}, {'M', 1000}};
+    if (s.empty()) return 0;
+    int res = hash[s.back()], post = hash[s.back()], cur;
+    for (int i = s.size() - 2; i >= 0; --i) {
+        cur = hash[s[i]];
+        if (post > cur) res -= cur;
+        else res += cur;
+        post = cur;
+    }
+    return res;
+}
+```
+
 ### 14. Longest Common Prefix
 
 Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string "". All given inputs are in lowercase letters a-z.

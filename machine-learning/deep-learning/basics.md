@@ -123,4 +123,6 @@ $$
 
 # 6. Faster R-CNN
 
+[详细分析](https://yifdu.github.io/2019/02/18/Object-Detection（四）/)
+
 ![](../../.gitbook/assets3/faster_r_cnn.png)

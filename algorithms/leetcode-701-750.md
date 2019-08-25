@@ -1,5 +1,74 @@
 # LeetCode 701 - 750
 
+### 716. Max Stack
+
+Design a max stack that supports push, pop, top, peekMax and popMax.
+
+1. push(x) -- Push element x onto stack.
+2. pop() -- Remove the element on top of the stack and return it.
+3. top() -- Get the element on the top.
+4. peekMax() -- Retrieve the maximum element in the stack.
+5. popMax() -- Retrieve the maximum element in the stack, and remove it. If you find more than one maximum elements, only remove the top-most one.
+
+Example:
+
+```
+MaxStack stack = new MaxStack();
+stack.push(5); 
+stack.push(1);
+stack.push(5);
+stack.top(); -> 5
+stack.popMax(); -> 5
+stack.top(); -> 1
+stack.peekMax(); -> 5
+stack.pop(); -> 1
+stack.top(); -> 5
+```
+
+Solution: 类似LRU，不过把hashmap换成treemap，一定要背
+
+```cpp
+class MaxStack {
+public:
+    MaxStack() {
+        hash.clear();
+        stack.clear();
+    }
+    
+    void push(int x) {
+        stack.push_front(x);
+        hash[x].push_back(stack.begin());
+    }
+    
+    int pop() {
+        int x = stack.front();
+        hash[x].pop_back();
+        if (hash[x].empty()) hash.erase(x);
+        stack.pop_front();
+        return x;
+    }
+    
+    int top() {
+        return stack.front();
+    }
+    
+    int peekMax() {
+        return hash.rbegin()->first;
+    }
+    
+    int popMax() {
+        int x = hash.rbegin()->first;
+        stack.erase(hash[x].back());
+        hash[x].pop_back();
+        if (hash[x].empty()) hash.erase(x);
+        return x;
+    }
+private:
+    map<int, vector<list<int>::iterator>> hash;
+    list<int> stack;
+};
+```
+
 ### 718. Maximum Length of Repeated Subarray
 
 Given two integer arrays `A` and `B`, return the maximum length of an subarray that appears in both arrays.
