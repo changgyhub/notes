@@ -1,6 +1,6 @@
 # Algorithms and Datastructures
 
-## 需要添加：各种O(1)数据结构题，LRU，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，线程安全，skyline，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
+## 需要添加：各种O(1)数据结构题，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，线程安全，skyline，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
 
 ## 整合一下general-algorithms.md
 
@@ -58,6 +58,7 @@
     * 二分图
     * 拓扑排序
     * 并查集
+    * LRU
 * 参考资料
 
 ## 算法思想
@@ -6123,6 +6124,58 @@ public:
         }
         return vector<int>{-1, -1};
     }
+};
+```
+
+#### LRU
+
+设计一个固定大小的，least recently used cache
+
+```
+LRUCache cache = new LRUCache( 2 /* capacity */ );
+
+cache.put(1, 1);
+cache.put(2, 2);
+cache.get(1);       // returns 1
+cache.put(3, 3);    // evicts key 2
+cache.get(2);       // returns -1 (not found)
+cache.put(4, 4);    // evicts key 1
+cache.get(1);       // returns -1 (not found)
+cache.get(3);       // returns 3
+cache.get(4);       // returns 4
+```
+
+采用复合数据结构 list<pair<int, int>>和hashmap<int, list<pair<int, int>>::iterator>，存iterator的原因是方便调用list的splice函数来直接更新cash hit的pair。
+
+```cpp
+class LRUCache{  
+public:  
+    LRUCache(int capacity):size(capacity) {}  
+
+    int get(int key) {  
+        auto it = hash.find(key);  
+        if (it == hash.end()) return -1;  
+        cache.splice(cache.begin(), cache, it->second);  
+        return it->second->second;  
+    }  
+
+    void put(int key, int value) {  
+        auto it = hash.find(key);  
+        if (it != hash.end()) {  
+            it->second->second = value;  
+            return cache.splice(cache.begin(), cache, it->second);  
+        }  
+        cache.insert(cache.begin(), make_pair(key, value));  
+        hash[key] = cache.begin();  
+        if (cache.size() > size) {  
+            hash.erase(cache.back().first);  
+            cache.pop_back();  
+        }
+    }
+private:  
+    unordered_map<int, list<pair<int, int>>::iterator> hash;  
+    list<pair<int, int>> cache;  
+    int size;  
 };
 ```
 
