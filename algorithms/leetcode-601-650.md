@@ -183,11 +183,20 @@ int countSubstrings(string s) {
 
 // method 3: expand from pos
 int countSubstrings(string s) {
-    int res = 0, n = s.length();
-    for (int i = 0; i < n; i++) {
-        for (int j = 0;   i-j >= 0 && i+j < n &&   s[i-j] == s[i+j]; j++) ++res; //substring s[i-j, ..., i+j]
-        for (int j = 0; i-1-j >= 0 && i+j < n && s[i-1-j] == s[i+j]; j++) ++res; //substring s[i-1-j, ..., i+j]
+    int cnt = 0;
+    for (int i = 0; i < s.length(); ++i) {
+        cnt += extendSubstrings(s, i, i);  // 奇数长度
+        cnt += extendSubstrings(s, i, i + 1);  // 偶数长度
     }
-    return res;
+    return cnt;
+}
+int extendSubstrings(string s, int l, int r) {
+    int cnt = 0;
+    while (l >= 0 && r < s.length() && s[l] == s[r]) {
+        --l;
+        ++r;
+        ++cnt;
+    }
+    return cnt;
 }
 ```

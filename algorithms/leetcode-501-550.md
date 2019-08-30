@@ -406,16 +406,17 @@ int depth(TreeNode* root){
 }
 
 // method 2: depth and global max
-int diameterOfBinaryTree(TreeNode* node, int& diameter) {
-    if (!node) return 0;
-    int l = diameterOfBinaryTree(node->left, diameter), r = diameterOfBinaryTree(node->right, diameter);
-    diameter = max(l + r, diameter);
-    return max(l, r) + 1;
-}
 int diameterOfBinaryTree(TreeNode* root) {
     int diameter = 0;
-    int d = diameterOfBinaryTree(root, diameter);
+    helper(root, diameter);
     return diameter;
+}
+int helper(TreeNode* node, int& diameter) {
+    if (!node) return 0;
+    int l = helper(node->left, diameter)；
+    int r = helper(node->right, diameter);
+    diameter = max(l + r, diameter);
+    return max(l, r) + 1;
 }
 ```
 

@@ -184,35 +184,12 @@ Solution: 由于一旦连一起，后面一定一样长，所以先测定长度�
 
 ```cpp
 ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
-    int a = 0, b = 0;
-    ListNode *tempA = headA, *tempB = headB;
-
-    while (tempA) {
-        a++;
-        tempA = tempA->next;
+    ListNode *l1 = headA, *l2 = headB;
+    while (l1 != l2) {
+        l1 = l1? l1->next: headB;
+        l2 = l2? l2->next: headA;
     }
-    while (tempB) {
-        b++;
-        tempB = tempB->next;
-    }
-
-    tempA = headA, tempB = headB;
-    int difference = a - b;
-
-    while (difference > 0) {
-        tempA = tempA->next;
-        difference--;
-    }
-    while (difference < 0) {
-        tempB = tempB->next;
-        difference++;
-    }
-
-    while (tempA != tempB) {
-        tempA = tempA->next;
-        tempB = tempB->next;
-    }
-    return tempA;
+    return l1;
 }
 ```
 

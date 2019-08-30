@@ -20,13 +20,14 @@ Output: true
 Solution: 递归，加helper，左边的右边等于右边的左边
 
 ```cpp
-bool mySymmetric(TreeNode* left, TreeNode* right) {
-    if (left && right && left->val == right->val)
-        return mySymmetric(left->left, right->right) && mySymmetric(left->right, right->left);
-    return !left && !right;
-}
 bool isSymmetric(TreeNode *root) {
-    return root? mySymmetric(root->left, root->right): true;
+    return root? isSymmetric(root->left, root->right): true;
+}
+bool isSymmetric(TreeNode* left, TreeNode* right) {
+    if (!left && !right) return true;
+    if (!left || !right) return false;
+    if (left->val != right->val) return false;
+    return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left);
 }
 ```
 
@@ -482,12 +483,22 @@ Output: 2
 Solution: 直接dfs\(递归\)，注意一侧有一侧没有时，长度为有的那一侧的最短长度而非0
 
 ```cpp
+// method 1
 int minDepth(TreeNode* root) {
     return root? (
         root->left? (
             root->right? 1 + min(minDepth(root->left), minDepth(root->right)): 1 + minDepth(root->left)
         ): 1 + minDepth(root->right)
     ): 0;
+}
+
+// method 2
+int minDepth(TreeNode* root) {
+    if (!root) return 0;
+    int left = minDepth(root->left);
+    int right = minDepth(root->right);
+    if (!left || !right) return left + right + 1;
+    return min(left, right) + 1;
 }
 ```
 
@@ -510,16 +521,13 @@ Input: sum = 22,
 Output: true
 ```
 
-Solution: 直接dfs\(递归\)，注意一侧有一侧没有时，只递归长度为有的那一侧，另一侧不算leaf
+Solution: dfs
 
 ```cpp
-bool helper(TreeNode *root, int sum) {
-    int val = root->val;
-    if (!root->left && !root->right) return sum == val;
-    return (root->left && helper(root->left, sum - val)) || (root->right && helper(root->right, sum - val));
-}
 bool hasPathSum(TreeNode* root, int sum) {
-    return root? helper(root, sum): false;
+    if (!root) return false;
+    if (!root->left && !root->right && root->val == sum) return true;
+    return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);
 }
 ```
 
@@ -1729,18 +1737,15 @@ vector<int> preorderTraversal(TreeNode* root) {
 vector<int> preorderTraversal(TreeNode* root) {
     vector<int> ret;
     if (!root) return ret;
-
-    stack<TreeNode*> st;
-    st.push(root);
-
-    while (!st.empty()) {
-        TreeNode* tp = st.top();
-        st.pop();
-        ret.push_back(tp->val);
-        if (tp->right) st.push(tp->right);
-        if (tp->left) st.push(tp->left);
+    stack<TreeNode*> s;
+    s.push(root);
+    while (!s.empty()) {
+        TreeNode* node = s.top();
+        s.pop();
+        ret.push_back(node->val);
+        if (node->right) s.push(node->right);  // 先右后左，保证左子树先遍历
+        if (node->left) s.push(node->left);
     }
-
     return ret;        
 }
 ```
@@ -1762,7 +1767,7 @@ Input: [1,null,2,3]
 Output: [3,2,1]
 ```
 
-Example: 递归；或stack储存左树，每次先打印左枝，再找右枝的左树，且需要一个flag来防止多次遍历右枝。一定要背和理解
+Example: 递归；或stack：前序遍历为 root -&gt; left -&gt; right，后序遍历为 left -&gt; right -&gt; root，可以修改前序遍历成为 root -&gt; right -&gt; left，那么这个顺序就和后序遍历正好相反。
 
 ```cpp
 // recursion
@@ -1777,26 +1782,19 @@ vector<int> postorderTraversal(TreeNode* root) {
 
 // stack
 vector<int> postorderTraversal(TreeNode* root) {
-    vector<int> result;
-    stack<TreeNode *> myStack;
-
-    TreeNode *current = root, *lastVisited = NULL;
-    while (current|| !myStack.empty()) {
-        while (current) {
-            myStack.push(current);
-            current = current->left;
-        }
-        current = myStack.top(); 
-        if (!current->right || current->right == lastVisited) {
-            myStack.pop();
-            result.push_back(current->val);
-            lastVisited = current;
-            current = NULL;
-        } else {
-            current = current->right;
-        }
+    vector<int> ret;
+    if (!root) return ret;
+    stack<TreeNode*> s;
+    s.push(root);
+    while (!s.empty()) {
+        TreeNode* node = s.top();
+        s.pop();
+        ret.push_back(node->val);
+        if (node->left) s.push(node->left);
+        if (node->right) s.push(node->right);
     }
-    return result;
+    reverse(ret.begin(), ret.end());
+    return ret;        
 }
 ```
 

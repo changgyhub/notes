@@ -1219,6 +1219,17 @@ ListNode* deleteDuplicates(ListNode* head) {
     }
     return head;
 }
+// or with recursion
+ListNode* deleteDuplicates(ListNode* head) {
+    if (!head|| !head->next) return head;
+    head->next = deleteDuplicates(head->next);
+    if (head->val == head->next->val) {
+        ListNode* next = head->next;
+        delete head;
+        head = next;
+    }
+    return head;
+}
 ```
 
 ### 84. Largest Rectangle in Histogram
@@ -1591,9 +1602,10 @@ Input: [1,null,2,3]
 Output: [1,3,2]
 ```
 
-Solution: 递归\(也可以变成[循环或者Morris Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/solution/)\)，一定要背
+Solution: 分治、stack、或者[Morris Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/solution/)\，一定要背
 
 ```cpp
+// divide and conquer
 vector<int> inorderTraversal(TreeNode* root) {
     if (!root) return vector<int>();
     vector<int> left = inorderTraversal(root->left);
@@ -1601,6 +1613,50 @@ vector<int> inorderTraversal(TreeNode* root) {
     left.push_back(root->val);
     left.insert(left.end(), right.begin(), right.end());
     return left;
+}
+// stack
+vector<int> inorderTraversal(TreeNode* root) {
+    vector<int> ret;
+    if (!root) return ret;
+    stack<TreeNode*> s;
+    TreeNode* cur = root;
+    while (cur || !s.empty()) {
+        while (cur) {
+            s.push(cur);
+            cur = cur->left;
+        }
+        TreeNode* node = s.top(); s.pop();
+        ret.push_back(node->val);
+        cur = node->right;
+    }
+    return ret;
+}
+// Morris Traversal
+// Step 1: Initialize current as root
+// Step 2: While current is not NULL,
+// If current does not have left child
+//   a. Add current’s value
+//   b. Go to the right child
+// Else
+//   a. In current's left subtree, make current the right child of the rightmost node
+//   b. Go to this left child
+vector<int> inorderTraversal(TreeNode* root) {
+    vector<int> ret;
+    TreeNode *cur = root, *pre;
+    while (cur) {
+        if (!cur->left) {
+            ret.push_back(cur->val);
+            cur = cur->right;
+        } else {
+            pre = cur->left;
+            while (pre->right) pre = pre->right;
+            pre->right = cur;
+            TreeNode* temp = cur;
+            cur = cur->left;
+            temp->left = NULL;
+        }
+    }
+    return ret;
 }
 ```
 

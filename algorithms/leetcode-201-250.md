@@ -160,23 +160,15 @@ Input: s = "paper", t = "title"
 Output: true
 ```
 
-Solution: 打两个表即可，用两个是因为必须满足双摄，可以一个表记录映射，一个表记录是否重复映射
+Solution: 打两个表即可，用两个是因为必须满足双摄
 
 ```cpp
 bool isIsomorphic(string s, string t) {
-    vector<char> dict(127, 0);
-    vector<bool> used(127, false);
-    int spos = 0, tpos = 0;
+    vector<int> s_first_index (256, 0), t_first_index (256, 0);
     for (int i = 0; i < s.length(); ++i) {
-        spos = s[i], tpos = t[i];
-        if (dict[spos] == 0) {
-            if (used[tpos]) return false;
-            else {
-                dict[spos] = tpos;
-                used[tpos] = true;
-            }
-        }
-        else if (dict[spos] != tpos) return false;
+        if (s_first_index[s[i]] != t_first_index[t[i]]) return false;
+        s_first_index[s[i]] = i + 1;
+        t_first_index[t[i]] = i + 1;
     }
     return true;
 }
@@ -189,19 +181,25 @@ Reverse a singly linked list.
 Solution: 正常操作，一定要背
 
 ```cpp
+// method 1: while
 ListNode* reverseList(ListNode* head) {
-    if (!head) return NULL;
-
-    ListNode *left = NULL, *right = NULL;
-
+    ListNode *prev = NULL, *next;
     while (head) {
-        right = head->next;
-        head->next = left;
-        left = head;
-        head = right;
+        next = head->next;
+        head->next = prev;
+        prev = head;
+        head = next;
     }
+    return prev;
+}
 
-    return left;
+// method 2: recursion
+// call node = reverseList(mode, NULL);
+ListNode* reverseList(ListNode* head, ListNode* prev) {
+    if (!head) return prev;
+    ListNode* next = head->next;
+    head->next = prev;
+    return reverseList(next, head);
 }
 ```
 
@@ -748,7 +746,7 @@ Input: [1,2,3,1]
 Output: true
 ```
 
-Solution: sort或者hashset
+Solution: hashset
 
 ```cpp
 bool containsDuplicate(vector<int>& nums) {
@@ -1224,7 +1222,7 @@ Input: root = [3,1,4,null,2], k = 1
 Output: 1
 ```
 
-Solution: inorder traversal，一定要背
+Solution: inorder traversal，可以用stack避免递归
 
 ```cpp
 int kthSmallest(TreeNode* root, int k) {
@@ -1258,7 +1256,7 @@ Solution: 如果是平方数，则n&\(n-1\)为0
 
 ```cpp
 bool isPowerOfTwo(int n) {
-    return n > 0 && !(n & (n-1));
+    return n > 0 && !(n & (n - 1));
 }
 ```
 
@@ -1269,6 +1267,44 @@ Implement the following operations of a queue using stacks: push\(x\), pop\(\), 
 Solution: 类似Q225，一个stack就可以完成，不过空间需求和两个stack是相同的
 
 ```cpp
+// with two stacks
+class MyQueue {
+    stack<int> in, out;
+public:
+    MyQueue() {}
+    
+    void push(int x) {
+        in.push(x);
+    }
+    
+    int pop() {
+        in2out();
+        int x = out.top();
+        out.pop();
+        return x;
+    }
+    
+    int peek() {
+        in2out();
+        return out.top();
+    }
+
+    void in2out() {
+        if (out.empty()) {
+            while (!in.empty()) {
+                int x = in.top();
+                in.pop();
+                out.push(x);
+            }
+        }
+    }
+
+    bool empty() {
+        return in.empty() && out.empty();
+    }
+};
+
+// with one stack
 class MyQueue {
     stack<int> s;
 public:
@@ -1279,7 +1315,7 @@ public:
         else {
             int data = s.top();
             s.pop();
-            push(x);
+            push(x);  // recursive call
             s.push(data);
         }
     }
@@ -1364,7 +1400,7 @@ Solution: 如果pq比root小, 则LCA必定在左子树; 如果pq比root大, 则L
 
 ```cpp
 TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-    if (!root|| !p|| !q) return NULL;
+    if (!root || !p || !q) return NULL;
     if (max(p->val, q->val) < root->val) return lowestCommonAncestor(root->left, p, q);  
     if (min(p->val, q->val) > root->val) return lowestCommonAncestor(root->right, p, q);  
     return root;  

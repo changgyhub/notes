@@ -334,14 +334,10 @@ Solution: 遍历一遍即可
 ```c++
 int findMaxConsecutiveOnes(vector<int>& nums) {
     int global = 0, local = 0;
-    for (auto i: nums) {
-        if (!i) {
-            global = max(global, local);
-            local = 0;
-        }
-        else ++local;
+    for (const int& n: nums) {
+        local = n? local + 1: 0;
+        global = max(global, local);
     }
-    global = max(global, local);
     return global;
 }
 ```

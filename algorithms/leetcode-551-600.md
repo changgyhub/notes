@@ -95,8 +95,7 @@ bool isSubtree(TreeNode* s, TreeNode* t, bool started=false) {
 
 // method 2: recursion then compare
 bool isSubtree(TreeNode* s, TreeNode* t) {
-    if (!s) return false;
-    return (!isSubtree(s->left, t) && !isSubtree(s->right, t))? compare(s, t): true;
+    return s? isSubtree(s->left, t) || isSubtree(s->right, t) || compare(s, t): false;
 }
 bool compare(TreeNode* a, TreeNode* b){
     if (!a && !b) return true;

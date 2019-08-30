@@ -135,16 +135,15 @@ Input:  [1,2,1,3,2,5]
 Output: [3,5]
 ```
 
-Solution: 先XOR找出那两个数，然后分组找到这两个数，很有技巧性，见代码
+Solution: 先XOR找出那两个数的diff，运用位运算diff &= -diff 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位，利用这一位就可以将两个元素区分开来
 
 ```cpp
 vector<int> singleNumber(vector<int>& nums) {
-    int aXorb = accumulate(nums.begin(), nums.end(), 0, bit_xor<int>());  // the result of a xor b;
-    int lastBit = (aXorb & (aXorb - 1)) ^ aXorb;  // the last bit that a diffs b
+    int diff = accumulate(nums.begin(), nums.end(), 0, bit_xor<int>());
+    diff &= -diff;  // 得到最右一位
     int intA = 0, intB = 0;
     for (auto item : nums) {
-        // based on the last bit, group the items into groupA and groupB
-        if (item & lastBit) intA = intA ^ item;
+        if (item & diff) intA = intA ^ item;
         else intB = intB ^ item;
     }
     return vector<int>{intA, intB};   

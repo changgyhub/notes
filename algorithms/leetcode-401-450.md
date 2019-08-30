@@ -560,22 +560,19 @@ Imput: root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
 Output: 3 (5 -> 3, 5 -> 2 -> 1, -3 -> 11)
 ```
 
-Solution: DFS，需要记录是否开始
+Solution: DFS，需要分情况是否开始
 
 ```c++
 int pathSum(TreeNode* root, int sum) {
-    if (!root) return 0;
-    int res = 0;
-    helper(root, sum, res, false);
-    return res;   
+    return root? pathSumStartWithRoot(root, sum) + pathSum(root->left, sum) + pathSum(root->right, sum): 0;
 }
-void helper(TreeNode* root, int sum, int &res, bool started){
-    if (root->left && !started) helper(root->left, sum, res, false);
-    if (root->right && !started) helper(root->right, sum, res, false);
-    sum -= root->val;
-    if (!sum) ++res;
-    if (root->left) helper(root->left, sum, res, true);
-    if (root->right) helper(root->right, sum, res, true);
+
+int pathSumStartWithRoot(TreeNode* root, int sum) {
+    if (!root) return 0;
+    int ret = root->val == sum? 1: 0;
+    ret += pathSumStartWithRoot(root->left, sum - root->val);
+    ret += pathSumStartWithRoot(root->right, sum - root->val);
+    return ret;
 }
 ```
 

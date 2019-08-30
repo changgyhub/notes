@@ -625,17 +625,17 @@ Solution: 快慢指针，始终相差n，最后移除慢指针的nextnext。注�
 
 ```cpp
 ListNode* removeNthFromEnd(ListNode* head, int n) {
-    ListNode* start = new ListNode(0); // avoid overflow when list = [1] and n = 1
-    start->next = head;
-    ListNode* fast = start;
-    ListNode* slow = start;
+    ListNode* dummy = new ListNode(0);  // avoid overflow when list = [1] and n = 1
+    dummy->next = head;
+    ListNode* fast = dummy;
+    ListNode* slow = dummy;
     while (n-- >= 0) fast = fast->next;
     while (fast) {
         slow = slow->next;
         fast = fast->next;
     }
     slow->next = slow->next->next;
-    return start->next;
+    return dummy->next;
 }
 ```
 

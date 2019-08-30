@@ -380,15 +380,15 @@ Solution: bit manipulation，可以用hashing或者vector记录字典，一定�
 
 ```c++
 int maxProduct(vector<string>& words) {
-    unordered_map<int, int> maxlen;
+    unordered_map<int, int> hash;
     int result = 0;
-    for (string word : words) {
+    for (const string& word : words) {
         int mask = 0, size = word.size();
         for (char c : word) mask |= 1 << (c - 'a');
-        maxlen[mask] = max(maxlen[mask], size);
-        for (auto mask_len : maxlen)
-            if (!(mask & mask_len.first))
-                result = max(result, size * mask_len.second);
+        hash[mask] = max(hash[mask], size);
+        for (const auto& [h_mask, h_len]: hash) {
+            if (!(mask & h_mask)) result = max(result, size * h_len);
+        }
     }
     return result;
 }
@@ -539,7 +539,7 @@ Solution: 设置两个head，遍历一遍即可
 ```c++
 ListNode* oddEvenList(ListNode* head) {
     if (!head) return head;
-    ListNode *odd=head, *evenhead=head->next, *even = evenhead;
+    ListNode *odd = head, *evenhead = head->next, *even = evenhead;
     while (even && even->next) {
         odd->next = odd->next->next;
         even->next = even->next->next;
@@ -844,7 +844,6 @@ Solution: log或bit manipulation
 bool isPowerOfFour(int num) {
     return fmod(log10(num)/log10(4), 1) == 0;
 }
-
 
 // method 2: bit manipulation
 bool isPowerOfFour(int num) {
