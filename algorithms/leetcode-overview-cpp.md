@@ -1862,6 +1862,8 @@ void backtrack(const string &src, const string &dst, unordered_map<string, vecto
 
 递归和动态规划都是将原问题拆成多个子问题然后求解，他们之间最本质的区别是，动态规划保存了子问题的解，避免重复计算。
 
+**注意：为了方便处理初始情况，一个常见的操作是建立一个n+1长度的dp数组，把初始值设置在dp[0]处。**
+
 #### 斐波那契数列
 
 **爬楼梯**
@@ -2375,7 +2377,7 @@ int longestCommonSubsequence(string text1, string text2) {
 
 #### 0-1 背包
 
-有一个容量为 N 的背包，要用这个背包装下物品的价值最大，这些物品有两个属性：体积 w 和价值 v。
+有N个物品和容量为W的背包，要用这个背包装下物品的价值最大，这些物品有两个属性：体积 w 和价值 v。
 
 定义一个二维数组 dp 存储最大价值，其中 dp\[i\]\[j\] 表示前 i 件物品体积不超过 j 的情况下能达到的最大价值。设第 i 件物品体积为 w，价值为 v，根据第 i 件物品是否添加到背包中，可以分两种情况讨论：
 
@@ -2387,15 +2389,15 @@ int longestCommonSubsequence(string text1, string text2) {
 综上，0-1 背包的状态转移方程为：dp\[i\]\[j\] = max\(dp\[i - 1\]\[j\], dp\[i-1\]\[j-w\] + v\)。
 
 ```cpp
-public int knapsack(int W, int N, int[] weights, int[] values) {
-    int[][] dp = new int[N + 1][W + 1];
-    for (int i = 1; i <= N; i++) {
-        int w = weights[i - 1], v = values[i - 1];
-        for (int j = 1; j <= W; j++) {
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    vector<vector<int>> dp (N + 1, vector<int>(W + 1, 0));
+    for (int i = 1; i <= N; ++i) {
+        int w = weights[i-1], v = values[i-1];
+        for (int j = 1; j <= W; ++j) {
             if (j >= w) {
-                dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - w] + v);
+                dp[i][j] = max(dp[i-1][j], dp[i-1][j-w] + v);
             } else {
-                dp[i][j] = dp[i - 1][j];
+                dp[i][j] = dp[i-1][j];
             }
         }
     }
@@ -2410,29 +2412,15 @@ public int knapsack(int W, int N, int[] weights, int[] values) {
 因为 dp\[j-w\] 表示 dp\[i-1\]\[j-w\]，因此不能先求 dp\[i\]\[j-w\]，以防止将 dp\[i-1\]\[j-w\] 覆盖。也就是说要先计算 dp\[i\]\[j\] 再计算 dp\[i\]\[j-w\]，在程序实现时需要按倒序来循环求解。
 
 ```cpp
-public int knapsack(int W, int N, int[] weights, int[] values) {
-    int[] dp = new int[W + 1];
-    for (int i = 1; i <= N; i++) {
-        int w = weights[i - 1], v = values[i - 1];
-        for (int j = W; j >= 1; j--) {
-            if (j >= w) {
-                dp[j] = Math.max(dp[j], dp[j - w] + v);
-            }
-        }
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    vector<int> dp (W + 1, 0);
+    for (int i = 1; i <= N; ++i) {
+        int w = weights[i-1], v = values[i-1];
+        for (int j = W; j >= w; j--) dp[j] = max(dp[j], dp[j-w] + v);
     }
     return dp[W];
 }
 ```
-
-**无法使用贪心算法的解释**
-
-0-1 背包问题无法使用贪心算法来求解，也就是说不能按照先添加性价比最高的物品来达到最优，这是因为这种方式可能造成背包空间的浪费，从而无法达到最优。考虑下面的物品和一个容量为 5 的背包，如果先添加物品 0 再添加物品 1，那么只能存放的价值为 16，浪费了大小为 2 的空间。最优的方式是存放物品 1 和物品 2，价值为 22.
-
-| id | w | v | v/w |
-| :--- | :--- | :--- | :--- |
-| 0 | 1 | 6 | 6 |
-| 1 | 2 | 10 | 5 |
-| 2 | 3 | 12 | 4 |
 
 **变种**
 
@@ -2456,29 +2444,19 @@ Explanation: The array can be partitioned as [1, 5, 5] and [11].
 可以看成一个背包大小为 sum/2 的 0-1 背包问题。
 
 ```cpp
-public boolean canPartition(int[] nums) {
-    int sum = computeArraySum(nums);
-    if (sum % 2 != 0) {
-        return false;
-    }
-    int W = sum / 2;
-    boolean[] dp = new boolean[W + 1];
+bool canPartition(vector<int> &nums) {
+    int sum = accumulate(nums.begin(), nums.end(), 0);
+    if (sum % 2) return false;
+    int target = sum / 2;
+    vector<bool> dp(target + 1, false);
     dp[0] = true;
-    Arrays.sort(nums);
-    for (int num : nums) {                 // 0-1 背包一个物品只能用一次
-        for (int i = W; i >= num; i--) {   // 从后往前，先计算 dp[i] 再计算 dp[i-num]
-            dp[i] = dp[i] || dp[i - num];
+    for (int i = 0; i < nums.size(); ++i) {
+        // 注意j要反向，因为原本是dp[i][j] = dp[i-1][j] || dp[i-1][j-nums[i]]
+        for (int j = target; j >= nums[i]; --j) {
+            dp[j] = dp[j] || dp[j-nums[i]];
         }
     }
-    return dp[W];
-}
-
-private int computeArraySum(int[] nums) {
-    int sum = 0;
-    for (int num : nums) {
-        sum += num;
-    }
-    return sum;
+    return dp.back();
 }
 ```
 
@@ -2513,45 +2491,15 @@ sum(P) + sum(N) + sum(P) - sum(N) = target + sum(P) + sum(N)
 因此只要找到一个子集，令它们都取正号，并且和等于 \(target + sum\(nums\)\)/2，就证明存在解。
 
 ```cpp
-public int findTargetSumWays(int[] nums, int S) {
-    int sum = computeArraySum(nums);
-    if (sum < S || (sum + S) % 2 == 1) {
-        return 0;
-    }
-    int W = (sum + S) / 2;
-    int[] dp = new int[W + 1];
-    dp[0] = 1;
-    Arrays.sort(nums);
-    for (int num : nums) {
-        for (int i = W; i >= num; i--) {
-            dp[i] = dp[i] + dp[i - num];
-        }
-    }
-    return dp[W];
+int findTargetSumWays(vector<int>& nums, int s) {
+    int sum = accumulate(nums.begin(), nums.end(), 0);
+    return (sum < s || (s + sum) & 1)? 0: subsetSum(nums, (s + sum) >> 1);
 }
 
-private int computeArraySum(int[] nums) {
-    int sum = 0;
-    for (int num : nums) {
-        sum += num;
-    }
-    return sum;
-}
-```
-
-DFS 解法：
-
-```cpp
-public int findTargetSumWays(int[] nums, int S) {
-    return findTargetSumWays(nums, 0, S);
-}
-
-private int findTargetSumWays(int[] nums, int start, int S) {
-    if (start == nums.length) {
-        return S == 0 ? 1 : 0;
-    }
-    return findTargetSumWays(nums, start + 1, S + nums[start])
-            + findTargetSumWays(nums, start + 1, S - nums[start]);
+int subsetSum(vector<int> & nums, int s){
+    int dp[s+1] = {1};  // first = 1, others = 0
+    for (int n : nums) for(int i = s; i >= n; --i) dp[i] += dp[i-n];
+    return dp[s];
 }
 ```
 
@@ -2567,19 +2515,18 @@ Return true because "leetcode" can be segmented as "leet code".
 
 dict 中的单词没有使用次数的限制，因此这是一个完全背包问题。
 
-**注意：对于压缩内存的写法，0-1背包对物品的迭代放在最外层，里层重量或价值从后往前遍历；完全背包对物品的迭代放在最里层，外层则正常从前往后遍历重量或价值。**
+**注意：对于压缩内存的写法，0-1背包对物品的迭代放在外层，里层的重量或价值从后往前遍历；完全背包对物品的迭代放在里层，外层则正常从前往后遍历重量或价值**。（若完全背包的依赖方向在矩阵上是左和上，而这个依赖关系在调转行列后仍然成立，那么在这种情况下里层外层可以互换；为了保险，完全背包都把物品放在里层即可；本题不可以互换）
 
 ```cpp
-public boolean wordBreak(String s, List<String> wordDict) {
+bool wordBreak(string s, vector<string>& wordDict) {
     int n = s.length();
-    boolean[] dp = new boolean[n + 1];
+    vector<bool> dp(n + 1, false);
     dp[0] = true;
-    for (int i = 1; i <= n; i++) {
-        for (String word : wordDict) {   // 完全一个物品可以使用多次
+    for (int i = 1; i <= n; ++i) {
+        for (const string & word: wordDict) {
             int len = word.length();
-            if (len <= i && word.equals(s.substring(i - len, i))) {
-                dp[i] = dp[i] || dp[i - len];
-            }
+            if (i < len) continue;
+            if (s.substr(i - len, len) == word) dp[i] = dp[i] || dp[i - len];
         }
     }
     return dp[n];
@@ -2600,27 +2547,20 @@ Explanation: There are totally 4 strings can be formed by the using of 5 0s and 
 这是一个多维费用的 0-1 背包问题，有两个背包大小，0 的数量和 1 的数量。
 
 ```cpp
-public int findMaxForm(String[] strs, int m, int n) {
-    if (strs == null || strs.length == 0) {
-        return 0;
-    }
-    int[][] dp = new int[m + 1][n + 1];
-    for (String s : strs) {    // 每个字符串只能用一次
-        int ones = 0, zeros = 0;
-        for (char c : s.toCharArray()) {
-            if (c == '0') {
-                zeros++;
-            } else {
-                ones++;
-            }
-        }
-        for (int i = m; i >= zeros; i--) {
-            for (int j = n; j >= ones; j--) {
-                dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1);
-            }
-        }
+int findMaxForm(vector<string>& strs, int m, int n) {
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (auto str: strs) {
+        vector<int> cnt = count(str);
+        for (int i = m; i >= cnt[0]; --i)
+            for (int j = n; j >= cnt[1]; --j)
+                dp[i][j] = max(1 + dp[i-cnt[0]][j-cnt[1]], dp[i][j]);
     }
     return dp[m][n];
+}
+vector<int> count(string & s){
+    vector<int> ans(2, 0);
+    for(char c: s) ++ans[c-'0'];
+    return ans;
 }
 ```
 
@@ -2644,23 +2584,19 @@ return -1.
 * 物品大小：面额
 * 物品价值：数量
 
-因为硬币可以重复使用，因此这是一个完全背包问题。
+因为硬币可以重复使用，因此这是一个完全背包问题。（因为本题的依赖关系在矩阵上是左和上，内外循环的顺序可以互换）
 
 ```cpp
-public int coinChange(int[] coins, int amount) {
-    if (coins == null || coins.length == 0) {
-        return 0;
+int coinChange(vector<int>& coins, int amount) {
+    if (coins.empty()) return -1;
+    vector<int> dp(amount+1, amount+2);
+    dp[0] = 0;
+    for (int coin : coins) {
+        for (int i = coin; i <= amount; i++) {
+            dp[i] = min(dp[i], dp[i-coin] + 1);
+        }   
     }
-    int[] minimum = new int[amount + 1];
-    Arrays.fill(minimum, amount + 1);
-    minimum[0] = 0;
-    Arrays.sort(coins);
-    for (int i = 1; i <= amount; i++) {
-        for (int j = 0; j < coins.length && coins[j] <= i; j++) {
-            minimum[i] = Math.min(minimum[i], minimum[i - coins[j]] + 1);
-        }
-    }
-    return minimum[amount] > amount ? -1 : minimum[amount];
+    return dp[amount] == amount + 2? -1: dp[amount];
 }
 ```
 
@@ -2682,54 +2618,47 @@ The possible combination ways are:
 (3, 1)
 
 Note that different sequences are counted as different combinations.
-
 Therefore the output is 7.
 ```
 
 完全背包。
 
 ```cpp
-public int combinationSum4(int[] nums, int target) {
-    if (nums == null || nums.length == 0) {
-        return 0;
-    }
-    int[] maximum = new int[target + 1];
-    maximum[0] = 1;
-    Arrays.sort(nums);
-    for (int i = 1; i <= target; i++) {
-        for (int j = 0; j < nums.length && nums[j] <= i; j++) {
-            maximum[i] += maximum[i - nums[j]];
-        }
-    }
-    return maximum[target];
+int combinationSum4(vector<int>& nums, int target) {  
+    if (!nums.size()) return 0;  
+    vector<int> dp(target + 1, 0);  
+    dp[0] = 1;  
+    for (int i = 1; i <= target; ++i) for (auto val: nums) if(val <= i) dp[i] += dp[i-val];
+    return dp[target];  
 }
 ```
 
-**只能进行 k 次的股票交易**
+#### 股票交易
 
-[188. Best Time to Buy and Sell Stock IV \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/description/)
+**只能进行一次的股票交易**
+
+[121. Best Time to Buy and Sell Stock \(Easy\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
+
+只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
 
 ```cpp
-public int maxProfit(int k, int[] prices) {
-    int n = prices.length;
-    if (k >= n / 2) {   // 这种情况下该问题退化为普通的股票交易问题
-        int maxProfit = 0;
-        for (int i = 1; i < n; i++) {
-            if (prices[i] > prices[i - 1]) {
-                maxProfit += prices[i] - prices[i - 1];
-            }
-        }
-        return maxProfit;
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    int min_price = prices[0], max_profit = 0;
+    for (const int& price: prices) {
+        max_profit = max(max_profit, price - min_price);
+        min_price = min(min_price, price);
     }
-    int[][] maxProfit = new int[k + 1][n];
-    for (int i = 1; i <= k; i++) {
-        int localMax = maxProfit[i - 1][0] - prices[0];
-        for (int j = 1; j < n; j++) {
-            maxProfit[i][j] = Math.max(maxProfit[i][j - 1], prices[j] + localMax);
-            localMax = Math.max(localMax, maxProfit[i - 1][j] - prices[j]);
-        }
+    return max_profit;
+}
+// or to write it in the buy-sell format
+int maxProfit(vector<int>& prices) {
+    int sell = 0, buy = INT_MIN;
+    for (int i = 0; i < prices.size(); ++i) {
+        buy = max(buy, -prices[i]);
+        sell = max(sell, buy + prices[i]);
     }
-    return maxProfit[k][n - 1];
+    return sell;
 }
 ```
 
@@ -2738,28 +2667,47 @@ public int maxProfit(int k, int[] prices) {
 [123. Best Time to Buy and Sell Stock III \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/)
 
 ```cpp
-public int maxProfit(int[] prices) {
-    int firstBuy = Integer.MIN_VALUE, firstSell = 0;
-    int secondBuy = Integer.MIN_VALUE, secondSell = 0;
-    for (int curPrice : prices) {
-        if (firstBuy < -curPrice) {
-            firstBuy = -curPrice;
-        }
-        if (firstSell < firstBuy + curPrice) {
-            firstSell = firstBuy + curPrice;
-        }
-        if (secondBuy < firstSell - curPrice) {
-            secondBuy = firstSell - curPrice;
-        }
-        if (secondSell < secondBuy + curPrice) {
-            secondSell = secondBuy + curPrice;
-        }
+int maxProfit(vector<int>& prices) {
+    int sell1 = 0, sell2 = 0, buy1 = INT_MIN, buy2 = INT_MIN;
+    for (int i = 0; i < prices.size(); ++i) {
+        buy1 = max(buy1, -prices[i]);
+        sell1 = max(sell1, buy1 + prices[i]);
+        buy2 = max(buy2, sell1 - prices[i]);
+        sell2 = max(sell2, buy2 + prices[i]);
     }
-    return secondSell;
+    return sell2;
 }
 ```
 
-#### 股票交易
+**只能进行 k 次的股票交易**
+
+[188. Best Time to Buy and Sell Stock IV \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/description/)
+
+```cpp
+int maxProfit(int k, vector<int>& prices) {
+    int days = prices.size();
+    if (days < 2) return 0;
+    if (k >= days) return maxProfitUnlimited(prices);
+    vector<int> buy(k + 1, INT_MIN), sell(k + 1, 0);
+    for (int i = 0; i < days; ++i) {
+        for (int j = 1; j <= k; ++j) {
+            buy[j] = max(buy[j], sell[j-1] - prices[i]);
+            sell[j] = max(sell[j], buy[j] + prices[i]);
+        }
+    }
+    return sell.back();
+}
+
+int maxProfitUnlimited(vector<int> prices) {
+    int maxProfit = 0;
+    for (int i = 1; i < prices.size(); ++i) {
+        if (prices[i] > prices[i-1]) {
+            maxProfit += prices[i] - prices[i-1];
+        }
+    }
+    return maxProfit;
+}
+```
 
 **需要冷却期的股票交易**
 
@@ -2769,25 +2717,41 @@ public int maxProfit(int[] prices) {
 
 ![](../.gitbook/assets/image%20%28689%29.png)
 
+```
+Input: [1,2,3,0,2]
+Output: 3 (buy, sell, cooldown, buy, sell)
+```
+
 ```cpp
-public int maxProfit(int[] prices) {
-    if (prices == null || prices.length == 0) {
-        return 0;
-    }
-    int N = prices.length;
-    int[] buy = new int[N];
-    int[] s1 = new int[N];
-    int[] sell = new int[N];
-    int[] s2 = new int[N];
+int maxProfit(vector<int>& prices) {
+    int n = prices.size();
+    if (n == 0) return 0;
+    vector<int> buy(n), sell(n), s1(n), s2(n);
     s1[0] = buy[0] = -prices[0];
     sell[0] = s2[0] = 0;
-    for (int i = 1; i < N; i++) {
-        buy[i] = s2[i - 1] - prices[i];
-        s1[i] = Math.max(buy[i - 1], s1[i - 1]);
-        sell[i] = Math.max(buy[i - 1], s1[i - 1]) + prices[i];
-        s2[i] = Math.max(s2[i - 1], sell[i - 1]);
+    for (int i = 1; i < n; i++) {
+        buy[i] = s2[i-1] - prices[i];
+        s1[i] = max(buy[i-1], s1[i-1]);
+        sell[i] = max(buy[i-1], s1[i-1]) + prices[i];
+        s2[i] = max(s2[i-1], sell[i-1]);
     }
-    return Math.max(sell[N - 1], s2[N - 1]);
+    return max(sell[n-1], s2[n-1]);
+}
+```
+
+另一种解法是buy[i] = max(buy[i-1], sell[i-2] - cur_price), sell[i] = max(sell[i-1], buy[i-1] + cur_price)
+
+```c++
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    int pre_sell = 0, cur_sell = 0, pre_buy = 0, cur_buy = INT_MIN;
+    for (const int& cur_price: prices) {
+        pre_buy = cur_buy;
+        cur_buy = max(pre_buy, pre_sell - cur_price);
+        pre_sell = cur_sell;
+        cur_sell = max(pre_sell, pre_buy + cur_price);
+    }
+    return cur_sell;
 }
 ```
 
@@ -2811,43 +2775,19 @@ The total profit is ((8 - 1) - 2) + ((9 - 4) - 2) = 8.
 ![](../.gitbook/assets/image%20%2810%29.png)
 
 ```cpp
-public int maxProfit(int[] prices, int fee) {
-    int N = prices.length;
-    int[] buy = new int[N];
-    int[] s1 = new int[N];
-    int[] sell = new int[N];
-    int[] s2 = new int[N];
+int maxProfit(vector<int>& prices, int fee) {
+    int n = prices.size();
+    if (n == 0) return 0;
+    vector<int> buy(n), sell(n), s1(n), s2(n);
     s1[0] = buy[0] = -prices[0];
     sell[0] = s2[0] = 0;
-    for (int i = 1; i < N; i++) {
-        buy[i] = Math.max(sell[i - 1], s2[i - 1]) - prices[i];
-        s1[i] = Math.max(buy[i - 1], s1[i - 1]);
-        sell[i] = Math.max(buy[i - 1], s1[i - 1]) - fee + prices[i];
-        s2[i] = Math.max(s2[i - 1], sell[i - 1]);
-    }
-    return Math.max(sell[N - 1], s2[N - 1]);
-}
-```
-
-**买入和售出股票最大的收益**
-
-[121. Best Time to Buy and Sell Stock \(Easy\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
-
-题目描述：只进行一次交易。
-
-只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
-
-```cpp
-public int maxProfit(int[] prices) {
-    int n = prices.length;
-    if (n == 0) return 0;
-    int soFarMin = prices[0];
-    int max = 0;
     for (int i = 1; i < n; i++) {
-        if (soFarMin > prices[i]) soFarMin = prices[i];
-        else max = Math.max(max, prices[i] - soFarMin);
+        buy[i] = max(sell[i-1], s2[i-1]) - prices[i];
+        s1[i] = max(buy[i-1], s1[i-1]);
+        sell[i] = max(buy[i-1], s1[i-1]) - fee + prices[i];
+        s2[i] = max(s2[i-1], sell[i-1]);
     }
-    return max;
+    return max(sell[n-1], s2[n-1]);
 }
 ```
 
@@ -2866,19 +2806,12 @@ Explanation: You need one step to make "sea" to "ea" and another step to make "e
 可以转换为求两个字符串的最长公共子序列问题。
 
 ```cpp
-public int minDistance(String word1, String word2) {
+int minDistance(string word1, string word2) {
     int m = word1.length(), n = word2.length();
-    int[][] dp = new int[m + 1][n + 1];
-    for (int i = 0; i <= m; i++) {
-        for (int j = 0; j <= n; j++) {
-            if (i == 0 || j == 0) {
-                continue;
-            }
-            if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
-                dp[i][j] = dp[i - 1][j - 1] + 1;
-            } else {
-                dp[i][j] = Math.max(dp[i][j - 1], dp[i - 1][j]);
-            }
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            dp[i][j] = word1[i-1] == word2[j-1]? 1 + dp[i-1][j-1]: max(dp[i-1][j], dp[i][j-1]);
         }
     }
     return m + n - 2 * dp[m][n];
@@ -2890,16 +2823,6 @@ public int minDistance(String word1, String word2) {
 [72. Edit Distance \(Hard\)](https://leetcode.com/problems/edit-distance/description/)
 
 ```markup
-Example 1:
-
-Input: word1 = "horse", word2 = "ros"
-Output: 3
-Explanation:
-horse -> rorse (replace 'h' with 'r')
-rorse -> rose (remove 'r')
-rose -> ros (remove 'e')
-Example 2:
-
 Input: word1 = "intention", word2 = "execution"
 Output: 5
 Explanation:
@@ -2913,28 +2836,19 @@ exection -> execution (insert 'u')
 题目描述：修改一个字符串成为另一个字符串，使得修改次数最少。一次修改操作包括：插入一个字符、删除一个字符、替换一个字符。
 
 ```cpp
-public int minDistance(String word1, String word2) {
-    if (word1 == null || word2 == null) {
-        return 0;
-    }
+int minDistance(string word1, string word2) {
     int m = word1.length(), n = word2.length();
-    int[][] dp = new int[m + 1][n + 1];
-    for (int i = 1; i <= m; i++) {
-        dp[i][0] = i;
+    vector<vector<int>> distance(m + 1, vector<int>(n + 1));
+    for (int i = 0; i <= m; ++i) {
+        for (int j = 0; j <= n; ++j) {
+            if (!i) distance[i][j] = j;
+            else if (!j) distance[i][j] = i;
+            else distance[i][j] = min(
+                distance[i-1][j-1] + ((word1[i-1] == word2[j-1])? 0: 1),
+                min(distance[i-1][j] + 1, distance[i][j-1] + 1));
+        }        
     }
-    for (int i = 1; i <= n; i++) {
-        dp[0][i] = i;
-    }
-    for (int i = 1; i <= m; i++) {
-        for (int j = 1; j <= n; j++) {
-            if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i][j - 1], dp[i - 1][j])) + 1;
-            }
-        }
-    }
-    return dp[m][n];
+    return distance[m][n];
 }
 ```
 
@@ -2955,22 +2869,13 @@ In step 3, we use Paste operation to get 'AAA'.
 ```
 
 ```cpp
-public int minSteps(int n) {
-    if (n == 1) return 0;
-    for (int i = 2; i <= Math.sqrt(n); i++) {
-        if (n % i == 0) return i + minSteps(n / i);
-    }
-    return n;
-}
-```
-
-```cpp
-public int minSteps(int n) {
-    int[] dp = new int[n + 1];
-    int h = (int) Math.sqrt(n);
-    for (int i = 2; i <= n; i++) {
+// dp
+int minSteps(int n) {
+    vector<int> dp (n + 1);
+    int h = sqrt(n);
+    for (int i = 2; i <= n; ++i) {
         dp[i] = i;
-        for (int j = 2; j <= h; j++) {
+        for (int j = 2; j <= h; ++j) {
             if (i % j == 0) {
                 dp[i] = dp[j] + dp[i / j];
                 break;
@@ -2978,6 +2883,15 @@ public int minSteps(int n) {
         }
     }
     return dp[n];
+}
+
+// recursion
+int minSteps(int n) {
+    if (n == 1) return 0;
+    for (int i = 2; i <= sqrt(n); ++i) {
+        if (n % i == 0) return i + minSteps(n / i);
+    }
+    return n;
 }
 ```
 
@@ -2997,6 +2911,36 @@ Output : [0, 2]
 ```
 
 ```cpp
+// without dp
+vector<int> diffWaysToCompute(string input) {
+    vector<int> ways;
+    for (int i = 0; i < input.length(); i++) {
+        char c = input[i];
+        if (c == '+' || c == '-' || c == '*') {
+            vector<int> left = diffWaysToCompute(input.substr(0, i));
+            vector<int> right = diffWaysToCompute(input.substr(i + 1));
+            for (const int & l: left) {
+                for (const int & r: right) {
+                    switch (c) {
+                        case '+':
+                            ways.push_back(l + r);
+                            break;
+                        case '-':
+                            ways.push_back(l - r);
+                            break;
+                        case '*':
+                            ways.push_back(l * r);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    if (ways.empty()) ways.push_back(stoi(input));
+    return ways;
+}
+
+// with dp
 vector<int> diffWaysToCompute(string input) {
     vector<int> data;
     vector<char> ops;

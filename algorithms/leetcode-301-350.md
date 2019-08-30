@@ -222,9 +222,9 @@ int maxProfit(vector<int>& prices) {
     int cur_buy = std::numeric_limits<int>::min();
     for (auto cur_price: prices) {
         pre_buy = cur_buy;
-        cur_buy = std::max(pre_buy, pre_sell - cur_price);
+        cur_buy = max(pre_buy, pre_sell - cur_price);
         pre_sell = cur_sell;
-        cur_sell = std::max(pre_sell, pre_buy + cur_price);
+        cur_sell = max(pre_sell, pre_buy + cur_price);
     }
     return cur_sell;
 }

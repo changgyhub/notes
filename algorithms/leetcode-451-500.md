@@ -228,7 +228,7 @@ Input: Array = {"10","0001","111001","1","0"}, m = 5, n = 3
 Output: 4 ({"10","0001","1","0")
 ```
 
-Solution: dp, 对每个字符串遍历，dp[i][j]表示i个0和j个1能够构成的字符串个数。注意这道题dp需要从后往前，非常巧妙，一定要背和理解
+Solution: 0/1背包dp，压缩空间时dp需要从后往前
 
 ```c++
 int findMaxForm(vector<string>& strs, int m, int n) {

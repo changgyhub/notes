@@ -477,7 +477,7 @@ Input: nums = [1, 2, 3], target = 4
 Output: 7 (The possible combination ways are: (1, 1, 1, 1) (1, 1, 2) (1, 2, 1) (1, 3) (2, 1, 1) (2, 2) (3, 1))
 ```
 
-Solution: dp，dp\[i\]表示target=i时的permutation个数 \(虽然题目叫combination，实际上是permutation\), dp\[i\] = sum\(dp\[i-n\] for n in nums\)。这是因为假设多一位新的只放在排列最前面，那么对每个因子做dp然后求和即可，一定要背
+Solution: 完全背包问题
 
 ```cpp
 int combinationSum4(vector<int>& nums, int target) {  

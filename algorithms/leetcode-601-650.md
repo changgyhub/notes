@@ -191,4 +191,3 @@ int countSubstrings(string s) {
     return res;
 }
 ```
-

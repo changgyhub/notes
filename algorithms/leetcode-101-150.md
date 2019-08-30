@@ -1548,40 +1548,21 @@ Input: s = "applepenapple", wordDict = ["apple", "pen"]
 Output: true
 ```
 
-Solution: 递归判断容易超时或者溢出，正确方法是用dp，可以遍历字符串\(外loop从左往右，内loop从右往左，hashset加速\)，也可以遍历word dict。
+Solution: 完全背包，若压缩成一层则物品放在内部循环。
 
 ```cpp
-// 遍历字符串，稍微慢一些
 bool wordBreak(string s, vector<string>& wordDict) {
-    unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
-    vector<bool> dp(s.length()+1, false);
+    int n = s.length();
+    vector<bool> dp(n + 1, false);
     dp[0] = true;
-    for (int i = 1; i <= s.length(); ++i) {
-        for (int j = i-1; j >= 0; --j) {
-            if (dp[j] && wordSet.find(s.substr(j,i-j)) != wordSet.end()) {
-                dp[i] = true;
-                break;
-            }
+    for (int i = 1; i <= n; ++i) {
+        for (const string & word: wordDict) {
+            int len = word.length();
+            if (i < len) continue;
+            if (s.substr(i - len, len) == word) dp[i] = dp[i] || dp[i - len];
         }
     }
-    return dp[s.length()];
-}
-
-// 遍历word dict，稍微快一些
-bool wordBreak(string s, vector<string>& wordDict) {
-    int strlen = s.length();
-    vector<bool> node(strlen, false);
-    for (int i = 0; i < strlen; ++i) {
-        if (!i || node[i-1]) {
-            for (string word: wordDict) {
-                int wordlen = word.length();
-                if (i + wordlen > strlen) continue;
-                if (s.substr(i, wordlen) == word) node[i+wordlen-1] = true;
-                if (node[strlen-1]) return true;
-            }
-        }
-    }
-    return false;
+    return dp[n];
 }
 ```
 
