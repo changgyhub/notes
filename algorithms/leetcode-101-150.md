@@ -895,15 +895,13 @@ Explanation: Buy on day 2 (price = 1) and sell on day 3 (price = 5), profit = 5-
              Then buy on day 4 (price = 3) and sell on day 5 (price = 6), profit = 6-3 = 3.
 ```
 
-Solution: 贪心, maxprofit += max\(prices\[i\] - prices\[i-1\], 0\)
+Solution: 贪心, maxprofit += max\(0, prices\[i\] - prices\[i-1\]\)
 
 ```cpp
 int maxProfit(vector<int>& prices) {
-    int maxprofit = 0;
-    for (int i = 1; i < prices.size(); ++i)
-        if (prices[i] > prices[i-1])
-            maxprofit += prices[i] - prices[i-1];
-    return maxprofit;
+    int sum = 0;
+    for (int i = 1; i < prices.size(); ++i) sum += max(0, prices[i] - prices[i-1]);
+    return sum;
 }
 ```
 
@@ -1244,60 +1242,35 @@ X O X X
 Solution: dfs边界（因为只有边界的水域不会被覆盖），一定要背
 
 ```cpp
-struct POS {
-    int x;
-    int y;
-    POS(int newx, int newy): x(newx), y(newy) {}
-};
-
-void solve(vector<vector<char>> &board) {
+void solve(vector<vector<char>>& board) {
     if (board.empty() || board[0].empty()) return;
-    int m = board.size(),  n = board[0].size();
-    for (int i = 0; i < m; ++i)
-        for (int j = 0; j < n; ++j)
-            if (board[i][j] == 'O')
-                if (i == 0 || i == m-1 || j == 0 || j == n-1) dfs(board, i, j, m, n);
+    int m = board.size(), n = board[0].size();
     for (int i = 0; i < m; ++i) {
+        dfs(board, i, 0);
+        dfs(board, i, n - 1);
+    }
+    for (int i = 0; i < n; ++i) {
+        dfs(board, 0, i);
+        dfs(board, m - 1, i);
+    }
+    for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; ++j) {
-            if (board[i][j] == 'O') board[i][j] = 'X';
-            else if (board[i][j] == '*') board[i][j] = 'O';
+            if (board[i][j] == 'T') {
+                board[i][j] = 'O';
+            } else if (board[i][j] == 'O') {
+                board[i][j] = 'X';
+            }
         }
     }
-
 }
-void dfs(vector<vector<char>> &board, int i, int j, int m, int n) {
-    stack<POS*> stk;
-    POS* pos = new POS(i, j);
-    stk.push(pos);
-    board[i][j] = '*';
-    while (!stk.empty()) {
-        POS* top = stk.top();
-        if (top->x > 0 && board[top->x-1][top->y] == 'O') {
-            POS* up = new POS(top->x-1, top->y);
-            stk.push(up);
-            board[up->x][up->y] = '*';
-            continue;
-        }
-        if (top->x < m-1 && board[top->x+1][top->y] == 'O') {
-            POS* down = new POS(top->x+1, top->y);
-            stk.push(down);
-            board[down->x][down->y] = '*';
-            continue;
-        }
-        if (top->y > 0 && board[top->x][top->y-1] == 'O') {
-            POS* left = new POS(top->x, top->y-1);
-            stk.push(left);
-            board[left->x][left->y] = '*';
-            continue;
-        }
-        if (top->y < n-1 && board[top->x][top->y+1] == 'O') {
-            POS* right = new POS(top->x, top->y+1);
-            stk.push(right);
-            board[right->x][right->y] = '*';
-            continue;
-        }
-        stk.pop();
-    }
+
+void dfs(vector<vector<char>>& board, int r, int c) {
+    if (r < 0 || r >= board.size() || c < 0 || c >= board[0].size() || board[r][c] != 'O') return;
+    board[r][c] = 'T';
+    dfs(board, r + 1, c);
+    dfs(board, r - 1, c);
+    dfs(board, r, c + 1);
+    dfs(board, r, c - 1);
 }
 ```
 
@@ -1322,29 +1295,25 @@ Solution: backtrack
 vector<vector<string>> partition(string s) {
     vector<vector<string>> result;
     vector<string> path;
-    dfs(s, path, result, 0, 1);
+    backtracking(s, path, result, 0);
     return result;
 }
 
-void dfs(string &s, vector<string> &path, vector<vector<string>> &result, int prev, int start) {
-    if (start == s.size()) {
-        if (ispalindrome(s, prev, start - 1)) {
-            path.push_back(s.substr(prev, start - prev));
-            result.push_back(path);
-            path.pop_back();
-        }
+void backtracking(const string &s, vector<string> &path, vector<vector<string>> &result, int pos) {
+    if (pos == s.length()) {
+        result.push_back(path);
         return;
     }
-
-    dfs(s, path, result, prev, start + 1);
-    if (ispalindrome(s, prev, start - 1)) {
-        path.push_back(s.substr(prev, start - prev));
-        dfs(s, path, result, start, start + 1);
-        path.pop_back();
+    for (int i = pos; i < s.length(); ++i) {
+        if (isPalindrome(s, pos, i)) {
+            path.push_back(s.substr(pos, i - pos + 1));
+            backtracking(s, path, result, i + 1);
+            path.pop_back();
+        }
     }
 }
 
-bool ispalindrome(const string &s, int start, int end) {
+bool isPalindrome(const string &s, int start, int end) {
     while (start < end && s[start] == s[end]) {
         ++start;
         --end;

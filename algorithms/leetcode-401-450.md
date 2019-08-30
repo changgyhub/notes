@@ -497,15 +497,16 @@ Output: 1 (remove [1,3])
 Solution: 遍历，注意要按照end排序来获得最多的interval
 
 ```c++
-int eraseOverlapIntervals(vector<Interval>& intervals) {
+int eraseOverlapIntervals(vector<vector<int>>& intervals) {
     if (intervals.empty()) return 0;
     int n = intervals.size();
-    if (n == 1) return 0;
-    sort(intervals.begin(), intervals.end(), [](Interval a, Interval b){return a.end < b.end || (a.end == b.end && a.start < b.start);});
-    int total = 0, prev = intervals[0].end;
+    sort(intervals.begin(), intervals.end(), [](vector<int> a, vector<int> b) {
+        return a[1] < b[1];
+    });
+    int total = 0, prev = intervals[0][1];
     for (int i = 1; i < n; ++i) {
-        if (intervals[i].start < prev) ++total;
-        else prev = intervals[i].end;
+        if (intervals[i][0] < prev) ++total;
+        else prev = intervals[i][1];
     }
     return total;
 }

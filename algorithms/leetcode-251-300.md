@@ -63,6 +63,7 @@ Output: ["1->2->5", "1->3"]
 Solution: 递归dfs，容易眼高手低，一定要背
 
 ```cpp
+// without backtracking
 vector<string> binaryTreePaths(TreeNode* root) {
     vector<string> res;
     if (!root) return res;
@@ -76,6 +77,31 @@ void helper(vector<string> &res, TreeNode* root, string prev) {
     if (!root->left && !root->right) {res.push_back(prev); return;}
     if (root->left) helper(res, root->left, prev);
     if (root->right) helper(res, root->right, prev);
+}
+
+// with backtracking
+vector<string> binaryTreePaths(TreeNode* root) {
+    vector<string> res;
+    vector<int> path;
+    if (!root) return res;
+    backtracking(res, root, path);
+    return res;
+}
+
+void backtracking(vector<string> &res, TreeNode* root, vector<int> &path) {
+    path.push_back(root->val);
+    if (!root->left && !root->right) {
+        string base;
+        for (const int& i: path) {
+            if (!base.empty()) base += "->";
+            base += to_string(i);
+        }
+        res.push_back(base);
+    } else {
+        if (root->left) backtracking(res, root->left, path);
+        if (root->right) backtracking(res, root->right, path);
+    }
+    path.pop_back();
 }
 ```
 

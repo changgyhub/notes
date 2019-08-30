@@ -23,7 +23,9 @@ string frequencySort(string s) {
     vector<charfreq> freq;
     for (int i = 0; i < 128; ++i) freq.push_back(charfreq(i));
     for (int i = 0; i < s.length(); ++i) ++freq[s[i]].freqcnt;
-    sort(freq.begin(), freq.end(), [](const charfreq & a, const charfreq & b)-> bool {return a.freqcnt > b.freqcnt;});
+    sort(freq.begin(), freq.end(), [](const charfreq & a, const charfreq & b) {
+        return a.freqcnt > b.freqcnt;
+    });
     string output = "";
     for (int i = 0; i < 52; ++i) {
         int freqcnt = freq[i].freqcnt;
@@ -31,7 +33,6 @@ string frequencySort(string s) {
         for (int j = 0; j < freqcnt; ++j) output += freqchar;
     }
     return output;
-
 }
 ```
 

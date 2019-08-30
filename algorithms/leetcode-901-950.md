@@ -919,7 +919,7 @@ Input: [
 Output: 1
 ```
 
-Solution: 先bfs找到一个岛，然后bfs找最短距离
+Solution: 先dfs找到一个岛，然后bfs找最短距离
 
 ```cpp
 void dfs(queue<pair<int, int>>& points, vector<vector<int>>& A, int m, int n, int i, int j) {

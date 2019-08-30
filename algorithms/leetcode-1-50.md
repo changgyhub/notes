@@ -1485,7 +1485,7 @@ Output: [
 ]
 ```
 
-Solution: backtrack，每次递归要传当前值，目标值（或者合并为差值），当前迭代位置；backtrack可以写成loop也可以写成放或不放。一定要背
+Solution: backtrack，每次递归要传当前值，目标值（或者合并为差值），当前迭代位置
 
 ```cpp
 vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
@@ -1495,7 +1495,6 @@ vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
     return result;
 }
 
-// option 1
 void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result) {
     if (base == target) {
         result.push_back(path);
@@ -1507,19 +1506,6 @@ void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& pa
         backtrack(nums, i, base + nums[i], target, path, result);
         path.pop_back();
     }
-}
-
-// option 2
-void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result) {
-    if (base == target) {
-        result.push_back(path);
-        return;
-    }
-    if (pos == nums.size() || base > target) return;
-    path.push_back(nums[pos]);
-    backtrack(nums, pos, base + nums[pos], target, path, result);
-    path.pop_back();
-    backtrack(nums, pos + 1, base, target, path, result);
 }
 ```
 
@@ -1539,7 +1525,7 @@ Output: [
 ]
 ```
 
-Solution: backtrack，每次递归要传当前值，目标值（或者合并为差值），当前迭代位置；backtrack可以写成loop也可以写成放或不放；注意要判断是否重复使用。一定要背
+Solution: backtrack，每次递归要传当前值，目标值（或者合并为差值），当前迭代位置；注意要判断是否重复使用。一定要背
 
 ```cpp
 vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
@@ -1550,7 +1536,6 @@ vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
     return result;
 }
 
-// option 1
 void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result) {
     if (base == target) {
         result.push_back(path);
@@ -1558,26 +1543,11 @@ void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& pa
     }
     if (base > target) return;
     for (int i = pos; i < nums.size(); ++i) {
-        if (i != pos && nums[i] == nums[i-1]) continue; // new in Q40 from Q39
+        if (i != pos && nums[i] == nums[i-1]) continue;  // new in Q40 from Q39
         path.push_back(nums[i]);
-        backtrack(nums, i + 1, base + nums[i], target, path, result); // Q30: i; Q40: i + 1
+        backtrack(nums, i + 1, base + nums[i], target, path, result);  // Q39: i; Q40: i + 1
         path.pop_back();
     }
-}
-
-// option 2
-void backtrack(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result, bool keep=true) {
-    if (base == target) {
-        result.push_back(path);
-        return;
-    }
-    if (pos == nums.size() || base > target) return;
-    if (!(pos > 0 && nums[pos] == nums[pos-1] && !keep)) { // once stop using a repeated digit, never use it again to avoid duplication
-        path.push_back(nums[pos]);
-        backtrack(nums, pos + 1, base + nums[pos], target, path, result);
-        path.pop_back();
-    }
-    backtrack(nums, pos + 1, base, target, path, result, keep=false);
 }
 ```
 

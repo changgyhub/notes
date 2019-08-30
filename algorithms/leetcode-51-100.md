@@ -1042,7 +1042,7 @@ vector<vector<int>> subsets(vector<int>& nums) {
     return result;
 }
 
-// backtrack (with loop)
+// backtrack
 vector<vector<int>> subsets(vector<int>& nums) {
     vector<vector<int>> res;
     vector<int> t;
@@ -1056,24 +1056,6 @@ void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int b
         helper(nums, res, t, i+1);
         t.pop_back();
     }   
-}
-
-// backtrack (without loop)
-vector<vector<int>> subsets(vector<int>& nums) {
-    vector<vector<int>> res;
-    vector<int> t;
-    helper(nums, res, t, 0);
-    return res;
-}
-void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int begin) {
-    if (begin == nums.size()) {
-        res.push_back(t);
-        return;
-    }
-    t.push_back(nums[begin]);
-    helper(nums, res, t, begin+1);
-    t.pop_back();
-    helper(nums, res, t, begin+1);
 }
 ```
 
@@ -1521,42 +1503,21 @@ Output:
 Solution: 对没重复Q78的做法，先排序，然后加last或者去重\(同样数字左边或右边的组合都舍弃\)做backtract
 
 ```cpp
-// backtrack (with loop)
 vector<vector<int>> subsetsWithDup(vector<int>& nums) {
     vector<vector<int>> res;
     vector<int> t;
-    sort(nums.begin(), nums.end()); // new in Q90
+    sort(nums.begin(), nums.end());  // new in Q90
     helper(nums, res, t, 0);
     return res;
 }
 void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int begin) {
     res.push_back(t);
     for (int i = begin; i < nums.size(); i++) {
-        if (i != begin && nums[i] == nums[i-1]) continue; // new in Q90
+        if (i != begin && nums[i] == nums[i-1]) continue;  // new in Q90
         t.push_back(nums[i]);
         helper(nums, res, t, i+1);
         t.pop_back();
     }   
-}
-
-// backtrack (without loop)
-vector<vector<int>> subsetsWithDup(vector<int>& nums) {
-    vector<vector<int>> res;
-    vector<int> t;
-    sort(nums.begin(), nums.end()); // new in Q90
-    helper(nums, res, t, 0);
-    return res;
-}
-void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int begin) {
-    if (begin == nums.size()) {
-        res.push_back(t);
-        return;
-    }
-    t.push_back(nums[begin]);
-    helper(nums, res, t, begin+1);
-    t.pop_back();
-    while (begin < nums.size() - 1 && nums[begin] == nums[begin+1]) ++begin; // new in Q90
-    helper(nums, res, t, begin+1);
 }
 ```
 

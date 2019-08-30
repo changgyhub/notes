@@ -82,7 +82,7 @@ int findMin(vector<int>& nums) {
     while (low < high && nums[low] >= nums[high]) {
         int mid = low + (high - low) / 2;
         if (nums[mid] < nums[low]) high = mid;
-        // else if (nums[mid] == nums[low]) ++low; // with duplicates
+        // else if (nums[mid] == nums[low]) ++low;  // with duplicates
         else low = mid + 1;
     }
     return nums[low];
@@ -109,7 +109,7 @@ int findMin(vector<int>& nums) {
     while (low < high && nums[low] >= nums[high]) {
         int mid = low + (high - low) / 2;
         if (nums[mid] < nums[low]) high = mid;
-        else if (nums[mid] == nums[low]) ++low; // with duplicates
+        else if (nums[mid] == nums[low]) ++low;  // with duplicates
         else low = mid + 1;
     }
     return nums[low];
@@ -138,7 +138,6 @@ Solution: 维护两个stack，一定要背
 ```cpp
 class MinStack {
 public:
-    stack<int> sta, min;
     MinStack() {}
 
     void push(int x) {
@@ -158,6 +157,8 @@ public:
     int getMin() {
         return min.top();
     }
+private:
+    stack<int> sta, min;
 };
 ```
 
@@ -428,16 +429,14 @@ Solution: 双指针
 
 ```cpp
 vector<int> twoSum(vector<int>& numbers, int target) {
-    int l = 0, r = numbers.size() - 1;
-    int num_l = numbers[l], num_r = numbers[r];
+    int l = 0, r = numbers.size() - 1, sum;
     while (l < r) {
-        if (num_l + num_r == target) return vector<int>{l+1, r+1};
-        if (num_l + num_r < target) {
-            ++l; num_l = numbers[l];
-        } else {
-            --r; num_r = numbers[r];
-        }
+        sum = numbers[l] + numbers[r];
+        if (sum == target) break;
+        if (sum < target) ++l;
+        else --r;
     }
+    return vector<int>{l + 1, r + 1};
 }
 ```
 

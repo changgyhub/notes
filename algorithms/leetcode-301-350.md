@@ -228,7 +228,7 @@ int maxProfit(vector<int>& prices) {
         cur_sell = std::max(pre_sell, pre_buy + cur_price);
     }
     return cur_sell;
-}‌
+}
 ```
 
 ### 310. Minimum Height Trees
@@ -240,7 +240,6 @@ Example:
 ```
 Input: n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]]
 
-
      0  1  2
       \ | /
         3
@@ -249,7 +248,6 @@ Input: n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]]
         |
         5 
 
-
 Output: [3, 4]
 ```
 
@@ -257,45 +255,31 @@ Solution: BFS遍历+记录叶子结点，采用了交替替换叶子结点集合
 
 ```c++
 struct TreeNode{  
-    set<int> list;  // 使用set结构方便删除邻居  
+    set<int> neighbors;
     TreeNode() {};  
-    bool isLeaf() {return list.size() == 1;};  // 如果是叶子节点，那么邻居大小是1  
+    bool isLeaf() {return neighbors.size() == 1;};
 };
 
 
-vector<int> findMinHeightTrees(int n, vector<pair<int, int>> &edges) {  
+vector<int> findMinHeightTrees(int n, vector<vector<int>> &edges) {  
     if (n == 1) return {0};
     vector<TreeNode> tree(n);  
-
-
-    // 使用节点来存储这棵树，耗费的空间为O(n+2e)  
     for (auto e: edges) {
-        tree[e.first].list.insert(e.second);  
-        tree[e.second].list.insert(e.first);  
+        tree[e[0]].neighbors.insert(e[1]);  
+        tree[e[1]].neighbors.insert(e[0]);  
     }
-
-
-    vector<int> node1(0);  // 记录当前的叶子节点  
-    vector<int> node2(0);  // 记录删除node1叶子节点后，成为新的叶子节点的节点  
-
-
-    // 记录叶子节点
-    for (int i = 0; i < tree.size(); ++i) if (tree[i].isLeaf()) node1.push_back(i);
-
-
-    // BFS删除叶子节点
+    vector<int> q, new_q;
+    for (int i = 0; i < tree.size(); ++i) if (tree[i].isLeaf()) q.push_back(i);
     while (true) {  
-        for (auto leaf: node1) {   
-            for (auto ite = tree[leaf].list.begin(); ite != tree[leaf].list.end(); ++ite) {  
-                int neighbor = *ite;  
-                tree[neighbor].list.erase(leaf);  // 删除叶子节点  
-                if (tree[neighbor].isLeaf()) node2.push_back(neighbor);  // 删除后，如果是叶子节点，则放到node2中  
+        for (const int & leaf: q) {   
+            for (const int & neighbor: tree[leaf].neighbors) {  
+                tree[neighbor].neighbors.erase(leaf);
+                if (tree[neighbor].isLeaf()) new_q.push_back(neighbor);  
             }  
-        }  
-        // 遍历完后，如果node2为空，即node1中的节点不是叶子节点，要么是剩下一个节点，要么剩下两个相互连接的节点  
-        if (node2.empty()) return node1;
-        node1.clear();  
-        swap(node1, node2);  
+        }
+        if (new_q.empty()) return q;
+        swap(q, new_q);     
+        new_q.clear();
     }
 }
 ```
@@ -933,7 +917,6 @@ bool isVowel(char c) {
     return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
 }
 
-
 string reverseVowels(string s) {
     int i = 0, j = s.length() - 1;
     while (i < j) {
@@ -963,10 +946,8 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
     unordered_map<int, int> m;
     for (int num : nums) ++m[num];
 
-
     vector<vector<int>> buckets(nums.size() + 1); 
     for (auto p : m) buckets[p.second].push_back(p.first);
-
 
     vector<int> ans;
     for (int i = buckets.size() - 1; i >= 0 && ans.size() < k; --i) {
