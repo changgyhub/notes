@@ -1,6 +1,6 @@
 # LeetCode Overview [C++ Version]
 
-## 需要添加：各种O(1)数据结构题，LRU，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，KMT，线程安全
+## 需要添加：各种O(1)数据结构题，LRU，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，KMT，线程安全，skyline，multiset/map
 
 * 算法思想
   * 贪心思想
@@ -3054,7 +3054,7 @@ int lcm(int a, int b) {
 }
 ```
 
-extended gcd
+扩展欧几里得算法（extended gcd）
 
 ```cpp
 int xGCD(int a, int b, int &x, int &y) {
@@ -3075,62 +3075,18 @@ int xGCD(int a, int b, int &x, int &y) {
 [504. Base 7 \(Easy\)](https://leetcode.com/problems/base-7/description/)
 
 ```cpp
-public String convertToBase7(int num) {
-    if (num == 0) {
-        return "0";
-    }
-    StringBuilder sb = new StringBuilder();
-    boolean isNegative = num < 0;
-    if (isNegative) {
-        num = -num;
-    }
-    while (num > 0) {
-        sb.append(num % 7);
-        num /= 7;
-    }
-    String ret = sb.reverse().toString();
-    return isNegative ? "-" + ret : ret;
-}
-```
-
-Java 中 static String toString\(int num, int radix\) 可以将一个整数转换为 redix 进制表示的字符串。
-
-```cpp
-public String convertToBase7(int num) {
-    return Integer.toString(num, 7);
-}
-```
-
-**16 进制**
-
-[405. Convert a Number to Hexadecimal \(Easy\)](https://leetcode.com/problems/convert-a-number-to-hexadecimal/description/)
-
-```markup
-Input:
-26
-
-Output:
-"1a"
-
-Input:
--1
-
-Output:
-"ffffffff"
-```
-
-负数要用它的补码形式。
-
-```cpp
-public String toHex(int num) {
-    char[] map = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+string convertToBase7(int num) {
     if (num == 0) return "0";
-    StringBuilder sb = new StringBuilder();
-    while (num != 0) {
-        sb.append(map[num & 0b1111]);
-        num >>>= 4; // 因为考虑的是补码形式，因此符号位就不能有特殊的意义，需要使用无符号右移，左边填 0
+    bool is_negative = num < 0;
+    if (is_negative) num = -num;
+    string res;
+    while (num) {
+        int a = num / 7;
+        int b = num % 7;
+        res = to_string(b) + res;
+        num = a;
     }
-    return sb.reverse().toString();
+    return is_negative? "-" + res: res;
 }
 ```
 
@@ -3151,11 +3107,9 @@ public String toHex(int num) {
 因为是从 1 开始计算的，而不是从 0 开始，因此需要对 n 执行 -1 操作。
 
 ```cpp
-public String convertToTitle(int n) {
-    if (n == 0) {
-        return "";
-    }
-    n--;
+string convertToTitle (int n) {
+    if (n == 0) return "";
+    --n;
     return convertToTitle(n / 26) + (char) (n % 26 + 'A');
 }
 ```
@@ -3171,8 +3125,8 @@ public String convertToTitle(int n) {
 对于一个数 N，它所包含 5 的个数为：N/5 + N/52 + N/53 + ...，其中 N/5 表示不大于 N 的数中 5 的倍数贡献一个 5，N/52 表示不大于 N 的数中 52 的倍数再贡献一个 5 ...。
 
 ```cpp
-public int trailingZeroes(int n) {
-    return n == 0 ? 0 : n / 5 + trailingZeroes(n / 5);
+int trailingZeroes(int n) {
+    return n? n / 5 + trailingZeroes(n / 5): 0;
 }
 ```
 
@@ -3191,20 +3145,32 @@ Return "100".
 ```
 
 ```cpp
-public String addBinary(String a, String b) {
-    int i = a.length() - 1, j = b.length() - 1, carry = 0;
-    StringBuilder str = new StringBuilder();
-    while (carry == 1 || i >= 0 || j >= 0) {
-        if (i >= 0 && a.charAt(i--) == '1') {
-            carry++;
+string addBinary(string a, string b, int asz, int bsz) {
+    int carry = 0;
+    for (int i = 0; i < bsz; i++) {
+        a[asz - 1 - i] = a[asz - 1 - i] - '0' + b[bsz - 1 - i] - '0' + carry + '0';
+        if (a[asz - 1 - i] >= '2') {
+            a[asz - 1 - i] -= 2;
+            carry = 1;
+        } else {
+            carry = 0;
         }
-        if (j >= 0 && b.charAt(j--) == '1') {
-            carry++;
-        }
-        str.append(carry % 2);
-        carry /= 2;
     }
-    return str.reverse().toString();
+    if (carry == 0) return a;
+    for (int i = bsz; i < asz; i++) {
+        a[asz - 1 - i] = a[asz - 1 - i] - '0' + carry + '0';
+        if (a[asz - 1 - i] == '2') {
+            a[asz - 1 - i] = '0';
+            carry = 1;
+        } else {
+            return a;
+        }
+    }
+    return carry ? to_string(1) + a : a; 
+}
+string addBinary (string a, string b) {
+    int asz = a.size(), bsz = b.size();
+    return asz >= bsz ? addBinary(a, b, asz, bsz): addBinary(b, a, bsz, asz);
 }
 ```
 
@@ -3215,16 +3181,32 @@ public String addBinary(String a, String b) {
 字符串的值为非负整数。
 
 ```cpp
-public String addStrings(String num1, String num2) {
-    StringBuilder str = new StringBuilder();
-    int carry = 0, i = num1.length() - 1, j = num2.length() - 1;
-    while (carry == 1 || i >= 0 || j >= 0) {
-        int x = i < 0 ? 0 : num1.charAt(i--) - '0';
-        int y = j < 0 ? 0 : num2.charAt(j--) - '0';
-        str.append((x + y + carry) % 10);
-        carry = (x + y + carry) / 10;
+string addStrings(string num1, string num2) {
+    string output("");
+    reverse(num1.begin(), num1.end());
+    reverse(num2.begin(), num2.end());
+    int onelen = num1.length();
+    int twolen = num2.length();
+    if (onelen <= twolen){
+        swap(num1, num2);
+        swap(onelen, twolen);
     }
-    return str.reverse().toString();
+    int addbit = 0;
+    for (int i = 0; i < twolen; ++i){
+        int cur_sum = (num1[i]-'0') + (num2[i]-'0') + addbit;
+        output += to_string((cur_sum)%10);
+        if (cur_sum >= 10) addbit = 1;
+        else addbit = 0;
+    }
+    for (int i = twolen; i < onelen; ++i){
+        int cur_sum = (num1[i]-'0') + addbit;
+        output += to_string((cur_sum)%10);
+        if (cur_sum >= 10) addbit = 1;
+        else addbit = 0;
+    }
+    if (addbit) output += "1";
+    reverse(output.begin(), output.end());
+    return output;
 }
 ```
 
@@ -3255,72 +3237,39 @@ Only two moves are needed (remember each move increments or decrements one eleme
 
 设数组长度为 N，则可以找到 N/2 对 a 和 b 的组合，使它们都移动到 m 的位置。
 
-**解法 1**
-
-先排序，时间复杂度：O\(NlogN\)
-
-```cpp
-public int minMoves2(int[] nums) {
-    Arrays.sort(nums);
-    int move = 0;
-    int l = 0, h = nums.length - 1;
-    while (l <= h) {
-        move += nums[h] - nums[l];
-        l++;
-        h--;
-    }
-    return move;
-}
-```
-
-**解法 2**
-
 使用快速选择找到中位数，时间复杂度 O\(N\)
 
 ```cpp
-public int minMoves2(int[] nums) {
-    int move = 0;
-    int median = findKthSmallest(nums, nums.length / 2);
-    for (int num : nums) {
-        move += Math.abs(num - median);
-    }
-    return move;
+int minMoves2(vector<int>& nums) {
+    int n = nums.size();
+    if (n < 2) return 0;
+    if (n == 2) return abs(nums[0] - nums[1]); 
+    int ret = 0, median = findMedian(nums);
+    for (auto i: nums) ret += abs(i - median);
+    return ret;
 }
 
-private int findKthSmallest(int[] nums, int k) {
-    int l = 0, h = nums.length - 1;
-    while (l < h) {
-        int j = partition(nums, l, h);
-        if (j == k) {
-            break;
-        }
-        if (j < k) {
-            l = j + 1;
-        } else {
-            h = j - 1;
-        }
+int findMedian(vector<int>& nums) {
+    int l = 0, r = nums.size() - 1, target = (nums.size() - 1)/2;
+    while (l < r) {
+        int mid = quickSelection(nums, l, r);
+        if (mid == target) return nums[mid];
+        if (mid < target) l = mid + 1;
+        else r = mid - 1;
     }
-    return nums[k];
+    return nums[l];
 }
 
-private int partition(int[] nums, int l, int h) {
-    int i = l, j = h + 1;
+int quickSelection(vector<int>& nums, int l, int r) {
+    int i = l + 1, j = r;
     while (true) {
-        while (nums[++i] < nums[l] && i < h) ;
-        while (nums[--j] > nums[l] && j > l) ;
-        if (i >= j) {
-            break;
-        }
-        swap(nums, i, j);
+        while (i < r && nums[i] <= nums[l]) ++i;
+        while (l < j && nums[j] >= nums[l]) --j;
+        if (i >= j) break;
+        swap(nums[i], nums[j]);
     }
-    swap(nums, l, j);
+    swap(nums[l], nums[j]);
     return j;
-}
-
-private void swap(int[] nums, int i, int j) {
-    int tmp = nums[i];
-    nums[i] = nums[j];
-    nums[j] = tmp;
 }
 ```
 
@@ -3330,23 +3279,19 @@ private void swap(int[] nums, int i, int j) {
 
 [169. Majority Element \(Easy\)](https://leetcode.com/problems/majority-element/description/)
 
-先对数组排序，最中间那个数出现次数一定多于 n / 2。
-
-```cpp
-public int majorityElement(int[] nums) {
-    Arrays.sort(nums);
-    return nums[nums.length / 2];
-}
-```
-
 可以利用 Boyer-Moore Majority Vote Algorithm 来解决这个问题，使得时间复杂度为 O\(N\)。可以这么理解该算法：使用 cnt 来统计一个元素出现的次数，当遍历到的元素和统计元素不相等时，令 cnt--。如果前面查找了 i 个元素，且 cnt == 0，说明前 i 个元素没有 majority，或者有 majority，但是出现的次数少于 i / 2，因为如果多于 i / 2 的话 cnt 就一定不会为 0。此时剩下的 n - i 个元素中，majority 的数目依然多于 \(n - i\) / 2，因此继续查找就能找出 majority。
 
 ```cpp
-public int majorityElement(int[] nums) {
-    int cnt = 0, majority = nums[0];
-    for (int num : nums) {
-        majority = (cnt == 0) ? num : majority;
-        cnt = (majority == num) ? cnt + 1 : cnt - 1;
+int majorityElement(vector<int> &num) {
+    int majority = 0, count = 0;
+    for (int i = 0; i < num.size(); ++i)  {
+        if (!count) {
+            majority = num[i];
+            count = 1;
+        } else {
+            if (majority == num[i]) ++count;
+            else --count;
+        }
     }
     return majority;
 }
@@ -3363,20 +3308,13 @@ Input: 16
 Returns: True
 ```
 
-平方序列：1,4,9,16,..
-
-间隔：3,5,7,...
-
-间隔为等差数列，使用这个特性可以得到从 1 开始的平方序列。
+法一：平方序列1,4,9,16 的间隔为3,5,7。我们发现间隔为等差数列，使用这个特性可以得到从 1 开始的平方序列。法二：牛顿法。
 
 ```cpp
-public boolean isPerfectSquare(int num) {
-    int subNum = 1;
-    while (num > 0) {
-        num -= subNum;
-        subNum += 2;
-    }
-    return num == 0;
+bool isPerfectSquare(int x) {
+    long r = x;
+    while (r * r > x) r = (r + x / r) / 2;
+    return r * r == x;
 }
 ```
 
@@ -3385,8 +3323,14 @@ public boolean isPerfectSquare(int num) {
 [326. Power of Three \(Easy\)](https://leetcode.com/problems/power-of-three/description/)
 
 ```cpp
-public boolean isPowerOfThree(int n) {
-    return n > 0 && (1162261467 % n == 0);
+// method 1: log
+bool isPowerOfThree(int n) {
+    return fmod(log10(n)/log10(3), 1) == 0;
+}
+
+// method 2: max int
+bool isPowerOfThree(int n) {
+    return n > 0 && 1162261467 % n == 0;
 }
 ```
 
@@ -3403,21 +3347,16 @@ For example, given [1,2,3,4], return [24,12,8,6].
 要求时间复杂度为 O\(N\)，并且不能使用除法。
 
 ```cpp
-public int[] productExceptSelf(int[] nums) {
-    int n = nums.length;
-    int[] products = new int[n];
-    Arrays.fill(products, 1);
-    int left = 1;
-    for (int i = 1; i < n; i++) {
-        left *= nums[i - 1];
-        products[i] *= left;
+vector<int> productExceptSelf(vector<int>& nums) {
+    int n = nums.size(), fromBegin = 1, fromLast = 1;
+    vector<int> res(n,1);
+    for (int i = 0; i < n; ++i) {
+        res[i] *= fromBegin;
+        fromBegin *= nums[i];
+        res[n-1-i] *= fromLast;
+        fromLast *= nums[n-1-i];
     }
-    int right = 1;
-    for (int i = n - 2; i >= 0; i--) {
-        right *= nums[i + 1];
-        products[i] *= right;
-    }
-    return products;
+    return res;
 }
 ```
 
@@ -3431,9 +3370,9 @@ Output: 24
 ```
 
 ```cpp
-public int maximumProduct(int[] nums) {
-    int max1 = Integer.MIN_VALUE, max2 = Integer.MIN_VALUE, max3 = Integer.MIN_VALUE, min1 = Integer.MAX_VALUE, min2 = Integer.MAX_VALUE;
-    for (int n : nums) {
+int maximumProduct(vector<int>& nums) {
+    int max1 = INT_MIN, max2 = INT_MIN, max3 = INT_MIN, min1 = INT_MAX, min2 = INT_MAX;
+    for (const int& n: nums) {
         if (n > max1) {
             max3 = max2;
             max2 = max1;
@@ -3444,7 +3383,6 @@ public int maximumProduct(int[] nums) {
         } else if (n > max3) {
             max3 = n;
         }
-
         if (n < min1) {
             min2 = min1;
             min1 = n;
@@ -3452,7 +3390,7 @@ public int maximumProduct(int[] nums) {
             min2 = n;
         }
     }
-    return Math.max(max1*max2*max3, max1*min1*min2);
+    return max(max1 * max2 * max3, max1 * min1 * min2);
 }
 ```
 
@@ -3493,14 +3431,6 @@ x ^ x = 0       x & x = x       x | x = x
 要得到 1 到 i 位为 1 的 mask，1&lt;&lt;\(i+1\)-1 即可，例如将 1&lt;&lt;\(4+1\)-1 = 00010000-1 = 00001111。
 
 要得到 1 到 i 位为 0 的 mask，只需将 1 到 i 位为 1 的 mask 取反，即 ~\(1&lt;&lt;\(i+1\)-1\)。
-
-**3. Java 中的位操作**
-
-```markup
-static int Integer.bitCount();           // 统计 1 的数量
-static int Integer.highestOneBit();      // 获得最高位
-static String toBinaryString(int i);     // 转换为二进制表示的字符串
-```
 
 **统计两个数的二进制表示有多少位不同**
 
@@ -3758,17 +3688,6 @@ public int findComplement(int num) {
     if (num == 0) return 1;
     int mask = 1 << 30;
     while ((num & mask) == 0) mask >>= 1;
-    mask = (mask << 1) - 1;
-    return num ^ mask;
-}
-```
-
-可以利用 Java 的 Integer.highestOneBit\(\) 方法来获得含有首 1 的数。
-
-```cpp
-public int findComplement(int num) {
-    if (num == 0) return 1;
-    int mask = Integer.highestOneBit(num);
     mask = (mask << 1) - 1;
     return num ^ mask;
 }
@@ -4076,11 +3995,11 @@ public int[] nextGreaterElements(int[] nums) {
 
 哈希表使用 O\(N\) 空间复杂度存储数据，从而能够以 O\(1\) 时间复杂度求解问题。
 
-Java 中的 **HashSet** 用于存储一个集合，可以查找元素是否在集合中。
+C++ 中的 **unordered_set** 用于存储一个集合，可以查找元素是否在集合中。
 
 如果元素有穷，并且范围不大，那么可以用一个布尔数组来存储一个元素是否存在。例如对于只有小写字符的元素，就可以用一个长度为 26 的布尔数组来存储一个字符集合，使得空间复杂度降低为 O\(1\)。
 
-Java 中的 **HashMap** 主要用于映射关系，从而把两个元素联系起来。
+C++ 中的 **unordered_map** 主要用于映射关系，从而把两个元素联系起来。
 
 在对一个内容进行压缩或者其它转换时，利用 HashMap 可以把原始内容和转换后的内容联系起来。例如在一个简化 url 的系统中 [535. Encode and Decode TinyURL \(Medium\)](https://leetcode.com/problems/encode-and-decode-tinyurl/description/)，利用 HashMap 就可以存储精简后的 url 到原始 url 的映射，使得不仅可以显示简化的 url，也可以根据简化的 url 得到原始 url 从而定位到正确的资源。
 
@@ -4610,8 +4529,6 @@ k = 8,
 
 return 13.
 ```
-
-解题参考：[Share my thoughts and Clean Java Code](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/discuss/85173)
 
 二分查找解法：
 

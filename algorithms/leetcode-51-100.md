@@ -569,9 +569,7 @@ string addBinary(string a, string b, int asz, int bsz) {
             carry = 0;
         }
     }
-
     if (carry == 0) return a;
-
     for (int i = bsz; i < asz; i++) {
         a[asz - 1 - i] = a[asz - 1 - i] - '0' + carry + '0';
         if (a[asz - 1 - i] == '2') {
@@ -581,7 +579,6 @@ string addBinary(string a, string b, int asz, int bsz) {
             return a;
         }
     }
-
     return carry ? to_string(1) + a : a; 
 }
 string addBinary (string a, string b) {

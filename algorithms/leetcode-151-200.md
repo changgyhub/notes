@@ -461,7 +461,9 @@ Solution: 正常mod+div操作，注意这和进制类题不太一样，没有0�
 
 ```cpp
 string convertToTitle (int n) {
-    return n ? convertToTitle(n / 26) + (char) (--n % 26 + 'A'): "";
+    if (n == 0) return "";
+    --n;
+    return convertToTitle(n / 26) + (char) (n % 26 + 'A');
 }
 ```
 
@@ -481,7 +483,7 @@ Solution: 设一个count和一个elem，遍历数组，如果和elem相同++coun
 ```cpp
 int majorityElement(vector<int> &num) {
     int elem = 0, count = 0;
-    for (int i = 0; i < num.size(); +i)  {
+    for (int i = 0; i < num.size(); ++i)  {
         if (!count) {
             elem = num[i];
             count = 1;
