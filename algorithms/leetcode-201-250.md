@@ -121,7 +121,7 @@ int countPrimes(int n) {
     vector<bool> visited(n, false);
     int i = 3, sqrtn = sqrt(n), count = n / 2;         // avoid even numbers
     while (i <= sqrtn) {                               // divisors must less than sqrtn
-        for (int j = i * i; j < n; j += (i << 1)) {    // to avoid even numbers and counted numbers
+        for (int j = i * i; j < n; j += (i << 1)) {    // to avoid even and counted numbers
             if (!visited[j]) --count;                  // avoid repeated visit
             visited[j] = true;
         }
