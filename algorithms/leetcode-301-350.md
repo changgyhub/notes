@@ -22,7 +22,6 @@ public:
         partial_sum(nums.begin(), nums.end(), psum.begin() + 1);
     }
 
-
     int sumRange(int i, int j) {
         return psum[j+1] - psum[i];
     }

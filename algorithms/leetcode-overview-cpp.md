@@ -1,7 +1,3 @@
----
-description: '改编自https://github.com/CyC2018/Interview-Notebook'
----
-
 # LeetCode Overview [C++ Version]
 
 ## 需要添加：各种O(1)数据结构题，LRU，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，KMT，线程安全
@@ -2063,19 +2059,17 @@ sumRange(0, 5) -> -3
 
 ```cpp
 class NumArray {
-    private int[] sums;
-
-    public NumArray(int[] nums) {
-        sums = new int[nums.length];
-        for (int i = 0; i < nums.length; i++) {
-            sums[i] = i == 0 ? nums[0] : sums[i - 1] + nums[i];
-        }
+public:
+    NumArray(vector<int> nums): psum(nums.size() + 1, 0) {
+        partial_sum(nums.begin(), nums.end(), psum.begin() + 1);
     }
 
-    public int sumRange(int i, int j) {
-        return i == 0 ? sums[j] : sums[j] - sums[i - 1];
+    int sumRange(int i, int j) {
+        return psum[j+1] - psum[i];
     }
-}
+private:
+    vector<int> psum;    
+};
 ```
 
 **子数组最大的和**
@@ -2088,15 +2082,14 @@ the contiguous subarray [4,-1,2,1] has the largest sum = 6.
 ```
 
 ```cpp
-public int maxSubArray(int[] nums) {
-    if (nums == null || nums.length == 0) {
-        return 0;
-    }
-    int preSum = nums[0];
-    int maxSum = preSum;
-    for (int i = 1; i < nums.length; i++) {
-        preSum = preSum > 0 ? preSum + nums[i] : nums[i];
-        maxSum = Math.max(maxSum, preSum);
+int maxSubArray(vector<int>& nums) {
+    int n = nums.size();
+    if (!n) return 0;
+    int sum = nums[0];
+    int maxSum = sum;
+    for (int i = 1; i < n; ++i) {
+        sum = max(nums[i], sum + nums[i]);
+        maxSum = max(maxSum, sum);
     }
     return maxSum;
 }
@@ -2116,22 +2109,16 @@ dp\[i\] 表示以 A\[i\] 为结尾的等差递增子区间的个数。
 如果 A\[i\] - A\[i - 1\] == A\[i - 1\] - A\[i - 2\]，表示 \[A\[i - 2\], A\[i - 1\], A\[i\]\] 是一个等差递增子区间。如果 \[A\[i - 3\], A\[i - 2\], A\[i - 1\]\] 是一个等差递增子区间，那么 \[A\[i - 3\], A\[i - 2\], A\[i - 1\], A\[i\]\] 也是。因此在这个条件下，dp\[i\] = dp\[i-1\] + 1。
 
 ```cpp
-public int numberOfArithmeticSlices(int[] A) {
-    if (A == null || A.length == 0) {
-        return 0;
-    }
-    int n = A.length;
-    int[] dp = new int[n];
-    for (int i = 2; i < n; i++) {
-        if (A[i] - A[i - 1] == A[i - 1] - A[i - 2]) {
-            dp[i] = dp[i - 1] + 1;
+int numberOfArithmeticSlices(vector<int>& nums) {
+    int n = nums.size();
+    if (n < 3) return 0;
+    vector<int> dp(n, 0);
+    for (int i = 2; i < n; ++i) {
+        if (nums[i] - nums[i-1] == nums[i-1] - nums[i-2]) {
+            dp[i] = dp[i-1] + 1;
         }
     }
-    int total = 0;
-    for (int cnt : dp) {
-        total += cnt;
-    }
-    return total;
+    return accumulate(dp.begin(), dp.end(), 0);
 }
 ```
 
@@ -2144,15 +2131,26 @@ public int numberOfArithmeticSlices(int[] A) {
 题目描述：For example, given n = 2, return 1 \(2 = 1 + 1\); given n = 10, return 36 \(10 = 3 + 3 + 4\).
 
 ```cpp
-public int integerBreak(int n) {
-    int[] dp = new int[n + 1];
+// dp solution
+int integerBreak(int n) {
+    vector<int> dp(n + 1, 0);
     dp[1] = 1;
-    for (int i = 2; i <= n; i++) {
-        for (int j = 1; j <= i - 1; j++) {
-            dp[i] = Math.max(dp[i], Math.max(j * dp[i - j], j * (i - j)));
+    for (int i = 2; i <= n; ++i) {
+        for (int j = 1; j <= i - 1; ++j) {
+            dp[i] = max(dp[i], max(j * dp[i-j], j * (i - j)));
         }
     }
     return dp[n];
+}
+
+// math solution
+int integerBreak(int n) {
+    if (n == 2) return 1;
+    if (n == 3) return 2;
+    if (n == 4) return 4;
+    if (n == 5) return 6;
+    if (n == 6) return 9;
+    return 3 * integerBreak(n - 3);
 }
 ```
 
@@ -2160,35 +2158,18 @@ public int integerBreak(int n) {
 
 [279. Perfect Squares \(Medium\)](https://leetcode.com/problems/perfect-squares/description/)
 
-题目描述：For example, given n = 12, return 3 because 12 = 4 + 4 + 4; given n = 13, return 2 because 13 = 4 + 9.
+题目描述：For example, given n = 12, return 3 because 12 = 4 + 4 + 4; given n = 13, return 2 because 13 = 4 + 9。可以用static数组来做memoization。
 
 ```cpp
-public int numSquares(int n) {
-    List<Integer> squareList = generateSquareList(n);
-    int[] dp = new int[n + 1];
-    for (int i = 1; i <= n; i++) {
-        int min = Integer.MAX_VALUE;
-        for (int square : squareList) {
-            if (square > i) {
-                break;
-            }
-            min = Math.min(min, dp[i - square] + 1);
-        }
-        dp[i] = min;
+int numSquares(int n)  {
+    if (n <= 0) return 0;
+    static vector<int> dp({0});
+    while (dp.size() <= n) {
+        int m = dp.size(), cnt = INT_MAX;
+        for (int i = 1; i * i <= m; ++i) cnt = min(cnt, dp[m-i*i] + 1);
+        dp.push_back(cnt);
     }
     return dp[n];
-}
-
-private List<Integer> generateSquareList(int n) {
-    List<Integer> squareList = new ArrayList<>();
-    int diff = 3;
-    int square = 1;
-    while (square <= n) {
-        squareList.add(square);
-        square += diff;
-        diff += 2;
-    }
-    return squareList;
 }
 ```
 
@@ -2199,28 +2180,24 @@ private List<Integer> generateSquareList(int n) {
 题目描述：Given encoded message "12", it could be decoded as "AB" \(1 2\) or "L" \(12\).
 
 ```cpp
-public int numDecodings(String s) {
-    if (s == null || s.length() == 0) {
-        return 0;
-    }
+int numDecodings(string s) {
     int n = s.length();
-    int[] dp = new int[n + 1];
-    dp[0] = 1;
-    dp[1] = s.charAt(0) == '0' ? 0 : 1;
-    for (int i = 2; i <= n; i++) {
-        int one = Integer.valueOf(s.substring(i - 1, i));
-        if (one != 0) {
-            dp[i] += dp[i - 1];
+    if (!n) return 0;
+    int prev = s[0] - '0';
+    if (!prev) return 0;
+    if (n == 1) return 1;
+    vector<int> dp(n+1, 1);
+    for (int i = 2; i <= n; ++i) {
+        int cur = s[i-1] - '0';
+        if ((prev == 0 || prev > 2) && cur == 0) return 0;
+        if ((prev < 2 && prev > 0) || prev == 2 && cur < 7) {
+            if (cur) dp[i] = dp[i-2] + dp[i-1];
+            else dp[i] = dp[i-2];
         }
-        if (s.charAt(i - 2) == '0') {
-            continue;
-        }
-        int two = Integer.valueOf(s.substring(i - 2, i));
-        if (two <= 26) {
-            dp[i] += dp[i - 2];
-        }
+        else dp[i] = dp[i-1];
+        prev = cur;
     }
-    return dp[n];
+    return dp.back();
 }
 ```
 
@@ -2241,30 +2218,20 @@ public int numDecodings(String s) {
 [300. Longest Increasing Subsequence \(Medium\)](https://leetcode.com/problems/longest-increasing-subsequence/description/)
 
 ```cpp
-public int lengthOfLIS(int[] nums) {
-    int n = nums.length;
-    int[] dp = new int[n];
-    for (int i = 0; i < n; i++) {
-        int max = 1;
-        for (int j = 0; j < i; j++) {
+int lengthOfLIS(vector<int>& nums) {
+    int curmax = 0, n = nums.size();
+    if (n <= 1) return n;
+    vector<int> dp(n, 1);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
             if (nums[i] > nums[j]) {
-                max = Math.max(max, dp[j] + 1);
+                dp[i] = max(dp[i], dp[j]+1);
             }
         }
-        dp[i] = max;
+        curmax = max(curmax, dp[i]);
     }
-    return Arrays.stream(dp).max().orElse(0);
+    return curmax;
 }
-```
-
-使用 Stream 求最大值会导致运行时间过长，可以改成以下形式：
-
-```cpp
-int ret = 0;
-for (int i = 0; i < n; i++) {
-    ret = Math.max(ret, dp[i]);
-}
-return ret;
 ```
 
 以上解法的时间复杂度为 O\(N2\) ，可以使用二分查找将时间复杂度降低为 O\(NlogN\)。
@@ -2288,33 +2255,16 @@ tails      len      num
 可以看出 tails 数组保持有序，因此在查找 Si 位于 tails 数组的位置时就可以使用二分查找。
 
 ```cpp
-public int lengthOfLIS(int[] nums) {
-    int n = nums.length;
-    int[] tails = new int[n];
-    int len = 0;
-    for (int num : nums) {
-        int index = binarySearch(tails, len, num);
-        tails[index] = num;
-        if (index == len) {
-            len++;
-        }
+int lengthOfLIS(vector<int>& nums) {
+    int n = nums.size();
+    if (n <= 1) return n;
+    vector<int> res;
+    res.push_back(nums[0]);
+    for (int i = 1; i < n; ++i) {
+        if (res.back() < nums[i]) res.push_back(nums[i]);
+        else res[lower_bound(res.begin(), res.end(), nums[i]) - res.begin()] = nums[i];
     }
-    return len;
-}
-
-private int binarySearch(int[] tails, int len, int key) {
-    int l = 0, h = len;
-    while (l < h) {
-        int mid = l + (h - l) / 2;
-        if (tails[mid] == key) {
-            return mid;
-        } else if (tails[mid] > key) {
-            h = mid;
-        } else {
-            l = mid + 1;
-        }
-    }
-    return l;
+    return res.size();
 }
 ```
 
@@ -2331,22 +2281,32 @@ Explanation: The longest chain is [1,2] -> [3,4]
 题目描述：对于 \(a, b\) 和 \(c, d\) ，如果 b &lt; c，则它们可以构成一条链。
 
 ```cpp
-public int findLongestChain(int[][] pairs) {
-    if (pairs == null || pairs.length == 0) {
-        return 0;
+// normal dp
+int findLongestChain(vector<vector<int>>& pairs) {
+    vector<int> res;
+    sort(pairs.begin(), pairs.end());
+    for(int i = 0; i < pairs.size(); ++i) {
+        auto it = lower_bound(res.begin(), res.end(), pairs[i][0]);
+        if (it == res.end()) res.push_back(pairs[i][1]);
+        else if (*it > pairs[i][1]) *it = pairs[i][1];
     }
-    Arrays.sort(pairs, (a, b) -> (a[0] - b[0]));
-    int n = pairs.length;
-    int[] dp = new int[n];
-    Arrays.fill(dp, 1);
-    for (int i = 1; i < n; i++) {
-        for (int j = 0; j < i; j++) {
-            if (pairs[j][1] < pairs[i][0]) {
-                dp[i] = Math.max(dp[i], dp[j] + 1);
+    return res.size();
+}
+
+// dp + binary search
+int findLongestChain(vector<vector<int>>& pairs) {
+    int n = pairs.size();
+    if (n <= 1) return n;
+    vector<int> count(n, 1);
+    sort(pairs.begin(), pairs.end());
+    for (int i = 1; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            if (pairs[j][1] < pairs[i][0] && count[i] < count[j] + 1) {
+                count[i] = count[j] + 1;
             }
         }
     }
-    return Arrays.stream(dp).max().orElse(0);
+    return *max_element(count.begin(), count.end());
 }
 ```
 
@@ -2370,23 +2330,20 @@ Output: 2
 要求：使用 O\(N\) 时间复杂度求解。
 
 ```cpp
-public int wiggleMaxLength(int[] nums) {
-    if (nums == null || nums.length == 0) {
-        return 0;
+int wiggleMaxLength(vector<int>& nums) {
+    int p = 1, q = 1, n = nums.size();
+    if (n <= 1) return n;
+    for (int i = 1; i < n; ++i) {
+        if (nums[i] > nums[i-1]) p = q + 1;
+        else if (nums[i] < nums[i-1]) q = p + 1;
     }
-    int up = 1, down = 1;
-    for (int i = 1; i < nums.length; i++) {
-        if (nums[i] > nums[i - 1]) {
-            up = down + 1;
-        } else if (nums[i] < nums[i - 1]) {
-            down = up + 1;
-        }
-    }
-    return Math.max(up, down);
+    return max(p, q);
 }
 ```
 
 #### 最长公共子序列
+
+[1143. Longest Commom Subsequence (Medium)](https://leetcode.com/problems/longest-common-subsequence/description/)
 
 对于两个子序列 S1 和 S2，找出它们最长的公共子序列。
 
@@ -2394,10 +2351,6 @@ public int wiggleMaxLength(int[] nums) {
 
 * 当 S1i==S2j 时，那么就能在 S1 的前 i-1 个字符与 S2 的前 j-1 个字符最长公共子序列的基础上再加上 S1i 这个值，最长公共子序列长度加 1 ，即 dp\[i\]\[j\] = dp\[i-1\]\[j-1\] + 1。
 * 当 S1i != S2j 时，此时最长公共子序列为 S1 的前 i-1 个字符和 S2 的前 j 个字符最长公共子序列，与 S1 的前 i 个字符和 S2 的前 j-1 个字符最长公共子序列，它们的最大者，即 dp\[i\]\[j\] = max{ dp\[i-1\]\[j\], dp\[i\]\[j-1\] }。
-
-综上，最长公共子序列的状态转移方程为：
-
-![](https://latex.codecogs.com/gif.latex?dp[i][j]=\left\{\begin{array}{rcl}dp[i-1][j-1]&&{S1_i==S2_j}\\max%28dp[i-1][j],dp[i][j-1]%29&&{S1_i<>S2_j}\end{array}\right.)
 
 对于长度为 N 的序列 S1 和 长度为 M 的序列 S2，dp\[N\]\[M\] 就是序列 S1 和序列 S2 的最长公共子序列长度。
 
@@ -2408,19 +2361,15 @@ public int wiggleMaxLength(int[] nums) {
 * 在求最终解时，最长公共子序列中 dp\[N\]\[M\] 就是最终解，而最长递增子序列中 dp\[N\] 不是最终解，因为以 SN 为结尾的最长递增子序列不一定是整个序列最长递增子序列，需要遍历一遍 dp 数组找到最大者。
 
 ```cpp
-public int lengthOfLCS(int[] nums1, int[] nums2) {
-    int n1 = nums1.length, n2 = nums2.length;
-    int[][] dp = new int[n1 + 1][n2 + 1];
-    for (int i = 1; i <= n1; i++) {
-        for (int j = 1; j <= n2; j++) {
-            if (nums1[i - 1] == nums2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1] + 1;
-            } else {
-                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-            }
+int longestCommonSubsequence(string text1, string text2) {
+    int m = text1.length(), n = text2.length();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            dp[i][j] = text1[i-1] == text2[j-1]? 1 + dp[i-1][j-1]: max(dp[i-1][j], dp[i][j-1]);
         }
     }
-    return dp[n1][n2];
+    return dp[m][n];
 }
 ```
 
@@ -2618,6 +2567,8 @@ Return true because "leetcode" can be segmented as "leet code".
 
 dict 中的单词没有使用次数的限制，因此这是一个完全背包问题。
 
+**注意：对于压缩内存的写法，0-1背包对物品的迭代放在最外层，里层重量或价值从后往前遍历；完全背包对物品的迭代放在最里层，外层则正常从前往后遍历重量或价值。**
+
 ```cpp
 public boolean wordBreak(String s, List<String> wordDict) {
     int n = s.length();
@@ -2634,8 +2585,6 @@ public boolean wordBreak(String s, List<String> wordDict) {
     return dp[n];
 }
 ```
-
-0-1背包对物品的迭代可以放在最外层，完全背包对物品的迭代放在最里层。
 
 **01 字符构成最多的字符串**
 
@@ -6538,9 +6487,4 @@ public int[] countBits(int num) {
 ## 参考资料
 
 * [Leetcode](https://leetcode.com/problemset/algorithms/?status=Todo)
-* Weiss M A, 冯舜玺. 数据结构与算法分析——C 语言描述\[J\]. 2004.
-* Sedgewick R. Algorithms\[M\]. Pearson Education India, 1988.
-* 何海涛, 软件工程师. 剑指 Offer: 名企面试官精讲典型编程题\[M\]. 电子工业出版社, 2014.
-* 《编程之美》小组. 编程之美\[M\]. 电子工业出版社, 2008.
-* 左程云. 程序员代码面试指南\[M\]. 电子工业出版社, 2015.
-
+* [Leetcode 题解](https://github.com/CyC2018/Interview-Notebook)

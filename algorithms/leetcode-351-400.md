@@ -457,11 +457,12 @@ Solution: 记录两个值p和q，分别表示递增和递减位的交替最大�
 ```cpp
 int wiggleMaxLength(vector<int>& nums) {
     int p = 1, q = 1, n = nums.size();
+    if (n <= 1) return n;
     for (int i = 1; i < n; ++i) {
         if (nums[i] > nums[i-1]) p = q + 1;
         else if (nums[i] < nums[i-1]) q = p + 1;
     }
-    return min(n, max(p, q));  // add min here to consider nums.empty() 
+    return max(p, q);
 }
 ```
 
