@@ -1347,8 +1347,7 @@ void backtracking(vector<vector<int>>& res, vector<int>& cur, int pos, int count
 
 ```markup
 given candidate set [2, 3, 6, 7] and target 7,
-A solution set is:
-[[7],[2, 2, 3]]
+A solution set is: [[7],[2, 2, 3]]
 ```
 
 ```cpp
@@ -1493,7 +1492,6 @@ vector<vector<int>> subsets(vector<int>& nums) {
 ```markup
 For example,
 If nums = [1,2,2], a solution is:
-
 [
   [2],
   [1],
@@ -1529,7 +1527,7 @@ void helper(vector<int> & nums, vector<vector<int>>& res, vector<int> & t, int b
 
 ```markup
 Input: s = "aab",
-Output:[["aa","b"], ["a","a","b"]]
+Output: [["aa","b"], ["a","a","b"]]
 ```
 
 ```cpp
