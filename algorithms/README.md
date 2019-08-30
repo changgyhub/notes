@@ -816,7 +816,8 @@ Output: 2
 
 Input: 8
 Output: 2
-Explanation: The square root of 8 is 2.82842..., and since we want to return an integer, the decimal part will be truncated.
+Explanation: The square root of 8 is 2.82842..., and since we want to return an integer,
+the decimal part will be truncated.
 ```
 
 一个数 x 的开方 sqrt 一定在 0 ~ x 之间，并且满足 sqrt == x / sqrt。可以利用二分查找在 0 ~ x 之间查找 sqrt。
@@ -1237,7 +1238,8 @@ void dfs(const vector<vector<int>>& matrix, vector<vector<bool>>& can_reach, int
     can_reach[r][c] = true;
     for (int i = 0; i < 4; ++i) {
         int next_r = r + dr[i], next_c = c + dc[i];
-        if (next_r < 0 || next_r >= matrix.size() || next_c < 0 || next_c >= matrix[0].size() || matrix[r][c] > matrix[next_r][next_c]) continue;
+        if (next_r < 0 || next_r >= matrix.size() || next_c < 0 || next_c >= matrix[0].size() ||
+            matrix[r][c] > matrix[next_r][next_c]) continue;
         dfs(matrix, can_reach, next_r, next_c);
     }
 }
@@ -1283,10 +1285,11 @@ bool exist(vector<vector<char>>& board, string word) {
             backtracking(i, j, board, word, 0, find, visited);
     return find;
 }
-void backtracking(int i, int j, vector<vector<char>>& board, string& word, int pos, bool& find, vector<vector<bool>>& visited) {
+void backtracking(int i, int j, vector<vector<char>>& board, string& word, int pos,
+                  bool& find, vector<vector<bool>>& visited) {
     if (i < 0 || i >= board.size() || j < 0 || j >= board[0].size()) return;
     if (visited[i][j] || find || board[i][j] != word[pos]) return;
-    if (pos == word.size()-1) { 
+    if (pos == word.size()-1) {
         find = true;
         return;
     }
@@ -1465,7 +1468,8 @@ vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
     return result;
 }
 
-void backtracking(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result) {
+void backtracking(vector<int> &nums, int pos, int base, int target,
+                  vector<int>& path, vector<vector<int>> & result) {
     if (base == target) {
         result.push_back(path);
         return;
@@ -1503,7 +1507,8 @@ vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
     return result;
 }
 
-void backtracking(vector<int> &nums, int pos, int base, int target, vector<int>& path, vector<vector<int>> & result) {
+void backtracking(vector<int> &nums, int pos, int base, int target,
+                  vector<int>& path, vector<vector<int>> & result) {
     if (base == target) {
         result.push_back(path);
         return;
@@ -1716,7 +1721,8 @@ bool solveSudoku(vector<vector<char> > &board) {
 在 n\*n 的矩阵中摆放 n 个皇后，并且每个皇后不能在同一行，同一列，同一对角线上，求所有的 n 皇后的解。
 
 ```cpp
-void backtrack(vector<vector<string>> &ret, vector<string> &board, vector<bool> &column, vector<bool> &ldiag, vector<bool> &rdiag, int row, int n) {  
+void backtrack(vector<vector<string>> &ret, vector<string> &board, vector<bool> &column,
+               vector<bool> &ldiag, vector<bool> &rdiag, int row, int n) {  
     if (row == n) {  
         ret.push_back(board);  
         return;  
@@ -1954,7 +1960,8 @@ vector<vector<string>> findLadders(string beginWord, string endWord, vector<stri
     backtrack(beginWord, endWord, next, path, ans);
     return ans;
 }
-void backtrack(const string &src, const string &dst, unordered_map<string, vector<string>> &next, vector<string> &path, vector<vector<string>> &ans) {
+void backtrack(const string &src, const string &dst, unordered_map<string, vector<string>> &next,
+               vector<string> &path, vector<vector<string>> &ans) {
     if (src == dst) {
         ans.push_back(path);
         return;
@@ -2650,7 +2657,8 @@ bool wordBreak(string s, vector<string>& wordDict) {
 Input: Array = {"10", "0001", "111001", "1", "0"}, m = 5, n = 3
 Output: 4
 
-Explanation: There are totally 4 strings can be formed by the using of 5 0s and 3 1s, which are "10","0001","1","0"
+Explanation: There are totally 4 strings can be formed by the using of 5 0s and 3 1s,
+which are "10","0001","1","0"
 ```
 
 这是一个多维费用的 0-1 背包问题，有两个背包大小，0 的数量和 1 的数量。
@@ -3522,7 +3530,7 @@ x ^ x = 0       x & x = x       x | x = x
 位与运算技巧：
 
 - n&\(n-1\) 去除 n 的位级表示中最低的那一位。例如对于二进制表示 10110 **100** ，减去 1 得到 10110**011**，这两个数相与得到 10110**000**。
-- n&\(-n\) 得到 n 的位级表示中最低的那一位。-n 得到 n 的反码加 1，对于二进制表示 10110 **100** ，-n 得到 01001**100**，相与得到 00000**100**。
+- n&\(-n\) 得到 n 的位级表示中最低的那一位。-n 得到 n 的反码加 1，对于二进制表示 10110**100** ，-n 得到 01001**100**，相与得到 00000**100**。
 - n-n&\(~n+1\) 去除 n 的位级表示中最高的那一位。
 
 移位运算：
@@ -3739,7 +3747,8 @@ bool hasAlternatingBits(int n) {
 ```markup
 Input: 5
 Output: 2
-Explanation: The binary representation of 5 is 101 (no leading zero bits), and its complement is 010. So you need to output 2.
+Explanation: The binary representation of 5 is 101 (no leading zero bits),
+and its complement is 010. So you need to output 2.
 ```
 
 题目描述：不考虑二进制表示中的首 0 部分。
@@ -3999,7 +4008,9 @@ bool isValid(string s) {
         else {
             if (v.empty()) return false;
             char c = v.back();
-            if ((s[i] == '}' && c == '{') || (s[i] == ']' && c == '[') || (s[i] == ')' && c == '(')) v.pop_back();
+            if ((s[i] == '}' && c == '{') ||
+                (s[i] == ']' && c == '[') ||
+                (s[i] == ')' && c == '(')) v.pop_back();
             else return false;
         }
     }
@@ -4344,7 +4355,8 @@ bool isPalindrome(int x) {
 ```markup
 Input: "00110011"
 Output: 6
-Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's: "0011", "01", "1100", "10", "0011", and "01".
+Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's:
+"0011", "01", "1100", "10", "0011", and "01".
 ```
 
 ```cpp
@@ -4432,7 +4444,8 @@ Output:
 [[1,2,3,4]]
 
 Explanation:
-The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix,
+fill it row by row by using the previous list.
 ```
 
 ```cpp
@@ -4615,7 +4628,8 @@ int kthSmallest(vector<vector<int>>& matrix, int k) {
 ```markup
 Input: n = 3, k = 2
 Output: [1, 3, 2]
-Explanation: The [1, 3, 2] has three different positive integers ranging from 1 to 3, and the [2, 1] has exactly 2 distinct integers: 1 and 2.
+Explanation: The [1, 3, 2] has three different positive integers ranging from 1 to 3,
+and the [2, 1] has exactly 2 distinct integers: 1 and 2.
 ```
 
 题目描述：数组元素为 1~n 的整数，要求构建数组，使得相邻元素的差值不相同的个数为 k。
@@ -4676,7 +4690,8 @@ int findShortestSubArray(vector<int>& nums) {
 5123
 9512
 
-In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each diagonal all elements are the same, so the answer is True.
+In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]",
+and in each diagonal all elements are the same, so the answer is True.
 ```
 
 ```cpp
@@ -5664,7 +5679,9 @@ void helper(TreeNode *root, int& prev) {
         /  \
        3   5
 
-For example, the lowest common ancestor (LCA) of nodes 2 and 8 is 6. Another example is LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.
+For example, the lowest common ancestor (LCA) of nodes 2 and 8 is 6.
+Another example is LCA of nodes 2 and 4 is 2,
+since a node can be a descendant of itself according to the LCA definition.
 ```
 
 ```cpp
@@ -5689,7 +5706,9 @@ TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
         /  \
        7    4
 
-For example, the lowest common ancestor (LCA) of nodes 5 and 1 is 3. Another example is LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according to the LCA definition.
+For example, the lowest common ancestor (LCA) of nodes 5 and 1 is 3.
+Another example is LCA of nodes 5 and 4 is 5,
+since a node can be a descendant of itself according to the LCA definition.
 ```
 
 ```cpp
@@ -6003,7 +6022,9 @@ bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
 
 ```markup
 4, [[1,0],[2,0],[3,1],[3,2]]
-There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
+There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2.
+Both courses 1 and 2 should be taken after you finished course 0.
+So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
 ```
 
 ```cpp
