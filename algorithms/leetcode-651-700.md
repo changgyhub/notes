@@ -1,5 +1,45 @@
 # LeetCode 651 - 700
 
+### 653. Two Sum IV - Input is a BST
+
+Given a Binary Search Tree and a target number, return true if there exist two elements in the BST such that their sum is equal to the given target.
+
+Example:
+
+```
+Input: Target = 9, Tree =
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+Output: True
+```
+
+Solution: 中序遍历存到一个数组后，在进行二分查找；这一题不能用分别在左右子树两部分来处理这种思想，因为两个待求的节点可能分别在左右子树中
+
+```cpp
+bool findTarget(TreeNode* root, int k) {
+    vector<int> nums;
+    helper(root, nums);
+    int i = 0, j = nums.size() - 1;
+    while (i < j) {
+        int sum = nums[i] + nums[j];
+        if (sum == k) return true;
+        if (sum < k) ++i;
+        else --j;
+    }
+    return false;
+}
+
+void helper(TreeNode* root, vector<int>& nums) {
+    if (!root) return;
+    helper(root->left, nums);
+    nums.push_back(root->val);
+    helper(root->right, nums);
+}
+```
+
 ### 658. Find K Closest Elements
 
 Given a sorted array, two integers `k` and `x`, find the `k` closest elements to `x` in the array. The result should also be sorted in ascending order. If there is a tie, the smaller elements are always preferred.

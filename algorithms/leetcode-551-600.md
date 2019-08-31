@@ -167,6 +167,52 @@ int minDistance(string word1, string word2) {
 }
 ```
 
+### 587. Erect the Fence
+
+There are some trees, where each tree is represented by (x,y) coordinate in a two-dimensional garden. Your job is to fence the entire garden using the **minimum length** of rope as it is expensive. The garden is well fenced only if all the trees are enclosed. Your task is to help find the coordinates of trees which are exactly located on the fence perimeter.
+
+Example:
+
+```cpp
+Input: [[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]]
+Output: [[1,1],[2,0],[4,2],[3,3],[2,4]]
+```
+
+Solution: Andrew's monotone chain method凸包算法，复杂度为O(logn)：先根据(x, y)由小到大排序，然后从最左边出发，分别遍历上半部分和下半部分；如果是向里拐则为凸包节点，如果向外拐则不是凸包节点
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> outerTrees(vector<vector<int>>& points) {
+        int n = points.size();
+        vector<vector<int>> res;
+        sort(points.begin(), points.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[0] < b[0] || (a[0] == b[0] && a[1] < b[1]);
+        });
+        // build lower hull
+        for (int i = 0; i < n; ++i) {
+            while (res.size() > 1 && orientation(res[res.size()-2], res.back(), points[i]) < 0) 
+                res.pop_back();
+            res.push_back(points[i]);
+        }
+        // if all points along a line, res.size() is n after lower hull procedure
+        if (res.size() == n) return res;
+        // build upper hull
+        for (int i = n - 2; i >= 0; --i) {
+            while (res.size() > 1 && orientation(res[res.size()-2], res.back(), points[i]) < 0) 
+                res.pop_back();
+            res.push_back(points[i]);
+        }
+        res.pop_back();
+        return res;
+    }
+private:
+    int orientation(vector<int>& a, vector<int>& b, vector<int>& c) {
+        return (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+    }
+};
+```
+
 ### 593. Valid Square
 
 Given the coordinates of four points in 2D space, return whether the four points could construct a square. The coordinate (x,y) of a point is represented by an integer array with two integers.

@@ -276,6 +276,24 @@ int quick_selection(vector<int>& nums, int l, int r) {
 }
 ```
 
+### 470. Implement Rand10() Using Rand7()
+
+Given a function `rand7` which generates a uniform random integer in the range 1 to 7, write a function `rand10` which generates a uniform random integer in the range 1 to 10.
+
+Solution: Rejection Sampling：两次Rand7可以生成一个7乘7的矩阵，每一位对应1到49的数字；我们每次取两个Rand7，获得矩阵对应值，并重复此过程直到获得一个1到40之间的数字，然后mod 10得到概率均匀的Rand10
+
+```cpp
+int rand10() {
+    int row, col, idx;
+    do {
+        row = rand7();
+        col = rand7();
+        idx = col + (row - 1) * 7;
+    } while (idx > 40);
+    return 1 + (idx - 1) % 10;
+}
+```
+
 ### 474. Ones and Zeroes
 
 In the computer world, use restricted resource you have to generate maximum benefit is what we always want to pursue. For now, suppose you are a dominator of m 0s and n 1s respectively. On the other hand, there is an array with strings consisting of only 0s and 1s. Now your task is to find the maximum number of strings that you can form with given m 0s and n 1s. Each 0 and 1 can be used at most once. The given numbers of 0s and 1s will both not exceed 100. The size of given string array won't exceed 600.
@@ -333,6 +351,38 @@ int findRadius(vector<int>& houses, vector<int>& heaters) {
     }
     return r;
 }
+```
+
+### 478. Generate Random Point in a Circle
+
+Given the radius and x-y positions of the center of a circle, write a function `randPoint` which generates a uniform random point in the circle.
+
+Example:
+
+```
+Input: ["Solution","randPoint","randPoint","randPoint"]
+[[1,0,0],[],[],[]]
+Output: [null,[-0.72939,-0.65505],[-0.78502,-0.28626],[-0.83119,-0.19803]]
+```
+
+Solution: Rejection sampling
+
+```cpp
+class Solution {
+public:    
+    Solution(double radius, double x_center, double y_center):
+        r(radius), xc(x_center), yc(y_center) {}
+    vector<double> randPoint() {
+        double x, y;
+        do {
+            x = (2 * ((double)rand() / RAND_MAX) - 1.0) * r;
+            y = (2 * ((double)rand() / RAND_MAX) - 1.0) * r;
+        } while (x * x + y * y > r * r);
+        return {xc + x, yc + y};
+    }
+private:
+    double r, xc, yc;
+};
 ```
 
 ### 482. License Key Formatting

@@ -227,6 +227,74 @@ int missingNumber(vector<int>& nums) {
 }
 ```
 
+### 269. Alien Dictionary
+
+There is a new alien language which uses the latin alphabet. However, the order among letters are unknown to you. You receive a list of **non-empty** words from the dictionary, where **words are sorted lexicographically by the rules of this new language**. Derive the order of letters in this language.
+
+Example:
+
+```
+Input: [
+  "wrt",
+  "wrf",
+  "er",
+  "ett",
+  "rftt"
+]
+
+Output: "wertf"
+```
+
+Solution: 先记录先后关系，然后拓扑排序
+
+```cpp
+string alienOrder(vector<string>& strings) {
+    string order;
+    vector<int> toVisit;
+    vector<int> inCount(26, 0);
+    unordered_map<int, unordered_set<int>> graph;
+    int n = strings.size();
+    for (auto str: strings) {
+        for (auto c: str){
+            int cur = c - 'a';
+            if (graph.find(cur) == graph.end())
+                graph[cur] = unordered_set<int>();
+        }
+    }
+    string prevstr = strings[0], curstr;
+    for (int i = 1; i < n; ++i) {
+        curstr = strings[i];
+        for (int j = 0; j < min(curstr.length(), prevstr.length()); ++j) {
+            int left = prevstr[j] - 'a', right = curstr[j] - 'a';
+            if (left == right) continue;
+            if (graph[left].find(right) == graph[left].end()){
+                graph[left].insert(right);
+                ++inCount[right];
+            }
+            break;
+        }
+        prevstr = curstr;
+    }
+    for (auto i: graph) {
+        if (!inCount[i.first]) toVisit.push_back(i.first);
+    }
+    while (!toVisit.empty()){
+        int cur = toVisit.back();
+        toVisit.pop_back();
+        order.push_back(cur + 'a');
+        for (auto i: graph[cur]) {
+             if (--inCount[i] == 0) {
+                toVisit.push_back(i);
+            }
+        }
+    }
+    for (auto i: graph) {
+        if (inCount[i.first]) return "";
+    }
+    return order;
+}
+```
+
 ### 274. H-Index
 
 Given an array of citations \(each citation is a non-negative integer\) of a researcher, write a function to compute the researcher's h-index. According to the definition of h-index on Wikipedia: "A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each."
@@ -413,6 +481,27 @@ int numSquares(int n) {
     for (int i = 1; i <= sqrt_n; ++i) if (is_square(n - i * i)) return 2;
 
     return 3;  
+}
+```
+
+### 280. Wiggle Sort
+
+Given an unsorted array `nums`, reorder it **in-place** such that `nums[0] <= nums[1] >= nums[2] <= nums[3]...`.
+
+Example:
+
+```
+Input: nums = [3,5,2,1,6,4]
+Output: One possible answer is [3,5,1,6,2,4]
+```
+
+Solution: 直接遍历即可，容易想复杂，一定要背
+
+```cpp
+void wiggleSort(vector<int>& nums) {
+    if (nums.empty()) return;
+    for (int i = 0; i < nums.size() - 1; ++i) 
+        if ((i % 2) == (nums[i] < nums[i+1])) swap(nums[i], nums[i+1]);
 }
 ```
 

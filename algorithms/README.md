@@ -7061,7 +7061,7 @@ Output: True
 ```cpp
 bool findTarget(TreeNode* root, int k) {
     vector<int> nums;
-    inOrder(root, nums);
+    helper(root, nums);
     int i = 0, j = nums.size() - 1;
     while (i < j) {
         int sum = nums[i] + nums[j];
@@ -7072,11 +7072,11 @@ bool findTarget(TreeNode* root, int k) {
     return false;
 }
 
-void inOrder(TreeNode* root, vector<int>& nums) {
+void helper(TreeNode* root, vector<int>& nums) {
     if (!root) return;
-    inOrder(root->left, nums);
+    helper(root->left, nums);
     nums.push_back(root->val);
-    inOrder(root->right, nums);
+    helper(root->right, nums);
 }
 ```
 
@@ -7101,15 +7101,15 @@ Output: 1
 ```cpp
 int getMinimumDifference(TreeNode* root) {
     int res = INT_MAX, prev = INT_MIN;
-    inOrder(root, prev, res);
+    helper(root, prev, res);
     return res;
 }
-void inOrder(TreeNode* node, int& prev, int& res) {
+void helper(TreeNode* node, int& prev, int& res) {
     if (!node) return;
-    inOrder(node->left, prev, res);
+    helper(node->left, prev, res);
     if (prev != INT_MIN) res = min(res, node->val - prev);
     prev = node->val;
-    inOrder(node->right, prev, res);
+    helper(node->right, prev, res);
 }
 ```
 

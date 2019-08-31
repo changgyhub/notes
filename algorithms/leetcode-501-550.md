@@ -308,6 +308,40 @@ private:
 };
 ```
 
+### 530. Minimum Absolute Difference in BST
+
+Given a binary search tree with non-negative values, find the minimum [absolute difference](https://en.wikipedia.org/wiki/Absolute_difference) between values of any two nodes.
+
+Example:
+
+```
+Input:
+   1
+    \
+     3
+    /
+   2
+
+Output: 1
+```
+
+Solution: 中序遍历
+
+```cpp
+int getMinimumDifference(TreeNode* root) {
+    int res = INT_MAX, prev = INT_MIN;
+    helper(root, prev, res);
+    return res;
+}
+void helper(TreeNode* node, int& prev, int& res) {
+    if (!node) return;
+    helper(node->left, prev, res);
+    if (prev != INT_MIN) res = min(res, node->val - prev);
+    prev = node->val;
+    helper(node->right, prev, res);
+}
+```
+
 ### 538. Convert BST to Greater Tree
 
 Given a Binary Search Tree \(BST\), convert it to a Greater Tree such that every key of the original BST is changed to the original key plus sum of all keys greater than the original key in BST.
