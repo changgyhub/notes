@@ -49,6 +49,7 @@
     * 多重集合和映射
   * 字符串
   * 数组与矩阵
+    * 积分图
   * 链表
   * 树
     * 树递归
@@ -112,17 +113,15 @@ int findContentChildren(vector<int>& g, vector<int>& s) {
 [435. Non-overlapping Intervals \(Medium\)](https://leetcode.com/problems/non-overlapping-intervals/)
 
 ```markup
-Input: [ [1,2], [1,2], [1,2] ]
+Input: [[1,2], [1,2], [1,2]]
 Output: 2
 
 Explanation: You need to remove two [1,2] to make the rest of intervals non-overlapping.
-```
 
-```markup
-Input: [ [1,2], [2,3] ]
+Input: [[1,2], [2,3]]
 Output: 0
 
-Explanation: You don't need to remove any of the intervals since they're already non-overlapping.
+Explanation: You don't need to remove any of the intervals since they're already non-overlapping
 ```
 
 题目描述：计算让一组区间不重叠所需要移除的区间个数。
@@ -154,11 +153,8 @@ int eraseOverlapIntervals(vector<vector<int>>& intervals) {
 [452. Minimum Number of Arrows to Burst Balloons \(Medium\)](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
 
 ```text
-Input:
-[[10,16], [2,8], [1,6], [7,12]]
-
-Output:
-2
+Input: [[10,16], [2,8], [1,6], [7,12]]
+Output: 2
 ```
 
 题目描述：气球在一个水平数轴上摆放，可以重叠，飞镖垂直投向坐标轴，使得路径上的气球都会刺破。求解最小的投飞镖次数使所有气球都被刺破。
@@ -187,11 +183,9 @@ int findMinArrowShots(vector<vector<int>>& points) {
 [406. Queue Reconstruction by Height\(Medium\)](https://leetcode.com/problems/queue-reconstruction-by-height/)
 
 ```markup
-Input:
-[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
+Input: [[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
 
-Output:
-[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
+Output: [[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
 ```
 
 题目描述：一个学生用两个分量 \(h, k\) 描述，h 表示身高，k 表示排在前面的有 k 个学生的身高比他高或者和他一样高。
@@ -2267,35 +2261,6 @@ int comb(int n, int k) {
 
 #### 数组区间
 
-**数组区间和**
-
-[303. Range Sum Query - Immutable \(Easy\)](https://leetcode.com/problems/range-sum-query-immutable/)
-
-```markup
-Given nums = [-2, 0, 3, -5, 2, -1]
-
-sumRange(0, 2) -> 1
-sumRange(2, 5) -> -1
-sumRange(0, 5) -> -3
-```
-
-求区间 i ~ j 的和，可以转换为 sum\[j\] - sum\[i-1\]，其中 sum\[i\] 为 0 ~ i 的和。
-
-```cpp
-class NumArray {
-public:
-    NumArray(vector<int> nums): psum(nums.size() + 1, 0) {
-        partial_sum(nums.begin(), nums.end(), psum.begin() + 1);
-    }
-
-    int sumRange(int i, int j) {
-        return psum[j+1] - psum[i];
-    }
-private:
-    vector<int> psum;    
-};
-```
-
 **子数组最大的和**
 
 [53. Maximum Subarray \(Easy\)](https://leetcode.com/problems/maximum-subarray/)
@@ -2343,6 +2308,43 @@ int numberOfArithmeticSlices(vector<int>& nums) {
         }
     }
     return accumulate(dp.begin(), dp.end(), 0);
+}
+```
+
+**最大正方形**
+
+[85. Maximal Rectangle \(Hard\)](https://leetcode.com/problems/maximal-rectangle/)
+
+给定一个矩阵，找到全为1的最大正方形面积。
+
+```
+Input:
+[
+  ["1","0","1","0","0"],
+  ["1","0","1","1","1"],
+  ["1","1","1","1","1"],
+  ["1","0","0","1","0"]
+]
+Output: 6
+```
+
+```cpp
+int maximalSquare(vector<vector<char>>& matrix) {
+    if (matrix.empty() || matrix[0].empty()) return 0;
+    int m = matrix.size(), n = matrix[0].size();
+    int res = 0;
+    vector<vector<int>> dp(m, vector<int>(n, 0));
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == 0 || j == 0) { 
+                dp[i][j] = matrix[i][j] - '0';
+            } else if (matrix[i][j] == '1') {
+                dp[i][j] = min(dp[i-1][j-1], min(dp[i][j-1], dp[i-1][j])) + 1;
+            }
+            res = max(res, dp[i][j]);
+        }
+    }
+    return res*res;
 }
 ```
 
@@ -4780,31 +4782,6 @@ int longestConsecutive(vector<int>& nums) {
 }
 ```
 
-**记录前缀和的位置或频率**
-
-[560. Subarray Sum Equals K \(Medium\)](https://leetcode.com/problems/subarray-sum-equals-k/)
-
-```text
-Input: nums = [1,1,1], k = 2
-Output: 2
-```
-
-题目描述：寻找和为K的连续区间个数
-
-```cpp
-int subarraySum(vector<int>& nums, int k) {
-    int count = 0, sum = 0;
-    unordered_map<int, int> hash;
-    hash[0] = 1;  // 初始化很重要
-    for (int i: nums) {
-        sum += i;
-        count += hash[sum-k];
-        ++hash[sum];
-    }
-    return count;
-}
-```
-
 **同一条线段上最多的点数**
 
 [149. Max Points on a Line \(Hard\)](https://leetcode.com/problems/max-points-on-a-line/)
@@ -5334,14 +5311,8 @@ void moveZeroes(vector<int>& nums) {
 [566. Reshape the Matrix \(Easy\)](https://leetcode.com/problems/reshape-the-matrix/)
 
 ```markup
-Input:
-nums =
-[[1,2],
- [3,4]]
-r = 1, c = 4
-
-Output:
-[[1,2,3,4]]
+Input: nums = [[1,2], [3,4]]， r = 1, c = 4
+Output: [[1,2,3,4]]
 
 Explanation:
 The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix,
@@ -5719,6 +5690,135 @@ void wiggleSort(vector<int>& nums) {
     for (int i = 0; i < nums.size() - 1; ++i) 
         if ((i % 2) == (nums[i] < nums[i+1])) swap(nums[i], nums[i+1]);
 }
+```
+
+#### 积分图
+
+一维的前缀和，二维的积分图，都是把每个位置之前的一维线段或二维矩形预先存储，方便加速计算。如果需要对前缀和或积分图的值做寻址，则要存在哈希表里；如果要对每个位置记录前缀和或积分图的值，则可以储存到一维或二维数组里，也常常伴随着动态规划。
+
+**数组区间和**
+
+[303. Range Sum Query - Immutable \(Easy\)](https://leetcode.com/problems/range-sum-query-immutable/)
+
+```
+Given nums = [-2, 0, 3, -5, 2, -1]
+
+sumRange(0, 2) -> 1
+sumRange(2, 5) -> -1
+sumRange(0, 5) -> -3
+```
+
+求区间 i ~ j 的和，可以转换为 sum\[j\] - sum\[i-1\]，其中 sum\[i\] 为 0 ~ i 的和。
+
+```cpp
+class NumArray {
+public:
+    NumArray(vector<int> nums): psum(nums.size() + 1, 0) {
+        partial_sum(nums.begin(), nums.end(), psum.begin() + 1);
+    }
+
+    int sumRange(int i, int j) {
+        return psum[j+1] - psum[i];
+    }
+private:
+    vector<int> psum;
+};
+```
+
+**矩阵区间和**
+
+[304. Range Sum Query 2D - Immutable \(Medium\)](https://leetcode.com/problems/range-sum-query-2d-immutable/)
+```
+Given matrix = [
+  [3, 0, 1, 4, 2],
+  [5, 6, 3, 2, 1],
+  [1, 2, 0, 1, 5],
+  [4, 1, 0, 1, 7],
+  [1, 0, 3, 0, 5]
+]
+sumRegion(2, 1, 4, 3) -> 8
+sumRegion(1, 1, 2, 2) -> 11
+sumRegion(1, 2, 2, 4) -> 12
+```
+对于矩形，查询(row1, col1)到(row2, col2)的面积的时候可以用sums\[row2+1\][col2+1] - sums\[row2+1][col1] - sums\[row1][col2+1] + sums\[row1][col1]。
+
+```c++
+class NumMatrix {
+private:
+    int row, col;
+    vector<vector<int>> sums;
+public:
+    NumMatrix(vector<vector<int>> matrix) {
+        row = matrix.size();
+        col = row > 0? matrix[0].size(): 0;
+        sums.resize(row + 1, vector<int>(col + 1, 0));
+        for (int i = 1; i <= row; ++i)
+            for (int j = 1; j <= col; ++j)
+                sums[i][j] = matrix[i-1][j-1] + sums[i-1][j] + sums[i][j-1] - sums[i-1][j-1];
+    }
+
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        return sums[row2+1][col2+1] - sums[row2+1][col1] - sums[row1][col2+1] + sums[row1][col1];
+    }
+};
+```
+
+**记录前缀和的位置或频率**
+
+[560. Subarray Sum Equals K \(Medium\)](https://leetcode.com/problems/subarray-sum-equals-k/)
+
+```text
+Input: nums = [1, 1, 1], k = 2
+Output: 2
+```
+
+题目描述：寻找和为k的连续区间个数
+
+```cpp
+int subarraySum(vector<int>& nums, int k) {
+    int count = 0, sum = 0;
+    unordered_map<int, int> hash;
+    hash[0] = 1;  // 初始化很重要
+    for (int i: nums) {
+        sum += i;
+        count += hash[sum-k];
+        ++hash[sum];
+    }
+    return count;
+}
+```
+
+**数组和为0的最大连续长度/矩阵和为0的最大矩阵面积**
+
+数组复杂度为O(N)，矩阵复杂度为O(N^3)。对于矩阵，考虑每个<l, r>列的pair，对这两列之间每行的和当作数组处理。
+
+```cpp
+int sumZeroArray(vector<int> nums) { 
+    int n = nums.size(), sum = 0, max_length = 0; 
+    unordered_map<int, int> running_sum; 
+    for (int i = 0; i < n; ++i) { 
+        sum += nums[i];
+        if (sum == 0) max_length = i + 1; 
+        else if (running_sum.find(sum) != running_sum.end())
+            max_length = max(max_length, i - running_sum[sum]); 
+        else running_sum[sum] = i; 
+    } 
+    return max_length;
+} 
+
+int sumZeroMatrix(vector<vector<int>> matrix) { 
+    int row = matrix.size(), col = matrix[0].size();
+    vector<int> array(row);
+    int max_size = 0;
+    for (int left = 0; left < col; ++left) { 
+        fill(array.begin(), array.end(), 0);
+        for (int right = left; right < col; ++right) { 
+            for (int i = 0; i < row; i++) array[i] += matrix[i][right];
+            max_size = max(max_size, sumZeroArray(array) * (right - left + 1)); 
+        }
+    }
+    return max_size;
+} 
 ```
 
 ### 链表
@@ -6788,9 +6888,7 @@ Input:
     /
    2
 
-Output:
-
-1
+Output: 1
 ```
 
 利用二叉查找树的中序遍历为有序的性质，计算中序遍历中临近的两个节点之差的绝对值，取最小值。
@@ -6807,6 +6905,57 @@ void inOrder(TreeNode* node, int& prev, int& res) {
     if (prev != INT_MIN) res = min(res, node->val - prev);
     prev = node->val;
     inOrder(node->right, prev, res);
+}
+```
+
+**找到BST被交换的两个节点**
+
+[99. Recover Binary Search Tree \(Hard\)](https://leetcode.com/problems/recover-binary-search-tree/)
+
+```text
+Input: [3,1,4,null,null,2]
+
+  3
+ / \
+1   4
+   /
+  2
+
+Output: [2,1,4,null,null,3], 2 and 3 are interchanged
+
+  2
+ / \
+1   4
+   /
+  3
+```
+
+中序遍历二叉树，设置一个prev指针，记录当前节点中序遍历时的前节点，如果当前节点大于prev节点的值，说明需要调整次序。有一个技巧是如果遍历整个序列过程中只出现了一次次序错误，说明就是这两个相邻节点需要被交换；如果出现了两次次序错误，那就需要交换这两个节点。
+
+```cpp
+TreeNode *mistake1, *mistake2, *prev;
+void recursive_traversal(TreeNode* root) {  
+    if (!root) return;
+    if (root->left) recursive_traversal(root->left);
+    if (prev && root->val < prev->val) {  
+        if (!mistake1) {  
+            mistake1 = prev;  
+            mistake2 = root;  
+        } else {  
+            mistake2 = root;  
+        }  
+    }  
+    prev = root; // in-order traversal here!
+    if (root->right) recursive_traversal(root->right);
+}  
+
+void recoverTree(TreeNode* root) {
+    recursive_traversal(root);  
+    if (mistake1 && mistake2) {  
+        int tmp = mistake1->val;  
+        mistake1->val = mistake2->val;  
+        mistake2->val = tmp;  
+    }  
 }
 ```
 
@@ -7547,11 +7696,145 @@ private:
 
 ### 线程安全结构
 
-TODO
+利用mutex lock和condition variable等结构，可以使得算法或数据结构具备线程安全性。
 
+condion_variable的notify_one或notify_all函数可以唤醒wait，但是必须满足判断条件，否则会再次被挂起。
 
+lock_guard和unique_lock可以在生命周期内锁住mutex。不同的是，unique_lock可以显式调用加锁解锁，而lock_guard在生命周期内会一直锁住；并且condition_variable的wait函数只支持unique_lock。
 
-## 需要添加：线程安全，前缀和，积分图
+**线程安全的队列**
+
+```cpp
+template <class T>
+class SafeQueue {
+public:
+    explicit SafeQueue(): q(), m(), c(){}
+
+    ~SafeQueue() {}
+
+    void push(T t) {
+        {
+           lock_guard<mutex> lock(m);
+           q.push(t);
+        }
+        c.notify_one();
+  	}
+  
+    // or euqally
+    void push2(T t) {
+        unique_lock<mutex> lock(m);
+        q.push(t);
+        lock.unlock();
+        c.notify_one();
+  	}
+  
+    // or euqally
+    void push3(T t) {
+        m.lock();
+        q.push(t);
+        m.unlock();
+        c.notify_one();
+  	}
+
+    T pop() {
+        unique_lock<mutex> lock(m);
+        c.wait(lock, []{return !q.empty();});
+        T val = q.front();
+        q.pop();
+        return val;
+    }
+
+    T top() {
+        unique_lock<mutex> lock(m);
+        c.wait(lock, []{return !q.empty();});
+        T val = q.front();
+        return val;
+    }
+
+private:
+    queue<T> q;
+    mutable mutex m;
+    condition_variable c;
+};
+```
+
+**读写问题**
+
+利用C++14的shared_lock和shared_timed_mutex，可以很轻易地实现多reader多writer。
+
+```cpp
+template <class T>
+class MySharedLock {
+public:
+    explicit MySharedLock(): readers(0), writers(0) {}
+
+    T read() {
+        shared_lock<shared_timed_mutex> lock(m);
+        T val = data;
+        return val;
+    }
+
+    void writer(T val){
+        lock_guard<shared_timed_mutex> lock(m);
+        data = val;
+    }
+private:
+    shared_timed_mutex m;
+    T data;
+}
+```
+
+或者，也可以通过传统方法实现。
+
+```cpp
+class MySharedLock {
+public:
+    explicit MySharedLock(): readers(0), writers(0) {}
+
+    T read() {
+        read_lock();
+        T val = data;
+        read_unlock();
+        return val;
+    }
+
+    void read_lock() {
+        unique_lock<mutex> lock(m);
+        if (writers) c.wait(lock, [&]() {return !writers;});
+        ++readers;
+    }
+
+    void read_unlock() {
+        lock_guard<mutex> lock(m);
+        --readers;
+        if (!readers) c.notify_all();
+    }
+
+    void write(T val) {
+        write_lock();
+        data = val;
+        write_unlock();
+    }
+ 
+    void write_lock() {
+        unique_lock<mutex> lock(m);
+        if (readers || writers) c.wait(lock, [&]() {return !writers && !readers;});
+        ++writers;
+    }
+
+    void write_unlock() {
+        lock_guard<mutex> lock(m);
+        --writers;
+        c.notify_all();
+    }
+
+ private:
+     mutex m;
+     condition_variable c;
+     int data;
+     int readers, writers;
+};
+```
 
 ## 整合一下general-algorithms.md
 

@@ -49,7 +49,7 @@ sumRegion(1, 1, 2, 2) -> 11
 sumRegion(1, 2, 2, 4) -> 12
 ```
 
-Solution: 类似Q303，但是对于矩形，查询(row1, col1)到(row2, col2)的面积的时候可以用sums\[row2+1\][col2+1] - sums\[row2+1][col1] - sums\[row1][col2+1] + sums\[row1][col1]。这里有个trick，在第一行和第一列始终为0的情况下，对sums数组的重构可以直接resize而不用新建，因为只有第一行和第一列会影响矩阵的求和更新
+Solution: 类似Q303，但是对于矩形，查询(row1, col1)到(row2, col2)的面积的时候可以用sums\[row2+1\][col2+1] - sums\[row2+1][col1] - sums\[row1][col2+1] + sums\[row1][col1]
 
 ```c++
 class NumMatrix {
@@ -65,7 +65,6 @@ public:
             for (int j = 1; j <= col; ++j)
                 sums[i][j] = matrix[i-1][j-1] + sums[i-1][j] + sums[i][j-1] - sums[i-1][j-1];
     }
-
 
     int sumRegion(int row1, int col1, int row2, int col2) {
         return sums[row2+1][col2+1] - sums[row2+1][col1] - sums[row1][col2+1] + sums[row1][col1];
