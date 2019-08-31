@@ -120,6 +120,45 @@ bool judgeSquareSum(int c) {
 }
 ```
 
+### 637. Average of Levels in Binary Tree
+
+Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+
+Example:
+
+```
+Input:
+    3
+   / \
+  9  20
+    /  \
+   15   7
+Output: [3, 14.5, 11]
+```
+
+Solution: bfs
+
+```cpp
+vector<double> averageOfLevels(TreeNode* root) {
+    vector<double> ret;
+    if (!root) return ret;
+    queue<TreeNode*> q;
+    q.push(root);
+    while (!q.empty()) {
+        int cnt = q.size();
+        double sum = 0;
+        for (int i = 0; i < cnt; ++i) {
+            TreeNode* node = q.front(); q.pop();
+            sum += node->val;
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+        ret.push_back(sum / cnt);
+    }
+    return ret;
+}
+```
+
 ### 638. Shopping Offers
 
 In LeetCode Store, there are some kinds of items to sell. Each item has a price. However, there are some special offers, and a special offer consists of one or more different kinds of items with a sale price.
@@ -179,6 +218,37 @@ int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>
 
     map[key] = m;
     return m;
+}
+```
+
+### 645. Set Mismatch
+
+The set `S` originally contains numbers from 1 to `n`. But unfortunately, due to the data error, one of the numbers in the set got duplicated to **another** number in the set, which results in repetition of one number and loss of another number.
+
+Given an array `nums` representing the data status of this set after the error. Your task is to firstly find the number occurs twice and then find the number that is missing. Return them in the form of an array.
+
+Example:
+
+```
+Input: nums = [1,2,2,4]
+Output: [2,3]
+```
+
+Solution: 可以用bucket标负，如Q442；另一种方法是通过交换数组元素，使得数组上的元素在正确的位置上。遍历数组，如果第 i 位上的元素不是 i + 1，那么一直交换第 i 位和 nums[i] - 1 位置上的元素
+
+```cpp
+vector<int> findErrorNums(vector<int>& nums) {
+    for (int i = 0; i < nums.size(); i++) {
+        while (nums[i] != i + 1 && nums[nums[i] - 1] != nums[i]) {
+            swap(nums[i], nums[nums[i] - 1]);
+        }
+    }
+    for (int i = 0; i < nums.size(); ++i) {
+        if (nums[i] != i + 1) {
+            return {nums[i], i + 1};
+        }
+    }
+    return {};
 }
 ```
 

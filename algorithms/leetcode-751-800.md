@@ -59,6 +59,42 @@ vector<int> partitionLabels(string S) {
 }
 ```
 
+### 766. Toeplitz Matrix
+
+A matrix is *Toeplitz* if every diagonal from top-left to bottom-right has the same element. Now given an `M x N` matrix, return `True` if and only if the matrix is *Toeplitz*.
+
+Example:
+
+```
+Input: matrix = [
+  [1,2,3,4],
+  [5,1,2,3],
+  [9,5,1,2]
+]
+Output: True ("[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]")
+```
+
+Solution: 对每个对角线正常遍历
+
+```cpp
+bool isToeplitzMatrix(vector<vector<int>>& matrix) {
+    int r = matrix.size(), c = matrix[0].size();
+    for (int i = 0; i < r; ++i) {
+        int row = i, col = 0, temp = matrix[i][0];
+        while (row < r && col < c) {
+            if (temp != matrix[row++][col++]) return false;
+        }
+    }
+    for (int i = 0; i < c; ++i) {
+        int row = 0, col = i, temp = matrix[0][i];
+        while (row < r && col < c) {
+            if (temp != matrix[row++][col++]) return false;
+        }
+    }
+    return true;
+}
+```
+
 ### 767. Reorganize String
 
 Given a string `S`, check if the letters can be rearranged so that two characters that are adjacent to each other are not the same. If possible, output any possible result.  If not possible, return the empty string.

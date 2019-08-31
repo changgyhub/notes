@@ -93,6 +93,69 @@ bool checkPossibility(vector<int>& nums) {
 }
 ```
 
+### 667. Beautiful Arrangement II
+
+Given two integers `n` and `k`, you need to construct a list which contains `n`different positive integers ranging from `1` to `n` and obeys the following requirement: Suppose this list is [a1, a2, a3, ... , an], then the list [|a1 - a2|, |a2 - a3|, |a3 - a4|, ... , |an-1 - an|] has exactly `k` distinct integers.
+
+If there are multiple answers, print any of them.
+
+Example:
+
+```
+Input: n = 3, k = 2
+Output: [1, 3, 2]
+```
+
+Solution: 让前 k+1 个元素构建出 k 个不相同的差值，序列为：1 k+1 2 k 3 k-1 ... k/2 k/2+1
+
+```cpp
+vector<int> constructArray(int n, int k) {
+    vector<int> ret(n);
+    ret[0] = 1;
+    for (int i = 1, interval = k; i <= k; ++i, --interval) {
+        ret[i] = i % 2 == 1 ? ret[i - 1] + interval : ret[i - 1] - interval;
+    }
+    for (int i = k + 1; i < n; ++i) {
+        ret[i] = i + 1;
+    }
+    return ret;
+}
+```
+
+### 669. Trim a Binary Search Tree
+
+Given a binary search tree and the lowest and highest boundaries as `L` and `R`, trim the tree so that all its elements lies in `[L, R]` (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+
+Example:
+
+```
+Input: 
+    1
+   / \
+  0   2
+
+  L = 1
+  R = 2
+
+Output: 
+    1
+      \
+       2
+```
+
+Solution: dfs
+
+```cpp
+TreeNode* trimBST(TreeNode* root, int L, int R) {
+    if (!root) return root;
+    if (root->val > R) return trimBST(root->left, L, R);
+    if (root->val < L) return trimBST(root->right, L, R);
+    root->left = trimBST(root->left, L, R);
+    root->right = trimBST(root->right, L, R);
+    return root;
+}
+```
+
 ### 674. Longest Continuous Increasing Subsequence
 
 Given an unsorted array of integers, find the length of longest `continuous` increasing subsequence (subarray).
@@ -289,6 +352,43 @@ public:
 };
 ```
 
+### 687. Longest Univalue Path
+
+Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
+
+The length of path between two nodes is represented by the number of edges between them.
+
+Example:
+
+```
+Input:
+       5
+      / \
+     4   5
+    / \   \
+   1   1   5
+Output: 2
+```
+
+Solution: dfs，十分巧妙，一定要背
+
+```cpp
+int longestUnivaluePath(TreeNode* root) {
+    int path = 0;
+    helper(root, path);
+    return path;
+}
+int helper(TreeNode* root, int& path){
+    if (!root) return 0;
+    int left = helper(root->left, path);
+    int right = helper(root->right, path);
+    int left_path = root->left && root->left->val == root->val? left + 1: 0;
+    int right_path = root->right && root->right->val == root->val? right + 1: 0;
+    path = max(path, left_path + right_path);
+    return max(left_path, right_path);
+}
+```
+
 ### 689. Maximum Sum of 3 Non-Overlapping Subarrays
 
 In a given array `nums` of positive integers, find three non-overlapping subarrays with maximum sum. Each subarray will be of size `k`, and we want to maximize the sum of all `3*k` entries. Return the result as a list of indices representing the starting position of each interval (0-indexed). If there are multiple answers, return the lexicographically smallest one.
@@ -374,5 +474,74 @@ int dfs(vector<vector<int>>& grid, int r, int c) {
     if (r < 0 || r >= grid.size() || c < 0 || c >= grid[0].size() || grid[r][c] == 0) return 0;
     grid[r][c] = 0;
     return 1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) + dfs(grid, r, c + 1) + dfs(grid, r, c - 1);
+}
+```
+
+### 696. Count Binary Substrings
+
+Give a string `s`, count the number of non-empty (contiguous) substrings that have the same number of 0's and 1's, and all the 0's and all the 1's in these substrings are grouped consecutively.
+
+Substrings that occur multiple times are counted the number of times they occur.
+
+Example:
+
+```
+Input: "00110011"
+Output: 6 ("0011", "01", "1100", "10", "0011", and "01")
+```
+
+Solution: 维护一个pre一个cur，遍历一遍即可，每当prev大于等于cur则说明出现一个长度为2 * cur的合法子串
+
+```cpp
+int countBinarySubstrings(string s) {
+    int pre = 0, cur = 1, cnt = 0;
+    for (int i = 1; i < s.length(); ++i) {
+        if (s[i] == s[i-1]) {
+            ++cur;
+        } else {
+            pre = cur;
+            cur = 1;
+        }
+        if (pre >= cur) ++cnt;
+    }
+    return cnt;
+}
+```
+
+### 697. Degree of an Array
+
+Given a non-empty array of non-negative integers `nums`, the **degree** of this array is defined as the maximum frequency of any one of its elements.
+
+Your task is to find the smallest possible length of a (contiguous) subarray of `nums`, that has the same degree as `nums`.
+
+Example:
+
+```
+Input: [1, 2, 2, 3, 1]
+Output: (The input array has a degree of 2 because both elements 1 and 2 appear twice.
+Of the subarrays that have the same degree:
+[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
+The shortest length is 2)
+```
+
+Solution: 记录每个字符的总个数，出现的第一个位置，和出现的最后一个位置
+
+```cpp
+int findShortestSubArray(vector<int>& nums) {
+    unordered_map<int, int> cnts, first_indices, last_indices;
+    int max_cnt = 0;
+    for (int i = 0; i < nums.size(); ++i) {
+        int num = nums[i];
+        ++cnts[num];
+        max_cnt = max(max_cnt, cnts[num]);
+        last_indices[num] = i;
+        if (!first_indices.count(num)) first_indices[num] = i;
+    }
+    int ret = nums.size();
+    for (const auto& [num, cnt]: cnts) {
+        if (cnt != max_cnt) continue;
+        ret = min(ret, last_indices[num] - first_indices[num] + 1);
+    }
+    return ret;
 }
 ```

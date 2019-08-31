@@ -65,6 +65,73 @@ int subarraySum(vector<int>& nums, int k) {
 }
 ```
 
+### 565. Array Nesting
+
+A zero-indexed array A of length N contains all integers from 0 to N-1. Find and return the longest length of set S, where S[i] = {A[i], A[A[i]], A[A[A[i]]], ... } subjected to the rule below.
+
+Suppose the first element in S starts with the selection of element A[i] of index = i, the next element in S should be A[A[i]], and then A[A[A[i]]]… By that analogy, we stop adding right before a duplicate element occurs in S.
+
+Example:
+
+```
+Input: A = [5,4,0,3,1,6,2]
+Output: 4 (One of the longest S[K]: S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0})
+```
+
+Solution: 按题目要求嵌套查找即可，注意避免重复遍历
+
+```cpp
+int arrayNesting(vector<int>& nums) {
+    int res = 0;
+    for (int i = 0; i < nums.size(); ++i) {
+        int cnt = 0, next;
+        for (int j = i; nums[j] != -1; j = next) {
+            cnt++;
+            next = nums[j];
+            nums[j] = -1;  // 标记该位置已经被访问
+        }
+        res = max(res, cnt);
+    }
+    return res;
+}
+```
+
+### 566. Reshape the Matrix
+
+You're given a matrix represented by a two-dimensional array, and two **positive**integers **r** and **c** representing the **row** number and **column** number of the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same **row-traversing** order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example:
+
+```
+Input: r = 1, c = 4, nums = [
+    [1,2],
+    [3,4]
+]
+Output: [[1,2,3,4]]
+```
+
+Solution: 正常遍历即可
+
+```cpp
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+    int m = nums.size(), n = nums[0].size();
+    if (m * n != r * c) return nums;
+    vector<vector<int>> res(r, vector<int>(c));
+    int index = 0;
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            res[i][j] = nums[index / n][index % n];
+            ++index;
+        }
+    }
+    return res;
+}
+```
+
 ### 572. Subtree of Another Tree
 
 Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The tree s could also be considered as a subtree of itself.

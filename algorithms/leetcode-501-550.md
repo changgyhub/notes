@@ -36,6 +36,41 @@ int subTreeSum(unordered_map<int, int> &sumfreq, TreeNode* root) {
 }
 ```
 
+### 513. Find Bottom Left Tree Value
+
+Given a binary tree, find the leftmost value in the last row of the tree.
+
+Example:
+
+```
+Input:
+        1
+       / \
+      2   3
+     /   / \
+    4   5   6
+       /
+      7
+
+Output: 7
+```
+
+Solution: bfs
+
+```cpp
+int findBottomLeftValue(TreeNode* root) {
+    queue<TreeNode*> q;
+    q.push(root);
+    while (!q.empty()) {
+        root = q.front();
+        q.pop();
+        if (root->right) q.push(root->right);
+        if (root->left) q.push(root->left);
+    }
+    return root->val;
+}
+```
+
 ### 515. Find Largest Value in Each Tree Row
 
 Find the largest value in each row of a binary tree.
