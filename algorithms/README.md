@@ -2,8 +2,8 @@
 
 以Leetcode为主要例题来源，以C++作为编程语言，对常见的算法、数据结构、以及一些计算机原理进行汇总。
 
-* 算法思想
-  * 贪心思想
+* 算法
+  * 贪心
   * 双指针
   * 排序
     * 常用排序算法
@@ -35,13 +35,18 @@
     * 字符串加法减法
     * 相遇问题
     * 多数投票问题
+    * 随机与取样
     * 其它数学问题
   * 位运算
-* 数据结构相关
+  * 复杂算法
+    * 凸包
+* 数据结构
   * 栈和队列
     * 单调栈
     * 优先队列
-  * 哈希表
+  * 集合和映射
+    * 哈希表
+    * 多重集合和映射
   * 字符串
   * 数组与矩阵
   * 链表
@@ -57,14 +62,16 @@
     * 拓扑排序
     * MST
     * 节点最短距离
-  * 复杂数据结构和相关算法
+  * 复杂数据结构
     * 并查集
-    * LRU
+    * Rope
+    * 复合数据结构
+  * 线程安全结构
 * 参考资料
 
-## 算法思想
+## 算法
 
-### 贪心思想
+### 贪心
 
 贪心思想保证每次操作都是局部最优的，并且最后得到的结果是全局最优的。
 
@@ -325,7 +332,7 @@ int maxProfit(vector<int>& prices) {
 
 ### 双指针
 
-双指针主要用于遍历数组，两个指针指向不同的元素，从而协同完成任务。
+双指针主要用于遍历数组，两个指针指向不同的元素，从而协同完成任务。若两个指针指向同一数组、遍历方向相同且不会相交，则也称为滑动窗口。
 
 **有序数组的 Two Sum**
 
@@ -514,6 +521,28 @@ bool isValid(string s, string target) {
 }
 ```
 
+**含有最多K个不同字母的最长子字符串**
+
+[340. Longest Substring with At Most K Distinct Characters \(Hard\)](https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/)
+
+```
+Input: s = "eceba", k = 2
+Output: 3 (T is "ece" which its length is 3)
+```
+
+```cpp
+int lengthOfLongestSubstringKDistinct(string s, int k) {
+    unordered_map<char, int> counts;
+    int res = 0;
+    for (int i = 0, j = 0; j < s.size(); ++j) {
+        counts[s[j]]++;
+        while (counts.size() > k) if (--counts[s[i++]] == 0) counts.erase(s[i - 1]);
+        res = max(res, j - i + 1);
+    }
+    return res;
+}
+```
+
 ### 排序
 
 #### 常用排序算法
@@ -621,7 +650,7 @@ void sort() {
 
 一般用于求解 **Kth Element** 问题，可以在 O\(N\) 时间复杂度，O\(1\) 空间复杂度完成求解工作。
 
-与快速排序一样，快速选择一般需要先打乱数组，否则最坏情况下时间复杂度为 O\(N2\)。
+与快速排序一样，快速选择一般需要先打乱数组，否则最坏情况下时间复杂度为 O\(N^2\)。
 
 #### 堆排序
 
@@ -773,7 +802,7 @@ void sortColors(vector<int>& vec) {
 
 注意左闭右闭时要用right = mid和left = mid + 1，而不是right = mid - 1和left = mid，因为算mid整除2的时候会向下取整。最后可以用-1来修正最终取整方式。
 
-个人习惯，需要明确判断边界的可以用左闭右闭，对于lower_bound（等于当前值的第一次出现位置，若无，则返回大雨当前值的第一次出现位置）和upper_bound（等于当前值的最后一次出现位置，若无，则返回大雨当前值的第一次出现位置）则左闭右开比较方便。
+个人习惯，需要明确判断边界的可以用左闭右闭，对于lower_bound和upper_bound则左闭右开比较方便。
 
 ```cpp
 int binarySearch(vector<int> nums, int key) {
@@ -962,6 +991,38 @@ int findMin(vector<int>& nums) {
 }
 ```
 
+**旋转数组查找数字**
+
+[81. Search in Rotated Sorted Array II \(Medium\)](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)
+
+```
+Input: nums = [2,5,6,0,0,1,2], target = 0
+Output: true
+```
+
+```cpp
+bool search(vector<int>& nums, int target) {
+    int start = 0, end = nums.size() - 1;
+    while (start <= end) {
+        int mid = (start + end) / 2;
+        if (nums[mid] == target) return true;
+        if (nums[start] == nums[mid]) {
+            // cannot tell if start == mid
+            start++;
+        } else if (nums[mid] <= nums[end]) {
+            // right half sorted
+            if (target > nums[mid] && target <= nums[end]) start = mid+1;
+            else end = mid-1;
+        } else {
+            // left half sorted
+            if (target >= nums[start] && target < nums[mid]) end = mid-1;
+            else start = mid+1;
+        }
+    }
+    return false;
+}
+```
+
 **查找区间**
 
 [34. Find First and Last Position of Element in Sorted Array \(Medium\)](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
@@ -991,16 +1052,59 @@ int upper_bound(vector<int> &nums, int target) {
         if (nums[mid] > target) r = mid;
         else l = mid + 1;
     }
-    return l - 1;  // important!!!
+    return l;
 
 }
 vector<int> searchRange(vector<int>& nums, int target) {
     if (nums.empty()) return vector<int>(2, -1);
     int lower = lower_bound(nums, target);
-    int upper = upper_bound(nums, target);
+    int upper = upper_bound(nums, target) - 1;  // important!
     if (lower == nums.size() || nums[lower] != target) return vector<int>(2, -1);
     return vector<int>{lower, upper};
 }
+```
+
+**两个排好序数组的中位数**
+
+[4. Median of Two Sorted Arrays \(Hard\)](https://leetcode.com/problems/median-of-two-sorted-arrays/)
+
+```
+nums1 = [1, 3]
+nums2 = [2]
+The median is 2.0
+
+nums1 = [1, 2]
+nums2 = [3, 4]
+The median is (2 + 3)/2 = 2.5
+```
+
+可以对切开num1或num2的位置进行二分，num1的i位数字，和num2的(m+n\)/2 - i位数字，必须满足比当前数组次大或次小的那一个数字更接近对方。
+
+```cpp
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+    int n1 = nums1.size(), n2 = nums2.size();
+    // Make sure nums2 is the shorter one.
+    if (n1 < n2) return findMedianSortedArrays(nums2, nums1);
+    int l = 0, r = n2 * 2;
+    while (l <= r) {
+        // Try Cut 2.
+        int mid2 = (l + r) / 2;
+        // Calculate Cut 1 accordingly.
+        int mid1 = n1 + n2 - mid2;
+        // Get L1, R1, L2, R2 respectively.
+        double L1 = mid1? nums1[(mid1-1)/2]: INT_MIN;
+        double L2 = mid2? nums2[(mid2-1)/2]: INT_MIN;
+        double R1 = mid1 != n1 * 2? nums1[(mid1)/2]: INT_MAX;
+        double R2 = mid2 != n2 * 2? nums2[(mid2)/2]: INT_MAX;
+        // nums1's lower half is too big; need to move Cut 1 left.
+        if (L1 > R2) l = mid2 + 1;
+        // nums2's lower half too big; need to move Cut 2 left.
+        else if (L2 > R1) r = mid2 - 1;
+        // Otherwise, that's the right cut.
+        else return (max(L1, L2) + min(R1, R2)) / 2;
+    }
+    return -1;
+} 
 ```
 
 ### 搜索
@@ -2354,7 +2458,7 @@ int lengthOfLIS(vector<int>& nums) {
 }
 ```
 
-以上解法的时间复杂度为 O\(N2\) ，可以使用二分查找将时间复杂度降低为 O\(NlogN\)。
+以上解法的时间复杂度为 O\(N^2\) ，可以使用二分查找将时间复杂度降低为 O\(NlogN\)。
 
 定义一个 tails 数组，其中 tails\[i\] 存储长度为 i + 1 的最长递增子序列的最后一个元素。对于一个元素 x，
 
@@ -3014,6 +3118,50 @@ int minSteps(int n) {
 }
 ```
 
+**Regex匹配**
+
+[10. Regular Expression Matching \(Hard\)](https://leetcode.com/problems/regular-expression-matching/)
+
+```
+'.' Matches any single character.
+'*' Matches zero or more of the preceding element.
+
+Input:
+s = "aab"
+p = "c*a*b"
+Output: true
+
+Input:
+s = "ab"
+p = ".*"
+Output: true
+```
+
+dp\[i\]\[j\] 表示 s 和 p 是否 match。当 p\[j\] != '\*'时，b\[i + 1\]\[j + 1\] == b\[i\]\[j\] 且 s\[i\] == p\[j\]；当p\[j\] == '\*'时，b\[i\]\[j + 2\] = b\[i\]\[j\]或考虑下一位情况。
+
+```cpp
+vector<vector<int> > vec;
+bool isMatch(string s, string p) {
+    vec = vector<vector<int> >(s.length() + 1, vector<int>(p.length() + 1, -1));
+    return dp(0, 0, s, p);
+}
+bool dp(int i, int j, string s, string p) {
+    if (vec[i][j] != -1) return vec[i][j] == 1;
+    bool res;
+    if (j == p.length()) {
+        res = i == s.length();
+    } else {
+        bool first_match = i < s.length() && (p[j] == s[i] || p[j] == '.');
+        if (j + 1 < p.length() && p[j + 1] == '*')
+            res = dp(i, j + 2, s, p) || (first_match && dp(i + 1, j, s, p));
+        else
+            res = first_match && dp(i + 1, j + 1, s, p);
+    }
+    vec[i][j] = res? 1: 0;
+    return res;
+}
+```
+
 ### 分治
 
 **给表达式加括号**
@@ -3416,6 +3564,126 @@ int majorityElement(vector<int> &num) {
 }
 ```
 
+#### 随机与取样
+
+**打乱数组**
+
+[384. Shuffle an Array \(Medium\)](https://leetcode.com/problems/shuffle-an-array/)
+
+从前往后随机交换一遍即可。
+
+```cpp
+class Solution {
+    vector<int> origin;
+public:
+    Solution(vector<int> nums) {
+        origin = std::move(nums);
+    }
+
+    vector<int> reset() {
+        return origin;
+    }
+
+    vector<int> shuffle() {
+        if (origin.empty()) return {};  
+        vector<int> shuffled(origin);
+        int len = origin.size();
+        for (int i = 0; i < len; ++i) {  
+            int pos = rand() % (len - i);  
+            swap(shuffled[i], shuffled[i+pos]);  
+        }  
+        return shuffled;  
+    }
+};
+```
+
+**有权重的随机选择**
+
+[528. Random Pick with Weight \(Medium\)](https://leetcode.com/problems/random-pick-with-weight/)
+
+给定一个数组，数组每个位置的值表示该位置的权重，要求按照权重的概率去随机采样。思路是先用partial_sum求积分和，然后直接lower_bound获得随机位置。
+
+```cpp
+class Solution {
+public:
+    Solution(vector<int> w): sums(w) {
+        partial_sum(sums.begin(), sums.end(), sums.begin());
+    }
+    int pickIndex() {
+        return lower_bound(sums.begin(), sums.end(), (rand() % sums.back()) + 1) - sums.begin();
+    }
+private:
+    vector<int> sums;
+};
+```
+
+**水库采样**
+
+[382. Linked List Random Node \(Medium\)](https://leetcode.com/problems/linked-list-random-node/)
+
+给定一个链表，随机返回其中的一个节点。解法是[reservoir sampling](https://en.wikipedia.org/wiki/Reservoir_sampling)，即在第i个节点时，有1/i的几率选取该节点并覆盖之前的选择；这种方法可以不必先计算链表的总长度。
+
+```cpp
+class Solution {
+    ListNode* head;
+public:
+    Solution(ListNode* n): head(n) {}
+
+    int getRandom() {
+        int res = head->val;
+        ListNode* node = head->next;
+        int i = 2;
+        while (node) {
+            int j = rand() % i;
+            if (!j) res = node->val;
+            ++i;
+            node = node->next;
+        }
+        return res;
+    }
+};
+```
+
+**使用一个随机数生成器生成另一个随机数生成器**
+
+[470. Implement Rand10() Using Rand7() \(Medium\)](https://leetcode.com/problems/implement-rand10-using-rand7/)
+
+Rejection Sampling：两次Rand7可以生成一个7乘7的矩阵，每一位对应1到49的数字；我们每次取两个Rand7，获得矩阵对应值，并重复此过程直到获得一个1到40之间的数字，然后mod 10得到概率均匀的Rand10。
+
+```cpp
+int rand10() {
+    int row, col, idx;
+    do {
+        row = rand7();
+        col = rand7();
+        idx = col + (row - 1) * 7;
+    } while (idx > 40);
+    return 1 + (idx - 1) % 10;
+}
+```
+
+**取样一个圆内的点**
+
+同理，可以使用Rejection Sampling，拒绝落在圆外的点。
+
+```cpp
+class Solution {
+public:    
+    Solution(double radius, double x_center, double y_center):
+        r(radius), xc(x_center), yc(y_center) {}
+    vector<double> randPoint() {
+        double x, y;
+        do {
+            x = (2 * ((double)rand() / RAND_MAX) - 1.0) * r;
+            y = (2 * ((double)rand() / RAND_MAX) - 1.0) * r;
+        } while (x * x + y * y > r * r);
+        return {xc + x, yc + y};
+    }
+private:
+    double r, xc, yc;
+};
+```
+
 #### 其它数学问题
 
 **平方数**
@@ -3513,9 +3781,46 @@ int maximumProduct(vector<int>& nums) {
 }
 ```
 
+**快乐数**
+
+[202. Happy Number \(Easy\)](https://leetcode.com/problems/happy-number/)
+
+把一个数字各位的平方和加起来并不断重复，判断最终得到的结果是不是1。
+
+```
+Input: 19
+Output: true
+Explanation: 
+1^2 + 9^2 = 82
+8^2 + 2^2 = 68
+6^2 + 8^2 = 100
+1^2 + 0^2 + 0^2 = 1
+```
+
+快慢指针判圈法。注意本题不需要刻意再循环一次找环路节点，因为一旦遇到了1，前进结果还是1。
+
+```cpp
+bool isHappy(int n) {
+    auto digitsum = [](int a)->int{
+        int sum = 0;
+        while (a) {
+            sum += (a % 10) * (a % 10);
+            a /= 10;
+        }
+        return sum;
+    };
+    int slow = n, fast = n;
+    do {
+        slow = digitsum(slow);
+        fast = digitsum(digitsum(fast));
+    } while (slow != fast);
+    return slow == 1;
+}
+```
+
 ### 位运算
 
-**1. 基本原理**
+**基本原理**
 
 0s 表示一串 0，1s 表示一串 1。
 
@@ -3541,7 +3846,7 @@ x ^ x = 0       x & x = x       x | x = x
 - &gt;&gt;&gt; n 为无符号右移，左边会补上 0。
 - &lt;&lt; n 为算术左移，相当于乘以 2n。
 
-**2. mask 计算**
+**mask 计算**
 
 要获取 111111111，将 0 取反即可，~0。
 
@@ -3557,14 +3862,12 @@ x ^ x = 0       x & x = x       x | x = x
 
 ```markup
 Input: x = 1, y = 4
-
 Output: 2
 
 Explanation:
 1   (0 0 0 1)
 4   (0 1 0 0)
        ↑   ↑
-
 The above arrows point to positions where the corresponding bits are different.
 ```
 
@@ -3845,7 +4148,61 @@ vector<int> countBits(int num) {
 }
 ```
 
-## 数据结构相关
+### 复杂算法
+
+这里所涵盖的算法并非十分复杂，只是一般的算法题可能并不会考到，而面试时视岗位不同，有一定概率会问到。
+
+#### 凸包
+
+Convex hull（凸包）在二维欧几里得空间中可想象为一条刚好包着所有点的橡皮圈。
+
+**竖立栅栏**
+
+[587. Erect the Fence \(Hard\)](https://leetcode.com/problems/erect-the-fence/)
+
+给一些树木的(x, y)坐标，问如果用绳子把所有树捆起来，所需要绳子的最短长度是多少；只需返回困住绳子的树木坐标即可。
+
+```
+Input: [[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]]
+Output: [[1,1],[2,0],[4,2],[3,3],[2,4]]
+```
+
+Andrew's monotone chain method：先根据(x, y)由小到大排序，然后从最左边出发，分别遍历上半部分和下半部分；如果是向里拐则为凸包节点，如果向外拐则不是凸包节点。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> outerTrees(vector<vector<int>>& points) {
+        int n = points.size();
+        vector<vector<int>> res;
+        sort(points.begin(), points.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[0] < b[0] || (a[0] == b[0] && a[1] < b[1]);
+        });
+        // build lower hull
+        for (int i = 0; i < n; ++i) {
+            while (res.size() > 1 && orientation(res[res.size()-2], res.back(), points[i]) < 0) 
+                res.pop_back();
+            res.push_back(points[i]);
+        }
+        // if all points along a line, res.size() is n after lower hull procedure
+        if (res.size() == n) return res;
+        // build upper hull
+        for (int i = n - 2; i >= 0; --i) {
+            while (res.size() > 1 && orientation(res[res.size()-2], res.back(), points[i]) < 0) 
+                res.pop_back();
+            res.push_back(points[i]);
+        }
+        res.pop_back();
+        return res;
+    }
+private:
+    int orientation(vector<int>& a, vector<int>& b, vector<int>& c) {
+        return (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+    }
+};
+```
+
+## 数据结构
 
 ### 栈和队列
 
@@ -4088,7 +4445,7 @@ vector<int> nextGreaterElements(vector<int>& nums) {
 
 #### 优先队列
 
-有的题目需要利用priority queue进行操作，其内部实现可以是heap（堆）。
+有的题目需要利用priority queue进行操作，其内部实现可以是heap（堆）。如果同时要求获取最大值和最小值，则可以考虑使用multiset/multimap。
 
 **堆的实现原理**
 
@@ -4142,7 +4499,7 @@ void sink(int pos) {
 }
 ```
 
-**The Skyline Problem**
+**天际线**
 
 [218. The Skyline Problem \(Hard\)](https://leetcode.com/problems/the-skyline-problem/)
 
@@ -4181,7 +4538,143 @@ vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
 }
 ```
 
-### 哈希表
+**丑数**
+
+[264. Ugly Number II \(Medium\)](https://leetcode.com/problems/ugly-number-ii/)
+
+给定质数[2, 3, 5]，求第N小的由这些质数相乘所得到的数，可以重复利用。
+
+```
+Input: n = 10
+Output: 12
+Explanation: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12] are the first 10 ugly numbers.
+```
+
+个数比较少的时候，可以直接排序而不是用优先队列。
+
+```cpp
+int nthUglyNumber(int n) {
+    vector<int> dp(n, 1);
+    int i2 = 0, i3 = 0, i5 = 0, next2 = 2, next3 = 3, next5 = 5;
+    for(int i = 1; i < n; ++i){
+        dp[i] = min(min(next2, next3), next5);
+        // 这里全是if的原因是可能有重复情况，如2乘3和3乘2
+        if (dp[i] == next2) next2 = dp[++i2] * 2;
+        if (dp[i] == next3) next3 = dp[++i3] * 3;
+        if (dp[i] == next5) next5 = dp[++i5] * 5;
+    }
+    return dp.back();
+}
+```
+
+[313. Super Ugly Number \(Medium\)](https://leetcode.com/problems/super-ugly-number/)
+
+给定一些质数，求第N小的由这些质数相乘所得到的数，可以重复利用。
+
+```
+Input: n = 12, primes = [2,7,13,19]
+Output: 32 
+Explanation: [1,2,4,7,8,13,14,16,19,26,28,32] are the first 12 super ugly numbers.
+```
+
+个数不确定的时候，则需要利用优先队列进行储存。
+
+```cpp
+int nthSuperUglyNumber(int n, vector<int>& primes) {
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> min_heap;
+    vector<int> uglies(n);
+    uglies[0] = 1;
+    int k = primes.size();
+    vector<int> dp(k, 0);
+    for (int i = 0; i < k; ++i) min_heap.emplace(primes[i], i);
+    for (int i = 1; i < n; ++i) {
+        uglies[i] = min_heap.top().first;
+        while (min_heap.top().first == uglies[i]) {
+          int factor = min_heap.top().second;
+          min_heap.pop();
+          min_heap.emplace(primes[factor] * uglies[++dp[factor]], factor);
+        }
+    }
+    return uglies.back();
+}
+```
+
+**归并k个排好序的链表**
+
+[23. Merge k Sorted Lists \(Hard\)](https://leetcode.com/problems/merge-k-sorted-lists/)
+
+```
+Input:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+Output: 1->1->2->3->4->4->5->6
+```
+
+理论上本题可以分治地去两两归并，但是最坏情况可能每次都是归并一个长的和一个短的，因此可以用优先队列每次合并最短的两个。更进一步，我们可以直接把各个链表的头端放在优先队列里，每次取出最短的那个并放入其下一个节点。
+
+```cpp
+// method 1: priority queue
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if (lists.empty()) return NULL;
+        priority_queue<ListNode*, vector<ListNode*>, Comp> q;
+        for (ListNode* list: lists) if (list) q.push(list);
+        ListNode* dummy = new ListNode(0), *cur = dummy;
+        while (!q.empty()) {
+            cur->next = q.top();
+            q.pop();
+            cur = cur->next;
+            if (cur->next) q.push(cur->next);
+        }
+        return dummy->next;
+    }
+private:
+    struct Comp {
+        bool operator() (ListNode* l1, ListNode* l2) {
+            return l1->val > l2->val;
+        }
+    };
+};
+// method 2: divide and conquer
+ListNode* mergeKLists(vector<ListNode*> &lists) {
+    int size = lists.size();
+    if (!size) return NULL;
+    if (size == 1) return lists[0];
+    int i = 2, j;
+    while (i / 2 < size) {
+        for (j = 0; j < size; j += i) {
+            ListNode* p = lists[j];
+            if (j + i / 2 < size) {
+                p = mergeTwoLists(p, lists[j + i / 2]);
+                lists[j] = p;
+                // optional: lists[j + i / 2] = NULL;
+            }
+        }
+        i *= 2;
+    }
+    return lists[0];
+}
+
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+    if (!l2) return l1;
+    if (!l1) return l2;
+    if (l1->val > l2->val) {
+        l2->next = mergeTwoLists(l1, l2->next);
+        return l2;
+    } else {
+        l1->next = mergeTwoLists(l1->next, l2);
+        return l1;
+    }
+}
+```
+
+### 集合和映射
+
+#### 哈希表
 
 哈希表使用 O\(N\) 空间复杂度存储数据，从而能够以 O\(1\) 时间复杂度求解问题。
 
@@ -4312,6 +4805,109 @@ int subarraySum(vector<int>& nums, int k) {
 }
 ```
 
+**同一条线段上最多的点数**
+
+[149. Max Points on a Line \(Hard\)](https://leetcode.com/problems/max-points-on-a-line/)
+
+```text
+Input: [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+^
+|
+|  o
+|     o        o
+|        o
+|  o        o
++------------------->
+0  1  2  3  4  5  6
+Output: 4
+```
+
+题目描述：给定N个二维点，找到在同一条线段上最多的点数。解法是，对每个基准点，记录和它重复的点、相同横线的点、以及每个斜率上的点。
+
+```cpp
+int maxPoints(vector<Point>& points) {
+    unordered_map<double, int> slope;  // <slope, cnt>
+    int max_p = 0, same_p = 1, same_y = 1;
+    for (int i = 0; i < points.size(); ++i) {
+        same_p = 1, same_y = 1;
+        for (int j = i + 1; j < points.size(); ++j) {
+            if (points[i].y == points[j].y) {
+                ++same_y;
+                if (points[i].x == points[j].x) ++same_p;
+            } else {
+                ++slope[double(points[i].x - points[j].x) / double(points[i].y - points[j].y)];
+            }
+        }
+        max_p = max(max_p, same_y);
+        for (auto item : slope) max_p = max(max_p, item.second + same_p);
+        slope.clear();
+    }
+    return max_p;
+}
+```
+
+#### 多重集合和映射
+
+unordered_multiset和unordered_multimap可以使得哈希表存多个key。multiset和multimap可以使得红黑树存多个key，从而获得和优先队列类似的功能，并且可以同时获取最大最小值，以及支持删除任意key。
+
+**改变数组顺序使得严格大于另一数组**
+
+[870. Advantage Shuffle \(Medium\)](https://leetcode.com/problems/advantage-shuffle/)
+
+```
+Input: A = [2,7,11,15], B = [1,10,4,11]
+Output: [2,11,7,15]
+```
+
+题目描述：改变A数组的顺序，使得每个元素都比B中的元素要大。可以使用multiset + upper_bound来处理
+
+```cpp
+vector<int> advantageCount(vector<int>& A, vector<int>& B) {
+    multiset<int> s(A.begin(), A.end());
+    vector<int> res;
+    for (int i = 0; i < B.size(); ++i) {
+        auto p = *s.rbegin() <= B[i]? s.begin(): s.upper_bound(B[i]);
+        res.push_back(*p);
+        s.erase(p);
+    }
+    return res;
+}
+```
+
+**重建行程单**
+
+[332. Reconstruct Itinerary \(Medium\)](https://leetcode.com/problems/reconstruct-itinerary/)
+
+```
+Input: tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Output: ["JFK","ATL","JFK","SFO","ATL","SFO"]
+```
+
+题目描述：给定一些机票的起止机场，问如果从JFK起飞，那么这个人是按什么顺序飞的；如果存在多种可能性，返回字母序最小的那种。本题可以用hashmap+multiset，用stack遍历，最后反转输出。
+
+```c++
+vector<string> findItinerary(vector<pair<string, string>> tickets) {
+    unordered_map<string, multiset<string>> m;
+    vector<string> res;
+    if (tickets.empty()) return res;
+    for (pair<string, string> p: tickets) m[p.first].insert(p.second);
+    stack<string> s;
+    s.push("JFK");
+    while (!s.empty()) {
+        string next = s.top();
+        if (m[next].empty()) {
+            res.push_back(next);
+            s.pop();
+        } else {
+            s.push(*m[next].begin());
+            m[next].erase(m[next].begin());
+        }
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+```
+
 ### 字符串
 
 **两个字符串包含的字符是否完全相同**
@@ -4421,6 +5017,61 @@ int extendSubstrings(string s, int l, int r) {
         ++cnt;
     }
     return cnt;
+}
+```
+
+**最长回文子字符串**
+
+[5. Longest Palindromic Substring \(Medium\)](https://leetcode.com/problems/longest-palindromic-substring/)
+
+```
+Input: "babad"
+Output: "bab" or "aba"
+```
+
+本题同样可以用字符串扩展，但是也可以用动态规划实现。
+
+```cpp
+string longestPalindrome(string s) {
+    int startpos = 0, maxlen = 0;
+    const int n = s.length();
+    vector<bool> dp(n, false);
+    // 因为需要i+1轮的信息，所以反着走
+    for (int i = n-1; i >= 0; --i) {
+        dp[i] = true;
+        // 因为需要i+1轮的j-1个信息，所以反着走防止覆盖
+        for (int j = n - 1; j > i; --j) {
+            if (j==i+1) dp[j] = s[i] == s[j];
+            else dp[j] = dp[j-1] && s[i] == s[j];
+            if (dp[j] && j - i > maxlen){
+                maxlen = j - i;
+                startpos = i;
+            }
+        }
+    }
+    return s.substr(startpos, maxlen+1);
+}
+```
+
+本题也有一个O\(n\)的解法，叫做Manacher's Algorithm
+
+```cpp
+string longestPalindrome(string s) {
+    int n = s.size(), len = 0, start = 0;
+    for (int i = 0; i < n; ++i) {
+        int left = i, right = i;
+        while (right < n && s[right+1] == s[right]) ++right;
+        i = right;
+        while (left > 0 && right < n-1 && s[left-1] == s[right+1]) {
+            --left;
+            ++right;
+        }
+        if (len < right - left + 1) {
+            len = right - left + 1;
+            start = left;
+        }
+    }
+    return s.substr(start, len);
 }
 ```
 
@@ -4592,6 +5243,69 @@ long parseNum(const string& s, int& i) {
 }
 ```
 
+**最长无重复字符子串**
+
+[3. Longest Substring Without Repeating Characters \(Medium\)](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
+
+```text
+Given "abcabcbb", the answer is "abc", which the length is 3.
+Given "bbbbb", the answer is "b", with the length of 1.
+Given "pwwkew", the answer is "wke", with the length of 3.
+```
+
+用一个数组（或哈希表）记录每个字符最后一次出现的位置；遍历字符串，每次更新该字符最后一次出现位置；同时用一个额外的变量记录上一次不出现重复字符的位置，返回最大的历史差。
+
+```cpp
+int lengthOfLongestSubstring(string s) {
+    int n = s.length(), ans = 0;
+    // current index of character
+    int index[128] = {0};
+    // try to extend the range [i, j]
+    for (int j = 0, i = 0; j < n; ++j) {
+        i = max(index[s[j]], i);
+        ans = max(ans, j - i + 1);
+        index[s[j]] = j + 1;
+    }
+    return ans;
+}
+```
+
+**KMP**
+
+[28. Implement strStr() \(Easy\)](https://leetcode.com/problems/implement-strstr/)
+
+```
+Input: haystack = "hello", needle = "ll"
+Output: 2
+```
+
+使用Knuth-Morris-Pratt（KMP）算法，可以在O(m+n)时间完成匹配。
+
+```cpp
+void calNext(const string &needle, vector<int> &next) {
+    // e.g. ababaca 的 next 数组是 [-1,-1,0,1,2,-1,0]
+    for (int j = 1, p = -1; j < needle.length(); ++j) {
+        while (p > -1 && needle[p+1] != needle[j]) p = next[p];  // 如果下一位不同，往前回溯
+        if (needle[p+1] == needle[j]) ++p;  // 如果下一位相同
+        next[j] = p;  // 把算的k的值（就是相同的最大前缀和最大后缀长）赋给next[q]
+    }
+}
+
+int strStr(string haystack, string needle) {
+    if (needle.empty()) return 0;
+    vector<int> next(needle.length(), -1); // next[0]初始化为-1，-1表示不存在相同的最大前缀和最大后缀
+    calNext(needle, next);  //计算next数组
+
+    int k = -1, n = haystack.length(), p = needle.length();
+    for (int i = 0; i < n; ++i) {
+        while (k > -1 && needle[k+1] != haystack[i]) k = next[k]; // 有部分匹配，往前回溯
+        if (needle[k+1] == haystack[i]) ++k;
+        if (k == p-1) return i-p+1;  // 说明k移动到needle的最末端，返回相应的位置
+    }
+    return -1;         
+}
+```
+
 ### 数组与矩阵
 
 **把数组中的 0 移到末尾**
@@ -4647,6 +5361,43 @@ vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
         }
     }
     return res;
+}
+```
+
+**旋转矩阵**
+
+[48. Rotate Image \(Medium\)](https://leetcode.com/problems/rotate-image/)
+
+```
+Given input matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+rotate the input matrix in-place such that it becomes:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+```
+
+每次只考虑四个间隔90度的位置，可以进行O(1)额外空间的旋转。
+
+```cpp
+void rotate(vector<vector<int>>& matrix) {
+    int temp = 0, n = matrix.size()-1;
+    for (int i = 0; i <= n/2; i++) {
+        for (int j = i; j < n-i; j++) {
+            temp = matrix[j][n-i];
+            matrix[j][n-i] = matrix[i][j];
+            matrix[i][j] = matrix[n-j][i];
+            matrix[n-j][i] = matrix[n-i][n-j];
+            matrix[n-i][n-j] = temp;
+        }
+    }
 }
 ```
 
@@ -4953,6 +5704,20 @@ int maxChunksToSorted(vector<int>& arr) {
         if (curmax == i) ++ret;
     }
     return ret;
+}
+```
+
+**摆动排序**
+
+[280. Wiggle Sort \(Medium\)](https://leetcode.com/problems/wiggle-sort/)
+
+不开新空间地修改一个数组，使得最终顺序为`nums[0] <= nums[1] >= nums[2] <= nums[3]...`.
+
+```cpp
+void wiggleSort(vector<int>& nums) {
+    if (nums.empty()) return;
+    for (int i = 0; i < nums.size() - 1; ++i) 
+        if ((i % 2) == (nums[i] < nums[i+1])) swap(nums[i], nums[i+1]);
 }
 ```
 
@@ -6107,6 +6872,8 @@ private:
 
 #### 线段树
 
+**可变更值的连续区间和查找**
+
 [307. Range Sum Query - Mutable \(Medium\)](https://leetcode.com/problems/range-sum-query-mutable/)
 
 ```
@@ -6328,6 +7095,8 @@ vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
 
 最小生成树（MST），指的是一个连接图内所有点的树，且这种连接是所有可能连接里消耗最小的方式。
 
+**连接城市的最短消耗**
+
 [1135. Connecting Cities With Minimum Cost \(Medium\)](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
 
 给定N个城市，和一些（城市A，城市B，消耗值）的连接，求出能让所有城市相连的最小总消耗值。
@@ -6373,9 +7142,11 @@ struct comp{
     }
 };
 int minimumCost(int N, vector<vector<int>>& connections) {
-    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>());  
-    priority_queue<pair<int, int>, vector<pair<int, int>>, comp> pq;  // (最短距离，节点编号)
-    // 等价的，也可以直接priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>()); 
+    // pair<最短距离，节点编号>
+    priority_queue<pair<int, int>, vector<pair<int, int>>, comp> pq;
+    // 等价的，也可以直接
+    // priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
     unordered_set<int> visited;
     int costs = 0;
     for (const auto& conn : connections) {
@@ -6437,11 +7208,12 @@ Dijkstra 无负边单源最短路
 
 ```cpp
 void dijkstra(int start, int N, vector<vector<int>>& connections) {
-    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>());  
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq; // (最短距离，节点编号)
+    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>());
+    // pair<最短距离，节点编号>
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq; 
     for (const auto& conn : connections) {
         graph[conn[0]].push_back(make_pair(conn[2], conn[1]));
-        // graph[conn[1]].push_back(make_pair(conn[2], conn[0]));   // 如果是无向图，加上反向边
+        // graph[conn[1]].push_back(make_pair(conn[2], conn[0]));  // 如果是无向图，加上反向边
     }
     vector<int> d(N, INT_MAX);  // 最短距离
     d[start] = 0;
@@ -6483,7 +7255,7 @@ void floydWarshall(int N, vector<vector<int>>& connections){
 }
 ```
 
-### 复杂数据结构和相关算法
+### 复杂数据结构
 
 #### 并查集
 
@@ -6555,7 +7327,28 @@ public:
 };
 ```
 
-#### LRU
+#### Rope
+
+为了方便储存长度很大的字符串并加速搜索，可以使用rope这种数据结构。
+
+连接两个Rope的时间复杂度是O(1)，查询第i个字符、插入、删除、以及Split成两段的时间复杂度是O(logN)。下图展示了一个Rope结构以及如何获得第10个字符。
+
+![](../.gitbook/assets/rope.png)
+
+```cpp
+class Rope { 
+public: 
+    Rope *left, *right, *parent; 
+    string str; 
+    int left_len; 
+}; 
+```
+
+#### 复合数据结构
+
+这一类题采用hashmap或map辅助记录，从而加速寻址；再配上vector或者list进行数据储存，从而加速连续选址或删除值。
+
+**LRU Cache**
 
 [146. LRU Cache \(Medium\)](https://leetcode.com/problems/lru-cache/)
 
@@ -6609,7 +7402,7 @@ private:
 };
 ```
 
-**其他变种题型**
+**O(1)数据结构**
 
 [432. All O`one Data Structure \(Hard\)](https://leetcode.com/problems/all-oone-data-structure/)
 
@@ -6619,35 +7412,32 @@ private:
 class AllOne {
 public:
     void inc(string key) {
-        
         // If the key doesn't exist, insert it with value 0.
-        if (!bucketOfKey.count(key)) bucketOfKey[key] = buckets.insert(buckets.begin(), {0, {key}});
-            
+        if (!bucketOfKey.count(key))
+            bucketOfKey[key] = buckets.insert(buckets.begin(), {0, {key}});
         // Insert the key in next bucket and update the lookup.
         auto next = bucketOfKey[key], bucket = next++;
-        if (next == buckets.end() || next->value > bucket->value + 1) next = buckets.insert(next, {bucket->value + 1, {}});
+        if (next == buckets.end() || next->value > bucket->value + 1)
+            next = buckets.insert(next, {bucket->value + 1, {}});
         next->keys.insert(key);
         bucketOfKey[key] = next;
-        
         // Remove the key from its old bucket.
         bucket->keys.erase(key);
         if (bucket->keys.empty()) buckets.erase(bucket);
     }
 
     void dec(string key) {
-
         // If the key doesn't exist, just leave.
         if (!bucketOfKey.count(key)) return;
-
         // Maybe insert the key in previous bucket and update the lookup.
         auto prev = bucketOfKey[key], bucket = prev--;
         bucketOfKey.erase(key);
         if (bucket->value > 1) {
-            if (bucket == buckets.begin() || prev->value < bucket->value - 1) prev = buckets.insert(bucket, {bucket->value - 1, {}});
+            if (bucket == buckets.begin() || prev->value < bucket->value - 1)
+                prev = buckets.insert(bucket, {bucket->value - 1, {}});
             prev->keys.insert(key);
             bucketOfKey[key] = prev;
         }
-        
         // Remove the key from its old bucket.
         bucket->keys.erase(key);
         if (bucket->keys.empty()) buckets.erase(bucket);
@@ -6662,11 +7452,16 @@ public:
     }
 
 private:
-    struct Bucket { int value; unordered_set<string> keys; };
+    struct Bucket {
+        int value;
+        unordered_set<string> keys;
+    };
     list<Bucket> buckets;
     unordered_map<string, list<Bucket>::iterator> bucketOfKey;
 };
 ```
+
+**最大栈**
 
 [716. Max Stack \(Easy\)](https://leetcode.com/problems/max-stack/)
 
@@ -6714,7 +7509,49 @@ private:
 };
 ```
 
-## 需要添加：ugly number，rope，线程安全，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
+**O(1)插入、删除或随机取值**
+
+[380. Insert Delete GetRandom O(1) \(Medium\)](https://leetcode.com/problems/insert-delete-getrandom-o1/)
+
+```cpp
+class RandomizedSet {
+public:
+    RandomizedSet() {}
+
+    bool insert(int val) {
+        if (hash.count(val)) return false;
+        hash[val] = vec.size();
+        vec.push_back(val);
+        return true;
+    }
+
+    bool remove(int val) {
+        if (!hash.count(val)) return false;
+        int pos = hash[val];
+        hash[vec.back()] = pos;
+        hash.erase(val);
+        swap(vec[pos], vec[vec.size()-1]);
+        vec.pop_back();
+        return true;
+    }
+
+    int getRandom() {
+        return vec[rand()%vec.size()];
+    }
+
+private:
+    unordered_map<int, int> hash;
+    vector<int> vec;
+};
+```
+
+### 线程安全结构
+
+TODO
+
+
+
+## 需要添加：线程安全，前缀和，积分图
 
 ## 整合一下general-algorithms.md
 

@@ -78,9 +78,7 @@ Example:
 
 ```text
 Given "abcabcbb", the answer is "abc", which the length is 3.
-
 Given "bbbbb", the answer is "b", with the length of 1.
-
 Given "pwwkew", the answer is "wke", with the length of 3.
 ```
 
@@ -136,39 +134,33 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
 }
 ```
 
-O\(log\(m+n\)\): 二分。设总长度为m+n。则array1的i位数字，和array2的j = \(m+n\)/2 - i位数字，必须满足比当前array次大的那一个数字更接近对方。若满足，则这两位就是中位候选。因为array已经排好序，所以可以用二分确定i的位置。
+O\(log\(m+n\)\): 可以对切开num1或num2的位置进行二分，num1的i位数字，和num2的(m+n\)/2 - i位数字，必须满足比当前数组次大或次小的那一个数字更接近对方。
 
 ```cpp
 double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
-    int m = nums1.size(), n = nums2.size();
-    // to ensure m <= n
-    if (m > n) {
-        nums1.swap(nums2);
-        swap(m, n);
+    int n1 = nums1.size(), n2 = nums2.size();
+    // Make sure nums2 is the shorter one.
+    if (n1 < n2) return findMedianSortedArrays(nums2, nums1);
+    int l = 0, r = n2 * 2;
+    while (l <= r) {
+        // Try Cut 2.
+        int mid2 = (l + r) / 2;
+        // Calculate Cut 1 accordingly.
+        int mid1 = n1 + n2 - mid2;
+        // Get L1, R1, L2, R2 respectively.
+        double L1 = mid1? nums1[(mid1-1)/2]: INT_MIN;
+        double L2 = mid2? nums2[(mid2-1)/2]: INT_MIN;
+        double R1 = mid1 != n1 * 2? nums1[(mid1)/2]: INT_MAX;
+        double R2 = mid2 != n2 * 2? nums2[(mid2)/2]: INT_MAX;
+        // nums1's lower half is too big; need to move Cut 1 left.
+        if (L1 > R2) l = mid2 + 1;
+        // nums2's lower half too big; need to move Cut 2 left.
+        else if (L2 > R1) r = mid2 - 1;
+        // Otherwise, that's the right cut.
+        else return (max(L1, L2) + min(R1, R2)) / 2;
     }
-    int iMin = 0, iMax = m, halfLen = (m + n + 1) / 2;
-    while (iMin <= iMax) {
-        int i = (iMin + iMax) / 2, j = halfLen - i;
-        if (i < iMax && nums2[j-1] > nums1[i]) ++iMin;  // i is too small
-        else if (i > iMin && nums1[i-1] > nums2[j]) --iMax;  // i is too big
-        else {
-            // i is perfect
-            int maxLeft = 0;
-            if (i == 0) maxLeft = nums2[j-1];
-            else if (j == 0) maxLeft = nums1[i-1];
-            else maxLeft = max(nums1[i-1], nums2[j-1]);
-            if ((m + n) % 2 == 1) return maxLeft;
-
-            int minRight = 0;
-            if (i == m) minRight = nums2[j];
-            else if (j == n) minRight = nums1[i];
-            else minRight = min(nums2[j], nums1[i]);
-
-            return (maxLeft + minRight) / 2.0;
-        }
-    }
-    return 0.0;
-}
+    return -1;
+} 
 ```
 
 ### 5. Longest Palindromic Substring
@@ -191,20 +183,22 @@ Solution: O\(n^2\): 从后往前dp，核心为dp\[i\]\[j\] = dp\[i+1\]\[j-1\] &&
 ```cpp
 string longestPalindrome(string s) {
     int startpos = 0, maxlen = 0;
-    const int slen = s.length();
-    bool dp[slen];
-    for (int i = slen - 1; i >= 0; --i) {  // 因为需要i+1轮的信息，所以反着走
+    const int n = s.length();
+    vector<bool> dp(n, false);
+    // 因为需要i+1轮的信息，所以反着走
+    for (int i = n-1; i >= 0; --i) {
         dp[i] = true;
-        for (int j = slen - 1; j > i; --j) {  // 因为需要i+1轮的j-1个信息，所以反着走防止覆盖
-            if (j == i + 1) dp[j] = s[i] == s[j];
+        // 因为需要i+1轮的j-1个信息，所以反着走防止覆盖
+        for (int j = n - 1; j > i; --j) {
+            if (j==i+1) dp[j] = s[i] == s[j];
             else dp[j] = dp[j-1] && s[i] == s[j];
-            if (dp[j] && j - i > maxlen) {
+            if (dp[j] && j - i > maxlen){
                 maxlen = j - i;
                 startpos = i;
             }
         }
     }
-    return s.substr(startpos, maxlen + 1);
+    return s.substr(startpos, maxlen+1);
 }
 ```
 
@@ -401,18 +395,18 @@ bool isMatch(string s, string p) {
 }
 bool dp(int i, int j, string s, string p) {
     if (vec[i][j] != -1) return vec[i][j] == 1;
-    bool ans;
+    bool res;
     if (j == p.length()) {
-        ans = i == s.length();
+        res = i == s.length();
     } else {
         bool first_match = i < s.length() && (p[j] == s[i] || p[j] == '.');
         if (j + 1 < p.length() && p[j + 1] == '*')
-            ans = dp(i, j + 2, s, p) || (first_match && dp(i + 1, j, s, p));
+            res = dp(i, j + 2, s, p) || (first_match && dp(i + 1, j, s, p));
         else
-            ans = first_match && dp(i + 1, j + 1, s, p);
+            res = first_match && dp(i + 1, j + 1, s, p);
     }
-    vec[i][j] = ans ? 1 : 0;
-    return ans;
+    vec[i][j] = res? 1: 0;
+    return res;
 }
 ```
 
@@ -781,9 +775,33 @@ Input:
 Output: 1->1->2->3->4->4->5->6
 ```
 
-Solution: 用std::make\_heap或者priority\_queue会比较慢；最快的方法是divide and conquer，不断merge相邻两个list
+Solution: 理论上本题可以分治地去两两归并，但是最坏情况可能每次都是归并一个长的和一个短的，因此可以用priority queue每次合并最短的两个。更进一步，我们可以直接把各个链表的头端放在优先队列里，每次取出最短的那个并放入其下一个节点。
 
 ```cpp
+// method 1: priority queue
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if (lists.empty()) return NULL;
+        priority_queue<ListNode*, vector<ListNode*>, Comp> q;
+        for (ListNode* list: lists) if (list) q.push(list);
+        ListNode* dummy = new ListNode(0), *cur = dummy;
+        while (!q.empty()) {
+            cur->next = q.top();
+            q.pop();
+            cur = cur->next;
+            if (cur->next) q.push(cur->next);
+        }
+        return dummy->next;
+    }
+private:
+    struct Comp {
+        bool operator() (ListNode* l1, ListNode* l2) {
+            return l1->val > l2->val;
+        }
+    };
+};
+// method 2: divide and conquer
 ListNode* mergeKLists(vector<ListNode*> &lists) {
     int size = lists.size();
     if (!size) return NULL;
@@ -921,44 +939,10 @@ Output: -1
 
 Clarification: What should we return when needle is an empty string? This is a great question to ask during an interview. For the purpose of this problem, we will return 0 when needle is an empty string. This is consistent to C's strstr\(\) and Java's indexOf\(\).
 
-Solution: 暴力或[KMP](https://blog.csdn.net/starstar1992/article/details/54913261)，有两种写法，分别在算next table时用的是前一位和当前位，本质上没差别但算前一位的next table要好写一点\(即version 1\)，一定要背
+Solution: 暴力或[KMP](https://blog.csdn.net/starstar1992/article/details/54913261)
 
 ```cpp
-// KMP version 1
-int find_next(vector<int> &next, const string &needle, const int k) {
-    // memoization
-    if (k < next.size()) return next[k];
-
-    // find palindrome and build next table for position j-1
-    // e.g. next table of ababaca is [-1,0,0,1,2,3,0]
-    for (int j = next.size(), p = next[j-1]; j <= k; ++j) {           
-        while (p >= 0 && needle[p] != needle[j-1]) p = next[p];
-        next.push_back(p+1);
-        p = next[j];
-    }
-    return next[k];
-}
-
-int strStr(string haystack, string needle) {
-    int n = haystack.size(), p = needle.size();
-    if (p > n) return -1;
-
-    // build next table for needle
-    vector<int> next {-1, 0};
-
-    // begin matching
-    int x = 0;
-    while (x < n - p + 1) {
-        int k = 0;
-        while (x < n - p + 1 && k < p && haystack[x+k] == needle[k]) ++k;
-        if (k == p) return x;
-        x += k - find_next(next, needle, k);
-    }
-    return -1;        
-}
-
-// KMP version 2
-void cal_next(const string &needle, vector<int> &next) {
+void calNext(const string &needle, vector<int> &next) {
     // e.g. ababaca 的 next 数组是 [-1,-1,0,1,2,-1,0]
     for (int j = 1, p = -1; j < needle.length(); ++j) {
         while (p > -1 && needle[p+1] != needle[j]) p = next[p];  // 如果下一位不同，往前回溯
@@ -970,7 +954,7 @@ void cal_next(const string &needle, vector<int> &next) {
 int strStr(string haystack, string needle) {
     if (needle.empty()) return 0;
     vector<int> next(needle.length(), -1); // next[0]初始化为-1，-1表示不存在相同的最大前缀和最大后缀
-    cal_next(needle, next);  //计算next数组
+    calNext(needle, next);  //计算next数组
 
     int k = -1, n = haystack.length(), p = needle.length();
     for (int i = 0; i < n; ++i) {

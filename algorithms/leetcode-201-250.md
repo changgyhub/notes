@@ -40,7 +40,6 @@ Solution: 快慢指针判圈法，一定要背
 
 ```cpp
 bool isHappy(int n) {
-
     auto digitsum = [](int a)->int{
         int sum = 0;
         while (a) {
@@ -49,13 +48,11 @@ bool isHappy(int n) {
         }
         return sum;
     };
-
     int slow = n, fast = n;
     do {
         slow = digitsum(slow);
         fast = digitsum(digitsum(fast));
     } while (slow != fast);
-
     return slow == 1;
 }
 ```

@@ -314,6 +314,24 @@ int nthSuperUglyNumber(int n, vector<int>& primes) {
     }
     return uglies.back();
 }
+// or much slower, use similar method as Ugly Number II
+int nthSuperUglyNumber(int n, vector<int>& primes) {
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> min_heap;
+    vector<int> uglies(n);
+    uglies[0] = 1;
+    int k = primes.size();
+    vector<int> dp(k, 0);
+    for (int i = 0; i < k; ++i) min_heap.emplace(primes[i], i);
+    for (int i = 1; i < n; ++i) {
+        uglies[i] = min_heap.top().first;
+        while (min_heap.top().first == uglies[i]) {
+          int factor = min_heap.top().second;
+          min_heap.pop();
+          min_heap.emplace(primes[factor] * uglies[++dp[factor]], factor);
+        }
+    }
+    return uglies.back();
+}
 ```
 
 ### 315. Count of Smaller Numbers After Self
@@ -459,7 +477,7 @@ void dfs(int& res, vector<int>& coins, int target, int idx, int count) {
 }
 ```
 
-### 324. Wiggle Sort I‌
+### 324. Wiggle Sort I‌I
 
 Given an unsorted array nums, reorder it such that nums[0] < nums[1] > nums[2] < nums[3].... You may assume all input has valid answer. Can you do it in O(n) time and/or in-place with O(1) extra space?
 

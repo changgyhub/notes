@@ -264,13 +264,14 @@ Solution: 先用partial_sum求积分和，然后直接lower_bound获得随机位
 ```cpp
 class Solution {
 public:
-    vector<int> sums;
-    Solution(vector<int> w):sums(w) {
+    Solution(vector<int> w): sums(w) {
         partial_sum(sums.begin(), sums.end(), sums.begin());
     }
     int pickIndex() {
         return lower_bound(sums.begin(), sums.end(), (rand() % sums.back()) + 1) - sums.begin();
     }
+private:
+    vector<int> sums;
 };
 ```
 
