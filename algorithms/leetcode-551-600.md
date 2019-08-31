@@ -141,6 +141,32 @@ int findUnsortedSubarray(vector<int>& nums) {
 }
 ```
 
+### 583. Delete Operation for Two Strings
+
+Given two words *word1* and *word2*, find the minimum number of steps required to make *word1* and *word2* the same, where in each step you can delete one character in either string.
+
+Example:
+
+```
+Input: "sea", "eat"
+Output: 2 (You need one step to make "sea" to "ea" and another step to make "eat" to "ea")
+```
+
+Solution: 两个字符串的长度和，减去两倍的最长公共子序列
+
+```cpp
+int minDistance(string word1, string word2) {
+    int m = word1.length(), n = word2.length();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            dp[i][j] = word1[i-1] == word2[j-1]? 1 + dp[i-1][j-1]: max(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+    return m + n - 2 * dp[m][n];
+}
+```
+
 ### 593. Valid Square
 
 Given the coordinates of four points in 2D space, return whether the four points could construct a square. The coordinate (x,y) of a point is represented by an integer array with two integers.
