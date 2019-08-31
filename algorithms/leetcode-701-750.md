@@ -1,5 +1,46 @@
 # LeetCode 701 - 750
 
+### 714. Best Time to Buy and Sell Stock with Transaction Fee
+
+Your are given an array of integers `prices`, for which the `i`-th element is the price of a given stock on day `i`; and a non-negative integer `fee` representing a transaction fee.
+
+You may complete as many transactions as you like, but you need to pay the transaction fee for each transaction. You may not buy more than 1 share of a stock at a time (ie. you must sell the stock share before you buy again.)
+
+Return the maximum profit you can make.
+
+Example:
+
+```
+Input: prices = [1, 3, 2, 8, 4, 9], fee = 2
+Output: 8 (The maximum profit can be achieved by:
+Buying at prices[0] = 1
+Selling at prices[3] = 8
+Buying at prices[4] = 4
+Selling at prices[5] = 9
+The total profit is ((8 - 1) - 2) + ((9 - 4) - 2) = 8)
+```
+
+Solution: 状态机
+
+![](../.gitbook/assets/image%20%2810%29.png)
+
+```cpp
+int maxProfit(vector<int>& prices, int fee) {
+    int n = prices.size();
+    if (n == 0) return 0;
+    vector<int> buy(n), sell(n), s1(n), s2(n);
+    s1[0] = buy[0] = -prices[0];
+    sell[0] = s2[0] = 0;
+    for (int i = 1; i < n; i++) {
+        buy[i] = max(sell[i-1], s2[i-1]) - prices[i];
+        s1[i] = max(buy[i-1], s1[i-1]);
+        sell[i] = max(buy[i-1], s1[i-1]) - fee + prices[i];
+        s2[i] = max(s2[i-1], sell[i-1]);
+    }
+    return max(sell[n-1], s2[n-1]);
+}
+```
+
 ### 716. Max Stack
 
 Design a max stack that supports push, pop, top, peekMax and popMax.
