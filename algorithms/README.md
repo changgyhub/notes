@@ -328,6 +328,36 @@ int maxProfit(vector<int>& prices) {
 
 双指针主要用于遍历数组，两个指针指向不同的元素，从而协同完成任务。若两个指针指向同一数组、遍历方向相同且不会相交，则也称为滑动窗口。
 
+**指针与常量**
+
+```cpp
+int x;
+      int *       p1 = &x;  // non-const pointer to non-const int
+const int *       p2 = &x;  // non-const pointer to const int
+      int * const p3 = &x;  // const pointer to non-const int
+const int * const p4 = &x;  // const pointer to const int 
+```
+
+**Pointers to functions**
+
+```cpp
+int addition(int a, int b) {
+    return a + b;
+}
+
+int subtraction(int a, int b) {
+    return a - b;
+}
+
+int operation(int x, int y, int (*func)(int,int)) {
+    return (*func)(x,y);
+}
+
+int (*minus)(int,int) = subtraction;
+int m = operation(7, 5, addition);
+int n = operation(20, m, minus);
+```
+
 **有序数组的 Two Sum**
 
 [167. Two Sum II - Input array is sorted \(Easy\)](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
@@ -4690,6 +4720,67 @@ C++ 中的 **unordered_map** 主要用于映射关系，从而把两个元素联
 
 HashMap 也可以用来对元素进行计数统计，此时键为元素，值为计数。和 HashSet 类似，如果元素有穷并且范围不大，可以用整型数组来进行统计。
 
+**实现哈希表**
+
+```cpp
+template <typename T>
+class HashTable {
+private:
+    vector<list<T>> hash_table;
+    // 哈希函数
+    int myhash(const T & obj) const {
+        return hash(obj, hash_table.size());
+    }
+
+public:
+    // size最好是质数
+    HashTable(int size=31) {
+        hash_table.reserve(size);
+        hash_table.resize(size);
+    }
+
+    ~HashTable() {}
+
+    bool contains(const T & obj) {
+        int hash_value = myhash(obj);
+        const list<T> & slot = hash_table[hash_value];
+        std::list<T>::const_iterator it = slot.cbegin();
+        for (; it != slot.cend() && *it != obj; ++it);
+        return it != slot.cend();
+    }
+
+    bool insert(const T & obj) {
+        if (contains(obj)) return false;
+        int hash_value = myhash(obj);
+        std::list<T> & slot = hash_table[hash_value];
+        slot.push_front(obj);
+        return true;
+    }
+
+    bool remove(const T & obj) {
+        list<T> & slot = hash_table[myhash(obj)];
+        auto it = find(slot.begin(), slot.end(), obj);
+        if (it == slot.end()) return false;
+        slot.erase(it);
+        return true;
+    }
+};
+
+int hash(const string & key, const int &tableSize) {
+    // 采用公式：h = (k1 * 32 + k2) * 32 + k3，将其扩展到n次多项式
+    long long int hashVal = 0;
+    int count = 0;
+    for (auto it = key.begin(); it != key.end(); ++it)
+        if (count++ % 2 == 0)
+            hashVal += (hashVal << 5) + *it;
+    return hashVal %= tableSize;
+}
+
+int hash(const int & key, const int &tableSize) {
+    return key % tableSize;
+}
+```
+
 **数组中的两个数和为给定值**
 
 [1. Two Sum \(Easy\)](https://leetcode.com/problems/two-sum/)
@@ -6641,6 +6732,92 @@ vector<int> inorderTraversal(TreeNode* root) {
 
 二叉查找树中序遍历有序。
 
+**实现BST**
+
+```cpp
+template <class T>
+class BST {
+    struct Node {
+        T data;
+        Node* left;
+        Node* right;
+    };
+
+    Node* root;
+
+    Node* makeEmpty(Node* t) {
+        if (t == NULL) return NULL;
+        makeEmpty(t->left);
+        makeEmpty(t->right);
+        delete t;
+        return NULL;
+    }
+
+    Node* insert(Node* t, T x) {
+        if (t == NULL) {
+            t = new Node;
+            t->data = x;
+            t->left = t->right = NULL;
+        } else if (x < t->data) {
+            t->left = insert(t->left, x);
+        } else if (x > t->data) {
+            t->right = insert(t->right, x);
+        }
+        return t;
+    }
+
+    Node* find(Node* t, T x) {
+        if (t == NULL) return NULL;
+        if (x < t->data) return find(t->left, x);
+        if (x > t->data) return find(t->right, x);
+        return t;
+    }
+
+    Node* findMin(Node* t) {
+        if (t == NULL || t->left == NULL) return t;
+        return findMin(t->left);
+    }
+
+    Node* findMax(Node* t) {
+        if (t == NULL || t->right == NULL) return t;
+        return findMax(t->right);
+    }
+
+    Node* remove(Node* t, T x) {
+        Node* temp;
+        if (t == NULL) return NULL;
+        else if (x < t->data) t->left = remove(t->left, x);
+        else if (x > t->data) t->right = remove(t->right, x);
+        else if (t->left && t->right) {
+            temp = findMin(t->right);
+            t->data = temp->data;
+            t->right = remove(t->right, t->data);
+        } else {
+            temp = t;
+            if (t->left == NULL) t = t->right;
+            else if (t->right == NULL) t = t->left;
+            delete temp;
+        }
+        return t;
+    }
+
+public:
+    BST(): root(NULL) {}
+
+    ~BST() {
+        root = makeEmpty(root);
+    }
+
+    void insert(T x) {
+        insert(root, x);
+    }
+
+    void remove(T x) {
+        remove(root, x);
+    }
+};
+```
+
 **修剪二叉查找树**
 
 [669. Trim a Binary Search Tree \(Easy\)](https://leetcode.com/problems/trim-a-binary-search-tree/)
@@ -7787,6 +7964,7 @@ private:
 或者，也可以通过传统方法实现。
 
 ```cpp
+template <class T>
 class MySharedLock {
 public:
     explicit MySharedLock(): readers(0), writers(0) {}
@@ -7836,9 +8014,7 @@ public:
 };
 ```
 
-## 整合一下general-algorithms.md
-
 ## 参考资料
 
-* [Leetcode](https://leetcode.com/problemset/algorithms/?status=Todo)
+* [Leetcode](https://leetcode.com/)
 * [Leetcode 题解](https://github.com/CyC2018/Interview-Notebook)
