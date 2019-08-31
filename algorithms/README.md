@@ -1,4 +1,4 @@
-# Algorithms and Datastructures
+# Algorithms and Data Structures
 
 以Leetcode为主要例题来源，以C++作为编程语言，对常见的算法、数据结构、以及一些计算机原理进行汇总。
 
