@@ -353,6 +353,31 @@ int findRadius(vector<int>& houses, vector<int>& heaters) {
 }
 ```
 
+### 476. Number Complement
+
+Given a positive integer, output its complement number. The complement strategy is to flip the bits of its binary representation.
+
+Example:
+
+```cpp
+Input: 5 (101)
+Output: 2 (010)
+```
+
+Solution: 位运算，注意输入数最高位1之前的0不需要反转
+
+```cpp
+int findComplement(int n) {
+    int res = 0, pos = 0;
+    while (n) {
+        res += n % 2? 0: 1 << pos;
+        n >>= 1;
+        ++pos;
+    }
+    return res;
+}
+```
+
 ### 478. Generate Random Point in a Circle
 
 Given the radius and x-y positions of the center of a circle, write a function `randPoint` which generates a uniform random point in the circle.

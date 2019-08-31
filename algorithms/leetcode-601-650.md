@@ -94,6 +94,44 @@ int leastInterval(vector<char>& tasks, int n) {
 }
 ```
 
+### 628. Maximum Product of Three Numbers
+
+Given an integer array, find three numbers whose product is maximum and output the maximum product.
+
+Example:
+
+```
+Input: [1,2,3,4]
+Output: 24
+```
+
+Solution: 别忘记考虑负数
+
+```cpp
+int maximumProduct(vector<int>& nums) {
+    int max1 = INT_MIN, max2 = INT_MIN, max3 = INT_MIN, min1 = INT_MAX, min2 = INT_MAX;
+    for (const int& n: nums) {
+        if (n > max1) {
+            max3 = max2;
+            max2 = max1;
+            max1 = n;
+        } else if (n > max2) {
+            max3 = max2;
+            max2 = n;
+        } else if (n > max3) {
+            max3 = n;
+        }
+        if (n < min1) {
+            min2 = min1;
+            min1 = n;
+        } else if (n < min2) {
+            min2 = n;
+        }
+    }
+    return max(max1 * max2 * max3, max1 * min1 * min2);
+}
+```
+
 ### 633. Sum of Square Numbers
 
 Given a non-negative integer `c`, your task is to decide whether there're two integers `a` and `b` such that a^2 + b^2 = c.

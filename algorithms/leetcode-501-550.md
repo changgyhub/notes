@@ -1,5 +1,66 @@
 # LeetCode 501 - 550
 
+### 503. Next Greater Element II
+
+Given a circular array (the next element of the last element is the first element of the array), print the Next Greater Number for every element. The Next Greater Number of a number x is the first greater number to its traversing-order next in the array, which means you could search circularly to find its next greater number. If it doesn't exist, output -1 for this number.
+
+Example:
+
+```
+Input: [1,2,1]
+Output: [2,-1,2]
+```
+
+Solution: 单调栈，循环两次
+
+```cpp
+vector<int> nextGreaterElements(vector<int>& nums) {
+    int n = nums.size();
+    vector<int> res(n, -1);
+    stack<int> indices;
+    for (int i = 0; i < n * 2; ++i) {
+        int num = nums[i % n];
+        while (!indices.empty()) {
+            int pre_index = indices.top();
+            if (num <= nums[pre_index]) break;
+            indices.pop();
+            res[pre_index] = num;
+        }
+        if (i < n) indices.push(i);
+    }
+    return res;
+}
+```
+
+### 504. Base 7
+
+Given an integer, return its base 7 string representation.
+
+Example:
+
+```
+Input: 100
+Output: "202"
+```
+
+Solution: 按mod不断处理即可，注意细节
+
+```cpp
+string convertToBase7(int num) {
+    if (num == 0) return "0";
+    bool is_negative = num < 0;
+    if (is_negative) num = -num;
+    string res;
+    while (num) {
+        int a = num / 7;
+        int b = num % 7;
+        res = to_string(b) + res;
+        num = a;
+    }
+    return is_negative? "-" + res: res;
+}
+```
+
 ### 508. Most Frequent Subtree Sum
 
 Given the root of a tree, you are asked to find the most frequent subtree sum. The subtree sum of a node is defined as the sum of all the node values formed by the subtree rooted at that node (including the node itself). So what is the most frequent subtree sum value? If there is a tie, return all the values with the highest frequency in any order.

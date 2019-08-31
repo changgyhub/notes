@@ -5006,6 +5006,8 @@ vector<string> findItinerary(vector<pair<string, string>> tickets) {
 
 ### 字符串
 
+注意：substring/subarray一般指的是连续的子串，subsequence一般指的是可以不连续的子序列。
+
 **两个字符串包含的字符是否完全相同**
 
 [242. Valid Anagram \(Easy\)](https://leetcode.com/problems/valid-anagram/)

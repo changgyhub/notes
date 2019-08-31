@@ -254,6 +254,37 @@ vector<int> asteroidCollision(vector<int>& a) {
 }
 ```
 
+### 739. Daily Temperatures
+
+Given a list of daily temperatures `T`, return a list such that, for each day in the input, tells you how many days you would have to wait until a warmer temperature. If there is no future day for which this is possible, put `0` instead.
+
+Example:
+
+```cpp
+Input: T = [73, 74, 75, 71, 69, 72, 76, 73]
+Output: [1, 1, 4, 2, 1, 1, 0, 0]
+```
+
+Solution: 单调栈
+
+```cpp
+vector<int> dailyTemperatures(vector<int>& T) {
+    int n = T.size(); 
+    vector<int> res(n);
+    stack<int> indices;
+    for (int i = 0; i < n; ++i) {
+        while (!indices.empty()) {
+            int pre_index = indices.top();
+            if (T[i] <= T[indices.top()]) break;
+            indices.pop();
+            res[pre_index] = i - pre_index;
+        }
+        indices.push(i);
+    }
+    return res;
+}
+```
+
 ### 744. Find Smallest Letter Greater Than Target
 
 Given a list of sorted characters `letters` containing only lowercase letters, and given a target letter `target`, find the smallest element in the list that is larger than the given target.

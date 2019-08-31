@@ -435,6 +435,26 @@ vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
 }
 ```
 
+### 693. Binary Number with Alternating Bits
+
+Given a positive integer, check whether it has alternating bits: namely, if two adjacent bits will always have different values.
+
+Example:
+
+```
+Input: 5
+Output: True (101)
+```
+
+Solution: 对于 1010 这种位级表示的数，把它向右移动 1 位得到 101，这两个数每个位都不同，因此异或得到的结果为 1111。
+
+```cpp
+bool hasAlternatingBits(int n) {
+    long long a = (n ^ (n >> 1));
+    return !(a & (a + 1));
+}
+```
+
 ### 695. Max Area of Island
 
 Given a non-empty 2D array `grid` of 0's and 1's, an **island** is a group of `1`'s (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
