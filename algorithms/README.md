@@ -1,6 +1,6 @@
 # Algorithms and Datastructures
 
-## 需要添加：各种O(1)数据结构题，线段树，MST，最短距离，计算器，ugly number，堆的实现，rope，线程安全，skyline，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
+## 需要添加：ugly number，rope，线程安全，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
 
 ## 整合一下general-algorithms.md
 
@@ -44,6 +44,7 @@
 * 数据结构相关
   * 栈和队列
     * 单调栈
+    * 优先队列
   * 哈希表
   * 字符串
   * 数组与矩阵
@@ -54,9 +55,13 @@
     * 前中后序遍历
     * BST
     * Trie
-  * 复杂数据结构和相关算法
+    * 线段树
+  * 图
     * 二分图
     * 拓扑排序
+    * MST
+    * 节点最短距离
+  * 复杂数据结构和相关算法
     * 并查集
     * LRU
 * 参考资料
@@ -4085,6 +4090,101 @@ vector<int> nextGreaterElements(vector<int>& nums) {
 }
 ```
 
+#### 优先队列
+
+有的题目需要利用priority queue进行操作，其内部实现可以是heap（堆）。
+
+**堆的实现原理**
+
+堆的某个节点的值总是大于等于子节点的值，并且堆是一颗完全二叉树。
+
+堆可以用数组来表示，因为堆是完全二叉树，而完全二叉树很容易就存储在数组中。位置 k 的节点的父节点位置为 k/2，而它的两个子节点的位置分别为 2k 和 2k+1。
+
+在堆中，当一个节点比父节点大，那么需要交换这个两个节点。交换后还可能比它新的父节点大，因此需要不断地进行比较和交换操作，把这种操作称为上浮。
+
+![](../.gitbook/assets/image%20%28769%29.png)
+
+类似地，当一个节点比子节点来得小，也需要不断地向下进行比较和交换操作，把这种操作称为下沉。一个节点如果有两个子节点，应当与两个子节点中最大那么节点进行交换。
+
+![](../.gitbook/assets/image%20%28638%29.png)
+
+```cpp
+vector<int> heap;
+
+void top() {
+    return heap[0];
+}
+
+// 插入时，把新的数字放在最后一位，然后上浮
+void push(int k) {
+    heap.push_back(k);
+    swim(heap.size() - 1);
+}
+
+// 删除时，把最后一个数字挪到开头，然后下沉
+void pop() {
+    heap[0] = heap.back();
+    heap.pop_back();
+    sink(0);
+}
+
+void swim(int pos) {
+    while (pos > 1 && heap[pos/2] < heap[pos])) {
+        swap(heap[pos/2], heap[pos]);
+        pos /= 2;
+    }
+}
+
+void sink(int pos) {
+    while (2 * pos <= N) {
+        int i = 2 * pos;
+        if (i < N && heap[i] < heap[i+1]) ++i;
+        if (heap[pos] >= heap[i]) break;
+        swap(heap[pos], heap[i]);
+        pos = i;
+    }
+}
+```
+
+**The Skyline Problem**
+
+[218. The Skyline Problem \(Hard\)](https://leetcode.com/problems/the-skyline-problem/)
+
+给定建筑物的起止位置和高度，返回建筑物轮廓的拐点。
+
+![](../.gitbook/assets3/skyline.png)
+
+```
+Input: [[2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8]]
+Output: [[2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0]] (Figure B)
+```
+
+方法是建立以pair<height, right>为key的priority queue，注意该数据结构会默认调用pair的大小比较函数，即只比较第一个值height的大小。
+
+```cpp
+vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
+    vector<vector<int>> ans;
+    priority_queue<pair<int, int>> max_heap;  // <height, right>
+    int i = 0, len = buildings.size();
+    int cur_x, cur_h;
+    while (i < len || !max_heap.empty()) {			
+        if (max_heap.empty() || i < len && buildings[i][0] <= max_heap.top().second) {
+            cur_x = buildings[i][0];
+            while (i < len && cur_x == buildings[i][0]) {
+                max_heap.emplace(buildings[i][2], buildings[i][1]);
+                ++i;
+            }
+        } else {
+            cur_x = max_heap.top().second;
+            while (!max_heap.empty() && cur_x >= max_heap.top().second) max_heap.pop();				
+        }
+        cur_h = (max_heap.empty()) ? 0 : max_heap.top().first;
+        if (ans.empty() || cur_h != ans.back()[1]) ans.push_back({cur_x, cur_h});
+    }
+    return ans;
+}
+```
+
 ### 哈希表
 
 哈希表使用 O\(N\) 空间复杂度存储数据，从而能够以 O\(1\) 时间复杂度求解问题。
@@ -4406,6 +4506,95 @@ return "student a am I"
 ```
 
 将每个单词逆序，然后将整个字符串逆序。
+
+**计算器问题**
+
+[227. Basic Calculator II \(Medium\)](https://leetcode.com/problems/basic-calculator-ii/)
+
+```
+Input: "3+2*2"
+Output: 7
+
+Input: " 3+5 / 2 "
+Output: 5
+```
+
+在字符串前面加上加号，则可以把整个字符串分解成多个（op，数字）的pair。
+
+```cpp
+int calculate(string s) {
+    int i = 0;
+    return parseExpr(s, i);
+}
+
+int parseExpr(const string& s, int& i) {
+    char op = '+';
+    long base = 0, temp = 0;
+    while (i < s.length()) {
+        if (s[i] != ' ') {
+            long n = parseNum(s, i);
+            switch (op) {
+                case '+' : base += temp; temp = n; break;
+                case '-' : base += temp; temp = -n; break;
+                case '*' : temp *= n; break;
+                case '/' : temp /= n; break;
+            }            
+            if (i < s.length()) op = s[i];
+        }
+        ++i;
+    }
+    return base + temp;
+}
+
+long parseNum(const string& s, int& i) {
+    long n = 0;
+    while (i < s.length() && isdigit(s[i])) n = 10 * n + (s[i++] - '0');
+    return n;
+}
+```
+
+[772. Basic Calculator III \(Hard\)](https://leetcode.com/problems/basic-calculator-iii/)
+
+```
+"1 + 1" = 2
+" 6-4 / 2 " = 4
+"2*(5+5*2)/3+(6/2+8)" = 21
+"(2+6* 3+5- (3*14/7+2)*5)+3"=-12
+```
+
+相比上一题，加上了括号，这就需要利用stack或者递归来求解。
+
+```cpp
+int calculate(string s) {
+    int i = 0;
+    return parseExpr(s, i);
+}
+
+int parseExpr(const string& s, int& i) {
+    char op = '+';
+    long base = 0, temp = 0;
+    while (i < s.length() && op != ')') {  // difference here
+        if (s[i] != ' ') {
+            long n = s[i] == '(' ? parseExpr(s, ++i) : parseNum(s, i);  // difference here
+            switch (op) {
+                case '+' : base += temp; temp = n; break;
+                case '-' : base += temp; temp = -n; break;
+                case '*' : temp *= n; break;
+                case '/' : temp /= n; break;
+            }            
+            if (i < s.length()) op = s[i];
+        }
+        ++i;
+    }
+    return base + temp;
+}
+
+long parseNum(const string& s, int& i) {
+    long n = 0;
+    while (i < s.length() && isdigit(s[i])) n = 10 * n + (s[i++] - '0');
+    return n;
+}
+```
 
 ### 数组与矩阵
 
@@ -5920,7 +6109,89 @@ private:
 };
 ```
 
-### 复杂数据结构和相关算法
+#### 线段树
+
+[307. Range Sum Query - Mutable \(Medium\)](https://leetcode.com/problems/range-sum-query-mutable/)
+
+```
+Given nums = [1, 3, 5]
+sumRange(0, 2) -> 9
+update(1, 2)
+sumRange(0, 2) -> 8
+```
+
+线段树，O(logn)的更新和查询速度，支持修改任意位置的值。
+
+```c++
+struct SegmentTreeNode {
+    int start, end, sum;
+    SegmentTreeNode* left;
+    SegmentTreeNode* right;
+    SegmentTreeNode(int a, int b): start(a), end(b), sum(0), left(NULL), right(NULL) {}
+};
+
+
+class NumArray {
+    SegmentTreeNode* root;
+public:
+    NumArray(vector<int> nums) {
+        root = buildTree(nums, 0, nums.size() - 1);
+    }
+
+
+    void update(int i, int val) {
+        modifyTree(i, val, root);
+    }
+
+
+    int sumRange(int i, int j) {
+        return queryTree(i, j, root);
+    }
+
+
+    SegmentTreeNode* buildTree(vector<int> &nums, int start, int end) {
+        if (start > end) return NULL;
+        SegmentTreeNode* root = new SegmentTreeNode(start, end);
+        if (start == end) {
+            root->sum = nums[start];
+            return root;
+        }
+        int mid = start + (end - start) / 2;
+        root->left = buildTree(nums, start, mid);
+        root->right = buildTree(nums, mid+1, end);
+        root->sum = root->left->sum + root->right->sum;
+        return root;
+    }
+
+
+    int modifyTree(int i, int val, SegmentTreeNode* root) {
+        if (!root) return 0;
+        int diff;
+        if (root->start == i && root->end == i) {
+            diff = val - root->sum;
+            root->sum = val;
+            return diff;
+        }
+        int mid = (root->start + root->end) / 2;
+        if (i > mid) diff = modifyTree(i, val, root->right);
+        else diff = modifyTree(i, val, root->left);
+        root->sum = root->sum + diff;
+        return diff;
+    }
+
+
+    int queryTree(int i, int j, SegmentTreeNode* root) {
+        if (!root) return 0;
+        if (root->start == i && root->end == j) return root->sum;
+        int mid = (root->start + root->end) / 2;
+        if (i > mid) return queryTree(i, j, root->right);
+        if (j <= mid) return queryTree(i, j, root->left);
+        return queryTree(i, mid, root->left) + queryTree(mid + 1, j, root->right);
+    }
+};
+```
+
+### 图
 
 #### 二分图
 
@@ -6057,6 +6328,167 @@ vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
 }
 ```
 
+#### MST
+
+最小生成树（MST），指的是一个连接图内所有点的树，且这种连接是所有可能连接里消耗最小的方式。
+
+[1135. Connecting Cities With Minimum Cost \(Medium\)](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
+
+给定N个城市，和一些（城市A，城市B，消耗值）的连接，求出能让所有城市相连的最小总消耗值。
+
+```
+Input: N = 3, connections = [[1,2,5],[1,3,6],[2,3,1]]
+Output: 6
+Explanation: 
+Choosing any 2 edges will connect all cities so we choose the minimum 2.
+```
+
+Kruskal's Algorithm：排序后使用并查集
+
+```cpp
+vector<int> parent;
+int find(int i) {
+    return parent[i] == i? i: parent[i] = find(parent[i]);
+}
+int minimumCost(int N, vector<vector<int>>& connections) {
+    parent.resize(N);
+    iota(parent.begin(), parent.end(), 0);
+    int costs = 0, count = 1;
+    sort(connections.begin(), connections.end(), [](auto & conn1, auto & conn2) {return conn1[2] < conn2[2];});
+    for (auto& conn : connections) {
+        int ri = find(conn[0]-1), rj = find(conn[1]-1);
+        if (parent[ri] != rj && parent[rj] != ri) {
+            costs += conn[2];
+            parent[ri] = rj;
+            if (++count == N) return costs;
+        }
+    }
+    return -1;
+}
+```
+
+Prim's Algorithm: 利用priority queue进行BFS
+
+```cpp
+// pair denotes <city2, cost>
+struct comp{
+    bool operator()(const pair<int, int>& a, const pair<int, int>& b) {
+        return a.first > b.first;
+    }
+};
+int minimumCost(int N, vector<vector<int>>& connections) {
+    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>());  
+    priority_queue<pair<int, int>, vector<pair<int, int>>, comp> pq;  // (最短距离，节点编号)
+    // 等价的，也可以直接priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    unordered_set<int> visited;
+    int costs = 0;
+    for (const auto& conn : connections) {
+        graph[conn[0]-1].push_back(make_pair(conn[2], conn[1]-1));
+        graph[conn[1]-1].push_back(make_pair(conn[2], conn[0]-1));
+    }
+    pq.push(make_pair(0, 0));
+    while (!pq.empty()) {
+        auto [cost, city2] = pq.top(); pq.pop();
+        if (!visited.count(city2)) {
+            costs += cost;
+            visited.insert(city2);
+            for (const auto & v: graph[city2]) pq.push(v);
+        }
+    }
+    return visited.size() == N ? costs : -1;
+}
+```
+
+#### 节点最短距离
+
+**连接图内两节点所需要的最小消耗**
+
+Bellman-Ford 单源最短路
+
+该算法求start到所有点的最短距离，时间复杂度是O(NE)，N代表节点数，E代表边数；该算法允许负边。
+
+该算法运行N-1次即可，如果运行第N次仍然进行了修改，则说明有环路。
+
+```cpp
+struct edge {
+  int from, to, cost;
+  edge(const int& f, const int& t, const int& c): from(f), to(t), cost(c) {}
+};
+void bellmanFord(int start, int N, vector<vector<int>>& connections) {
+    vector<edge> edges;  // 边
+    for (const auto& conn : connections) {
+        edges.emplace_back(conn[0], conn[1], conn[2]);
+        // es.emplace_back(conn[1], conn[0], conn[2]);  // 如果是无向图，加上反向边
+    }
+    vector<int> d(N, INT_MAX);  // 最短距离
+    d[start] = 0;
+    while (true) {
+        bool update = false;
+        for (const edge& e: edges) {
+            if (d[e.from] != INT_MAX && d[e.to] > d[e.from] + e.cost) {
+                d[e.to] = d[e.from] + e.cost;
+                update = true;
+            }
+        }
+        if (!update) break; // 如果while运行了N-1次或更少，则说明无环，反之有环
+    }
+}
+```
+
+Dijkstra 无负边单源最短路
+
+求start到所有点（或给定点）的最短距离，时间复杂度是O((N+E)logE)。原理和写法十分类似Prim's Algorithm，不同点是，不用visited去重，而是再次比较距离，保留更短的那个。
+
+```cpp
+void dijkstra(int start, int N, vector<vector<int>>& connections) {
+    vector<vector<pair<int, int>>> graph(N, vector<pair<int, int>>());  
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq; // (最短距离，节点编号)
+    for (const auto& conn : connections) {
+        graph[conn[0]].push_back(make_pair(conn[2], conn[1]));
+        // graph[conn[1]].push_back(make_pair(conn[2], conn[0]));   // 如果是无向图，加上反向边
+    }
+    vector<int> d(N, INT_MAX);  // 最短距离
+    d[start] = 0;
+    pq.push(make_pair(0, start));
+    while (!pq.empty()) {
+        auto [old_cost, from] = pq.top(); pq.pop();
+        if (d[from] < old_cost) continue;
+        for (const auto & v: graph[from]) {
+            auto [cost, to] = v;
+            if (d[to] > d[from] + cost) {
+                d[to] = d[from] + cost;
+                pq.push(make_pair(d[to], to));
+            }
+        }
+    }
+}
+```
+
+Floyd-Warshall 任意两点间最短距离
+
+利用dp求所有点到所有点的最短距离，时间复杂度是O(N^3)
+
+```cpp
+void floydWarshall(int N, vector<vector<int>>& connections){
+    vector<edge> edges;  // 边
+    for (const auto& conn : connections) {
+        edges.emplace_back(conn[0], conn[1], conn[2]);
+        // es.emplace_back(conn[1], conn[0], conn[2]);  // 如果是无向图，加上反向边
+    }
+    vector<vector<int>> d(N, vector<int>(N, INT_MAX));  // 两节点间最短距离
+    for (int i = 0; i < N; ++i) d[i][i] = 0;
+    for (int k = 0; k < N; ++k) {
+       for (int i = 0; i < N; ++i){
+           for (int j = 0; j < N; ++j) {
+               d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+           }
+       }
+    }
+}
+```
+
+### 复杂数据结构和相关算法
+
 #### 并查集
 
 并查集可以动态地连通两个点，并且可以非常快速地判断两个点是否连通。
@@ -6129,6 +6561,8 @@ public:
 
 #### LRU
 
+[146. LRU Cache \(Medium\)](https://leetcode.com/problems/lru-cache/)
+
 设计一个固定大小的，least recently used cache
 
 ```
@@ -6176,6 +6610,111 @@ private:
     unordered_map<int, list<pair<int, int>>::iterator> hash;  
     list<pair<int, int>> cache;  
     int size;  
+};
+```
+
+**其他变种题型**
+
+[432. All O`one Data Structure \(Hard\)](https://leetcode.com/problems/all-oone-data-structure/)
+
+要求increase key，decrease key，getMaxKey，getMinKey均为O(1)时间复杂度。
+
+```cpp
+class AllOne {
+public:
+    void inc(string key) {
+        
+        // If the key doesn't exist, insert it with value 0.
+        if (!bucketOfKey.count(key)) bucketOfKey[key] = buckets.insert(buckets.begin(), {0, {key}});
+            
+        // Insert the key in next bucket and update the lookup.
+        auto next = bucketOfKey[key], bucket = next++;
+        if (next == buckets.end() || next->value > bucket->value + 1) next = buckets.insert(next, {bucket->value + 1, {}});
+        next->keys.insert(key);
+        bucketOfKey[key] = next;
+        
+        // Remove the key from its old bucket.
+        bucket->keys.erase(key);
+        if (bucket->keys.empty()) buckets.erase(bucket);
+    }
+
+    void dec(string key) {
+
+        // If the key doesn't exist, just leave.
+        if (!bucketOfKey.count(key)) return;
+
+        // Maybe insert the key in previous bucket and update the lookup.
+        auto prev = bucketOfKey[key], bucket = prev--;
+        bucketOfKey.erase(key);
+        if (bucket->value > 1) {
+            if (bucket == buckets.begin() || prev->value < bucket->value - 1) prev = buckets.insert(bucket, {bucket->value - 1, {}});
+            prev->keys.insert(key);
+            bucketOfKey[key] = prev;
+        }
+        
+        // Remove the key from its old bucket.
+        bucket->keys.erase(key);
+        if (bucket->keys.empty()) buckets.erase(bucket);
+    }
+
+    string getMaxKey() {
+        return buckets.empty() ? "" : *(buckets.rbegin()->keys.begin());
+    }
+    
+    string getMinKey() {
+        return buckets.empty() ? "" : *(buckets.begin()->keys.begin());
+    }
+
+private:
+    struct Bucket { int value; unordered_set<string> keys; };
+    list<Bucket> buckets;
+    unordered_map<string, list<Bucket>::iterator> bucketOfKey;
+};
+```
+
+[716. Max Stack \(Easy\)](https://leetcode.com/problems/max-stack/)
+
+设计一个支持push，pop，top，getMax和popMax的stack。可以用两个栈实现，但是也可以用类似LRU的方法降低时间复杂度；只不过要把hashmap换成treemap，进行O(logn)时间的操作
+
+```cpp
+class MaxStack {
+public:
+    MaxStack() {
+        hash.clear();
+        stack.clear();
+    }
+    
+    void push(int x) {
+        stack.push_front(x);
+        hash[x].push_back(stack.begin());
+    }
+    
+    int pop() {
+        int x = stack.front();
+        hash[x].pop_back();
+        if (hash[x].empty()) hash.erase(x);
+        stack.pop_front();
+        return x;
+    }
+    
+    int top() {
+        return stack.front();
+    }
+    
+    int peekMax() {
+        return hash.rbegin()->first;
+    }
+    
+    int popMax() {
+        int x = hash.rbegin()->first;
+        stack.erase(hash[x].back());
+        hash[x].pop_back();
+        if (hash[x].empty()) hash.erase(x);
+        return x;
+    }
+private:
+    map<int, vector<list<int>::iterator>> hash;
+    list<int> stack;
 };
 ```
 
