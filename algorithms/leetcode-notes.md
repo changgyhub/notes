@@ -1,4 +1,4 @@
-# LeetCode Strategies
+# LeetCode Notes
 
 面试时，如果想不到好的思路，先考虑给出一个brute force solution（也有很多题其实也只有brute force）
 
