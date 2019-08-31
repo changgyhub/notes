@@ -27,6 +27,7 @@
     * 股票交易
     * 字符串编辑
   * 分治
+  * 递归
   * 数学
     * 素数
     * 最大公约数
@@ -3271,6 +3272,38 @@ vector<int> diffWaysToCompute(string input) {
         }
      }
    return dp[0][size_i-1];
+}
+```
+
+### 递归
+
+有些问题可以使用纯递归来解决。
+
+**汉诺塔**
+
+这是一个经典的递归问题，分为三步求解：
+
+1. 将 n-1 个圆盘从 from -&gt; buffer
+2. 将 1 个圆盘从 from -&gt; to
+3. 将 n-1 个圆盘从 buffer -&gt; to
+
+如果只有一个圆盘，那么只需要进行一次移动操作。
+
+从上面的讨论可以知道，n 圆盘需要移动 \(n-1\) + 1 + \(n-1\) = 2n-1 次。
+
+```java
+void move(int n, string from, string buffer, string to) {
+    if (n == 1) {
+        cout << "from " << from << " to " << to << endl;
+        return;
+    }
+    move(n - 1, from, to, buffer);
+    move(1, from, buffer, to);
+    move(n - 1, buffer, from, to);
+}
+
+void hanoi(int n) {
+    move(n, "H1", "H2", "H3");
 }
 ```
 
