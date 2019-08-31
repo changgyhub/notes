@@ -253,3 +253,30 @@ vector<int> asteroidCollision(vector<int>& a) {
     return st;
 }
 ```
+
+### 744. Find Smallest Letter Greater Than Target
+
+Given a list of sorted characters `letters` containing only lowercase letters, and given a target letter `target`, find the smallest element in the list that is larger than the given target.
+
+Letters also wrap around. For example, if the target is `target = 'z'` and `letters = ['a', 'b']`, the answer is `'a'`.
+
+Example:
+
+```
+Input: letters = ["c", "f", "j"], target = "k"
+Output: "c"
+```
+
+Solution: 二分法
+
+```cpp
+char nextGreatestLetter(vector<char>& letters, char target) {
+    int l = 0, r = letters.size();
+    while (l < r) {
+        int m = l + (r - l) / 2;
+        if (letters[m] < target + 1) l = m + 1;
+        else r = m;
+    }
+    return l < letters.size() ? letters[l] : letters[0];
+}
+```

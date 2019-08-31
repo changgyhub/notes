@@ -36,6 +36,39 @@ string frequencySort(string s) {
 }
 ```
 
+### 452. Minimum Number of Arrows to Burst Balloons
+
+There are a number of spherical balloons spread in two-dimensional space. For each balloon, provided input is the start and end coordinates of the horizontal diameter. Since it's horizontal, y-coordinates don't matter and hence the x-coordinates of start and end of the diameter suffice. Start is always smaller than end. There will be at most 104 balloons.
+
+An arrow can be shot up exactly vertically from different points along the x-axis. A balloon with xstart and xend bursts by an arrow shot at x if xstart ≤ x ≤ xend. There is no limit to the number of arrows that can be shot. An arrow once shot keeps travelling up infinitely. The problem is to find the minimum number of arrows that must be shot to burst all balloons.
+
+Example:
+
+```
+Input: [[10,16], [2,8], [1,6], [7,12]]
+
+Output: 2 (One way is to shoot one arrow for example at x = 6 (bursting the balloons [2,8] and [1,6]) and another arrow at x = 11 (bursting the other two balloons))
+```
+
+Solution: 按照end由小到大排序，然后贪心遍历
+
+```cpp
+int findMinArrowShots(vector<vector<int>>& points) {
+    if (points.empty()) return 0;
+    int n = points.size();
+    sort(points.begin(), points.end(), [](vector<int> a, vector<int> b) {
+        return a[1] < b[1];
+    });
+    int total = 1, prev = points[0][1];
+    for (int i = 1; i < n; ++i) {
+        if (points[i][0] <= prev) continue;
+        ++total;
+        prev = points[i][1];
+    }
+    return total;
+}
+```
+
 ### 453. Minimum Moves to Equal Array Elements
 
 Given a **non-empty** integer array of size n, find the minimum number of moves required to make all array elements equal, where a move is incrementing n - 1 elements by 1.
@@ -83,6 +116,32 @@ int fourSumCount(vector<int>& A, vector<int>& B, vector<int>& C, vector<int>& D)
     int count = 0;
     for (auto c : C) for (auto d : D) count += abSum[0-c-d];
     return count;
+}
+```
+
+### 455. Assign Cookies
+
+Assume you are an awesome parent and want to give your children some cookies. But, you should give each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that the child will be content with; and each cookie j has a size sj. If sj >= gi, we can assign the cookie j to the child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.
+
+Example:
+
+```
+Input: [1,2], [1,2,3]
+Output: 2
+```
+
+Solution: 贪心
+
+```cpp
+int findContentChildren(vector<int>& g, vector<int>& s) {
+    sort(g.begin(), g.end());
+    sort(s.begin(), s.end());
+    int gi = 0, si = 0;
+    while (gi < g.size() && si < s.size()) {
+        if (g[gi] <= s[si]) ++gi;
+        ++si;
+    }
+    return gi;
 }
 ```
 

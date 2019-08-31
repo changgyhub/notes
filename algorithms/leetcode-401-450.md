@@ -296,6 +296,70 @@ bool dfs(vector<int> &nums, int target, int start, vector<int> &dp){
 }
 ```
 
+### 417. Pacific Atlantic Water Flow
+
+Given an `m x n` matrix of non-negative integers representing the height of each unit cell in a continent, the "Pacific ocean" touches the left and top edges of the matrix and the "Atlantic ocean" touches the right and bottom edges.
+
+Water can only flow in four directions (up, down, left, or right) from a cell to another one with height equal or lower.
+
+Find the list of grid coordinates where water can flow to both the Pacific and Atlantic ocean.
+
+Example:
+
+```
+Given the following 5x5 matrix:
+
+  Pacific ~   ~   ~   ~   ~ 
+       ~  1   2   2   3  (5) *
+       ~  3   2   3  (4) (4) *
+       ~  2   4  (5)  3   1  *
+       ~ (6) (7)  1   4   5  *
+       ~ (5)  1   1   2   4  *
+          *   *   *   *   * Atlantic
+
+Return: [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] (positions with parentheses in above matrix)
+```
+
+Solution: 从边缘往里DFS，再看有哪些点能从两个大洋都搜索到
+
+```cpp
+vector<int> dr{-1, 1, 0, 0};
+vector<int> dc{0, 0, 1, -1};
+vector<vector<int>> pacificAtlantic(vector<vector<int>>& matrix) {
+    if (matrix.empty() || matrix[0].empty()) return {};
+    vector<vector<int>> res;
+    int m = matrix.size(), n = matrix[0].size();
+    vector<vector<bool>> can_reach_p(m, vector<bool>(n, false));
+    vector<vector<bool>> can_reach_a(m, vector<bool>(n, false));
+    for (int i = 0; i < m; ++i) {
+        dfs(matrix, can_reach_p, i, 0);
+        dfs(matrix, can_reach_a, i, n - 1);
+    }
+    for (int i = 0; i < n; ++i) {
+        dfs(matrix, can_reach_p, 0, i);
+        dfs(matrix, can_reach_a, m - 1, i);
+    }
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; ++j) {
+            if (can_reach_p[i][j] && can_reach_a[i][j]) {
+                res.push_back(vector<int>{i, j});
+            }
+        }
+    }
+    return res;
+}
+
+void dfs(const vector<vector<int>>& matrix, vector<vector<bool>>& can_reach, int r, int c) {
+    if (can_reach[r][c]) return;
+    can_reach[r][c] = true;
+    for (int i = 0; i < 4; ++i) {
+        int next_r = r + dr[i], next_c = c + dc[i];
+        if (next_r < 0 || next_r >= matrix.size() || next_c < 0 || next_c >= matrix[0].size() || matrix[r][c] > matrix[next_r][next_c]) continue;
+        dfs(matrix, can_reach, next_r, next_c);
+    }
+}
+```
+
 ### 418. Sentence Screen Fitting
 
 Given a `rows x cols` screen and a sentence represented by a list of **non-empty** words, find **how many times** the given sentence can be fitted on the screen.

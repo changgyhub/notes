@@ -27,6 +27,38 @@ string crackSafe(int n, int k) {
 }
 ```
 
+### 763. Partition Labels
+
+A string `S` of lowercase letters is given. We want to partition this string into as many parts as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
+
+Example:
+
+```
+Input: S = "ababcbacadefegdehijhklij"
+Output: [9,7,8] ("ababcbaca", "defegde", "hijhklij")
+```
+
+Solution: 先统计一遍每个字符最后出现的位置，然后遍历一遍即可
+
+```cpp
+vector<int> partitionLabels(string S) {
+    vector<int> last_char_index(26);
+    for (int i = 0; i < S.length(); i++) last_char_index[S[i] - 'a'] = i;
+    vector<int> partitions;
+    int first_index = 0, last_index;
+    while (first_index < S.length()) {
+        int last_index = first_index;
+        for (int i = first_index; i < S.length() && i <= last_index; ++i) {
+            int index = last_char_index[S[i] - 'a'];
+            if (index > last_index) last_index = index;
+        }
+        partitions.push_back(last_index - first_index + 1);
+        first_index = last_index + 1;
+    }
+    return partitions;
+}
+```
+
 ### 767. Reorganize String
 
 Given a string `S`, check if the letters can be rearranged so that two characters that are adjacent to each other are not the same. If possible, output any possible result.  If not possible, return the empty string.

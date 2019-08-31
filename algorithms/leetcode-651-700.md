@@ -25,6 +25,34 @@ vector<int> findClosestElements(vector<int>& arr, int k, int x) {
 }
 ```
 
+### 665. Non-decreasing Array
+
+Given an array with `n` integers, your task is to check if it could become non-decreasing by modifying **at most** `1` element.
+
+We define an array is non-decreasing if `array[i] <= array[i + 1]` holds for every `i` (1 <= i < n).
+
+Example:
+
+```
+Input: [4,2,3]
+Output: True (You could modify the first 4 to 1 to get a non-decreasing array)
+```
+
+Solution: 在出现 nums[i] < nums[i - 1] 时，需要考虑的是应该修改数组的哪个数，使得本次修改能使 i 之前的数组成为非递减数组，并且不影响后续的操作。优先考虑令 nums[i - 1] = nums[i]，因为如果修改 nums[i] = nums[i - 1] 的话，那么 nums[i] 这个数会变大，就有可能比 nums[i + 1] 大，从而影响了后续操作。还有一个比较特别的情况就是 nums[i] < nums[i - 2]，只修改 nums[i - 1] = nums[i] 不能使数组成为非递减数组，只能修改 nums[i] = nums[i - 1]
+
+```cpp
+bool checkPossibility(vector<int>& nums) {
+    int cnt = 0;
+    for (int i = 1; i < nums.size() && cnt < 2; ++i) {
+        if (nums[i] >= nums[i-1]) continue;
+        ++cnt;
+        if (i - 2 >= 0 && nums[i-2] > nums[i]) nums[i] = nums[i-1];
+        else nums[i-1] = nums[i];
+    }
+    return cnt <= 1;
+}
+```
+
 ### 674. Longest Continuous Increasing Subsequence
 
 Given an unsorted array of integers, find the length of longest `continuous` increasing subsequence (subarray).
@@ -51,6 +79,31 @@ int findLengthOfLCIS(vector<int>& nums) {
         prev = nums[i++];
     }
     return max(ret, i - start);
+}
+```
+
+### 680. Valid Palindrome II
+
+Given a non-empty string `s`, you may delete **at most** one character. Judge whether you can make it a palindrome.
+
+Example:
+
+```
+Input: "abca"
+Output: True (You could delete the character 'c'.)
+```
+
+Solution: 先找到出现mismatch的位置，然后尝试删掉其中一个字符
+
+```cpp
+bool validPalindrome(string s) {
+    int i = -1, j = s.length();
+    while (++i < --j) if (s[i] != s[j]) return isValid(s, i, j - 1) || isValid(s, i + 1, j);
+    return true;
+}
+bool isValid(string s, int i, int j) {
+    while (i < j) if (s[i++] != s[j--]) return false;
+    return true;
 }
 ```
 
@@ -239,5 +292,47 @@ vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
         }
     }
     return ans;
+}
+```
+
+### 695. Max Area of Island
+
+Given a non-empty 2D array `grid` of 0's and 1's, an **island** is a group of `1`'s (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
+
+Example:
+
+```
+Input:
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+ Output: 6
+```
+
+Solution: dfs
+
+```cpp
+int maxAreaOfIsland(vector<vector<int>>& grid) {
+    if (grid.empty() || grid[0].empty()) return 0;
+    int max_area = 0;
+    for (int i = 0; i < grid.size(); ++i) {
+        for (int j = 0; j < grid[0].size(); ++j) {
+            max_area = max(max_area, dfs(grid, i, j));
+        }
+    }
+    return max_area;
+}
+
+int dfs(vector<vector<int>>& grid, int r, int c) {
+    if (r < 0 || r >= grid.size() || c < 0 || c >= grid[0].size() || grid[r][c] == 0) return 0;
+    grid[r][c] = 0;
+    return 1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) + dfs(grid, r, c + 1) + dfs(grid, r, c - 1);
 }
 ```

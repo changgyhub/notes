@@ -1,5 +1,36 @@
 # LeetCode 601 - 650
 
+### 605. Can Place Flowers
+
+Suppose you have a long flowerbed in which some of the plots are planted and some are not. However, flowers cannot be planted in adjacent plots - they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means empty and 1 means not empty), and a number **n**, return if **n** new flowers can be planted in it without violating the no-adjacent-flowers rule.
+
+Example:
+
+```
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+```
+
+Solution: 遍历一遍即可
+
+```cpp
+bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+    int len = flowerbed.size(), cnt = 0;
+    for (int i = 0; i < len && cnt < n; ++i) {
+        if (flowerbed[i] == 1) continue;
+        int pre = i == 0 ? 0 : flowerbed[i-1];
+        int next = i == len - 1 ? 0 : flowerbed[i+1];
+        if (pre == 0 && next == 0) {
+            ++cnt;
+            flowerbed[i] = 1;
+        }
+    }
+    return cnt >= n;
+}
+```
+
 ### 617. Merge Two Binary Trees
 
 Given two binary trees and imagine that when you put one of them to cover the other, some nodes of the two trees are overlapped while the others are not. You need to merge them into a new binary tree. The merge rule is that if two nodes overlap, then sum node values up as the new value of the merged node. Otherwise, the NOT null node will be used as the node of new tree.
@@ -63,6 +94,32 @@ int leastInterval(vector<char>& tasks, int n) {
 }
 ```
 
+### 633. Sum of Square Numbers
+
+Given a non-negative integer `c`, your task is to decide whether there're two integers `a` and `b` such that a^2 + b^2 = c.
+
+Example:
+
+```
+Input: 5
+Output: True (1 * 1 + 2 * 2 = 5)
+```
+
+Solution: 双指针
+
+```cpp
+bool judgeSquareSum(int c) {
+    long long i = 0, j = sqrt(c);
+    while (i <= j) {
+        long long powSum = i * i + j * j;
+        if (powSum == c) return true;
+        else if (powSum > c) --j;
+        else ++i;
+    }
+    return false;
+}
+```
+
 ### 638. Shopping Offers
 
 In LeetCode Store, there are some kinds of items to sell. Each item has a price. However, there are some special offers, and a special offer consists of one or more different kinds of items with a sale price.
@@ -122,6 +179,53 @@ int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>
 
     map[key] = m;
     return m;
+}
+```
+
+### 646. Maximum Length of Pair Chain
+
+You are given `n` pairs of numbers. In every pair, the first number is always smaller than the second number.
+
+Now, we define a pair `(c, d)` can follow another pair `(a, b)` if and only if `b < c`. Chain of pairs can be formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given pairs. You can select pairs in any order.
+
+Example:
+
+```
+Input: [[1,2], [2,3], [3,4]]
+Output: 2 (The longest chain is [1,2] -> [3,4])
+```
+
+Solution: 最长递增子序列的变种，可以O(n^2) dp也可以O(nlogn) dp + 二分
+
+```cpp
+// dp + binary search
+int findLongestChain(vector<vector<int>>& pairs) {
+    vector<int> res;
+    sort(pairs.begin(), pairs.end());
+    for(int i = 0; i < pairs.size(); ++i) {
+        auto it = lower_bound(res.begin(), res.end(), pairs[i][0]);
+        if (it == res.end()) res.push_back(pairs[i][1]);
+        else if (*it > pairs[i][1]) *it = pairs[i][1];
+    }
+    return res.size();
+}
+
+// normal dp
+int findLongestChain(vector<vector<int>>& pairs) {
+    int n = pairs.size();
+    if (n <= 1) return n;
+    vector<int> count(n, 1);
+    sort(pairs.begin(), pairs.end());
+    for (int i = 1; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            if (pairs[j][1] < pairs[i][0] && count[i] < count[j] + 1) {
+                count[i] = count[j] + 1;
+            }
+        }
+    }
+    return *max_element(count.begin(), count.end());
 }
 ```
 
