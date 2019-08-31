@@ -212,9 +212,12 @@ Input: [1,2,3,0,2]
 Output: 3 (buy, sell, cooldown, buy, sell)
 ```
 
-Solution: 基于两个表达式来做, buy[i] = max(buy[i-1], sell[i-2] - cur_price), sell[i] = max(sell[i-1], buy[i-1] + cur_price)，可以优化成1D，一定要背
+Solution: 基于两个表达式来做, buy[i] = max(buy[i-1], sell[i-2] - cur_price), sell[i] = max(sell[i-1], buy[i-1] + cur_price)，可以优化成0D；也可以用状态机来实现
+
+![](../.gitbook/assets/image%20%28689%29.png)
 
 ```c++
+// 0D dp
 int maxProfit(vector<int>& prices) {
     if (prices.empty()) return 0;
     int pre_sell = 0, cur_sell = 0, pre_buy =0;
@@ -226,6 +229,22 @@ int maxProfit(vector<int>& prices) {
         cur_sell = max(pre_sell, pre_buy + cur_price);
     }
     return cur_sell;
+}
+
+// state machine
+int maxProfit(vector<int>& prices) {
+    int n = prices.size();
+    if (n == 0) return 0;
+    vector<int> buy(n), sell(n), s1(n), s2(n);
+    s1[0] = buy[0] = -prices[0];
+    sell[0] = s2[0] = 0;
+    for (int i = 1; i < n; i++) {
+        buy[i] = s2[i-1] - prices[i];
+        s1[i] = max(buy[i-1], s1[i-1]);
+        sell[i] = max(buy[i-1], s1[i-1]) + prices[i];
+        s2[i] = max(s2[i-1], sell[i-1]);
+    }
+    return max(sell[n-1], s2[n-1]);
 }
 ```
 
