@@ -5808,13 +5808,13 @@ int sumZeroArray(vector<int> nums) {
 
 int sumZeroMatrix(vector<vector<int>> matrix) { 
     int row = matrix.size(), col = matrix[0].size();
-    vector<int> array(row);
+    vector<int> nums(row);
     int max_size = 0;
     for (int left = 0; left < col; ++left) { 
-        fill(array.begin(), array.end(), 0);
+        fill(nums.begin(), nums.end(), 0);
         for (int right = left; right < col; ++right) { 
-            for (int i = 0; i < row; i++) array[i] += matrix[i][right];
-            max_size = max(max_size, sumZeroArray(array) * (right - left + 1)); 
+            for (int i = 0; i < row; ++i) nums[i] += matrix[i][right];
+            max_size = max(max_size, sumZeroArray(nums) * (right - left + 1)); 
         }
     }
     return max_size;
