@@ -1,9 +1,5 @@
 # Algorithms and Datastructures
 
-## 需要添加：ugly number，rope，线程安全，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
-
-## 整合一下general-algorithms.md
-
 以Leetcode为主要例题来源，以C++作为编程语言，对常见的算法、数据结构、以及一些计算机原理进行汇总。
 
 * 算法思想
@@ -6717,6 +6713,10 @@ private:
     list<int> stack;
 };
 ```
+
+## 需要添加：ugly number，rope，线程安全，multiset/map，前缀和，积分图，双指针的滑动窗口题，随机数，LC 3、4、5、23、28、33、10、380、269、149、202、340、48、384、395、324
+
+## 整合一下general-algorithms.md
 
 ## 参考资料
 
