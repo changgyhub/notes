@@ -3328,6 +3328,8 @@ x 和 y 的最小公倍数为：lcm\(x,y\) = 2max\(m0,n0\) \* 3max\(m1,n1\) \* 5
 
 [204. Count Primes \(Easy\)](https://leetcode.com/problems/count-primes/)
 
+题目要求：统计**小于**n的素数的和。
+
 埃拉托斯特尼筛法在每次找到一个素数时，将能被素数整除的数排除掉。
 
 ```cpp
