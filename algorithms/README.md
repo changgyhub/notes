@@ -1,8 +1,10 @@
-# Algorithms and Data Structures
+# Computer Science Basics (C++)
 
 以Leetcode为主要例题来源，以C++作为编程语言，对常见的算法、数据结构、以及一些计算机原理进行汇总。
 
-本汇总仅供学习参考，其中部分内容源自网络，禁止未经许可的传播或改编。
+本汇总仅供学习参考，其中部分内容源自网络（见[参考资料](#参考资料)），禁止未经许可的传播或改编。
+
+**TODO: 加入[C/C++ 技术面试基础知识总结](https://github.com/huihut/interview)内的内容**
 
 * [算法](#算法)
   * [贪心](#贪心)
@@ -8050,3 +8052,4 @@ public:
 
 * [Leetcode](https://leetcode.com/)
 * [Leetcode 题解](https://github.com/CyC2018/Interview-Notebook)
+* [C/C++ 技术面试基础知识总结](https://github.com/huihut/interview)
