@@ -843,13 +843,13 @@ TreeNode* deleteNode(TreeNode* root, int val) {
             delete(root);
             return NULL;
         }
-        /* 1 child case */
+        // 1 child case
         if (!root->left || !root->right) {
             TreeNode *ret = root->left ? root->left : root->right;
             delete(root);
             return ret;
         }
-        /* 2 child case */
+        // 2 child case
         if (root->left && root->right) {
             TreeNode *tmp = root->right;
             while (tmp->left) tmp = tmp->left;

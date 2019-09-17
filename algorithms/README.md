@@ -76,6 +76,8 @@
 
 ## 算法
 
+面试时，如果想不到好的思路，先考虑给出一个brute force solution。
+
 ### 贪心
 
 贪心思想保证每次操作都是局部最优的，并且最后得到的结果是全局最优的。
@@ -109,6 +111,32 @@ int findContentChildren(vector<int>& g, vector<int>& s) {
         ++si;
     }
     return gi;
+}
+```
+
+**分配糖果**
+
+[135. Candy \(Hard\)](https://leetcode.com/problems/candy/)
+
+每个孩子有一个评分，如果评分高于旁边的孩子，则被分配的糖果数量也必须更多，求最少总糖果数量，使得每个孩子都有糖果。
+
+```
+Given ratings as [1,0,2]
+Candy allocation is [2, 1, 2]
+```
+
+贪心策略，从左往右和从右往左各遍历一遍。
+
+```cpp
+int candy(vector<int>& ratings) {
+    int size = ratings.size();
+    if (size < 2) return size;
+    vector<int> num(size, 1);
+    for (int i = 1; i < size; ++i)
+        if (ratings[i] > ratings[i-1]) num[i] = num[i-1] + 1;
+    for (int i = size - 1; i > 0; --i)
+        if (ratings[i] < ratings[i-1]) num[i-1] = max(num[i-1], num[i] + 1);
+    return accumulate(num.begin(), num.end(), 0);
 }
 ```
 
@@ -1144,7 +1172,7 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
 在程序实现 DFS 时需要考虑以下问题：
 
 * 栈：用栈来保存当前节点信息，当遍历新节点返回时能够继续遍历当前节点。可以使用递归栈。
-* 标记：和 BFS 一样同样需要对已经遍历过的节点进行标记。
+* 标记：和 BFS 一样同样**需要对已经遍历过的节点进行标记**。
 
 **查找最大的连通面积**
 
@@ -1384,6 +1412,8 @@ Backtracking（回溯）属于 DFS。
 
 * 在访问一个新元素进入新的递归调用时，需要将新元素标记为已经访问，这样才能在继续递归调用时不用重复访问该元素；
 * 但是在递归返回时，需要将元素标记为未访问，因为只需要保证在一个递归链中不同时访问一个元素，可以访问已经访问过但是不在当前递归链中的元素。
+
+Backtracking 修改一般有两种情况，一种是**修改最后一位输出**，比如排列组合；一种是**修改访问标记**，比如矩阵里搜字符串。
 
 **在矩阵中寻找字符串**
 
@@ -2104,9 +2134,11 @@ void backtrack(const string &src, const string &dst, unordered_map<string, vecto
 
 ### 动态规划
 
-递归和动态规划都是将原问题拆成多个子问题然后求解，他们之间最本质的区别是，动态规划保存了子问题的解，避免重复计算。
+递归和动态规划（Dynamic Programming, DP）都是将原问题拆成多个子问题然后求解，他们之间最本质的区别是，动态规划保存了子问题的解，避免重复计算。
 
 **注意：为了方便处理初始情况，一个常见的操作是建立一个n+1长度的dp数组，把初始值设置在dp[0]处。**
+
+**注意：DFS+Memoization基本等价DP，需要个数的时候用DP，需要输出的时候用DFS/backtracking**
 
 #### 斐波那契数列
 
@@ -2284,6 +2316,51 @@ int comb(int n, int k) {
     vector<int> dp (n+1, 1);
     for (int i=1; i<=n; ++i) for (int j=i-1; j>=1; --j) dp[j] += dp[j-1];
     return dp[k];
+}
+```
+
+**矩阵每个位置与最近0的距离**
+
+[542. 01 Matrix \(Medium\)](https://leetcode.com/problems/01-matrix/)
+
+```
+Input:
+[[0,0,0],
+ [0,1,0],
+ [1,1,1]]
+
+Output:
+[[0,0,0],
+ [0,1,0],
+ [1,2,1]]
+```
+
+两次dp，第一次从左上到右下，第二次从右下到左上
+
+```cpp
+vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return {};
+    int n = matrix.size(), m = matrix[0].size();
+    vector<vector<int>> dp(n, vector<int>(m, INT_MAX-1));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (!matrix[i][j]) dp[i][j] = 0;
+            else {
+                if (j > 0) dp[i][j] = min(dp[i][j], dp[i][j-1] + 1);
+                if (i > 0) dp[i][j] = min(dp[i][j], dp[i-1][j] + 1);
+            }
+        }
+    }
+    for (int i = n - 1; i >= 0; --i) {
+        for (int j = m - 1; j >= 0; --j) {
+            if (!matrix[i][j]) continue;
+            else {
+                if (j < m - 1) dp[i][j] = min(dp[i][j], dp[i][j+1] + 1);
+                if (i < n - 1) dp[i][j] = min(dp[i][j], dp[i+1][j] + 1);
+            }
+        }
+    }
+    return dp;
 }
 ```
 
@@ -2668,7 +2745,7 @@ int knapsack(vector<int> weights, vector<int> values, int N, int W) {
     vector<int> dp (W + 1, 0);
     for (int i = 1; i <= N; ++i) {
         int w = weights[i-1], v = values[i-1];
-        for (int j = W; j >= w; j--) dp[j] = max(dp[j], dp[j-w] + v);
+        for (int j = W; j >= w; --j) dp[j] = max(dp[j], dp[j-w] + v);
     }
     return dp[W];
 }
@@ -2680,6 +2757,53 @@ int knapsack(vector<int> weights, vector<int> values, int N, int W) {
 * 多重背包：物品数量有限制
 * 多维费用背包：物品不仅有重量，还有体积，同时考虑这两种限制
 * 其它：物品之间相互约束或者依赖
+
+**完全背包**
+
+```cpp
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    vector<vector<int>> dp (N + 1, vector<int>(W + 1, 0));
+    for (int i = 1; i <= N; ++i) {
+        int w = weights[i-1], v = values[i-1];
+        for (int j = 1; j <= W; ++j) {
+            if (j >= w) {
+                dp[i][j] = max(dp[i-1][j], dp[i][j-w] + v);  // i - 1 changed to i
+            } else {
+                dp[i][j] = dp[i-1][j];
+            }
+        }
+    }
+    return dp[N][W];
+}
+```
+
+**完全背包 vs 0-1背包的空间优化**
+
+对于压缩内存的写法，**0-1背包对物品的迭代放在外层，里层的重量或价值从后往前遍历；完全背包对物品的迭代放在里层，外层则正常从前往后遍历重量或价值**。（若完全背包的依赖方向在矩阵上是左和上，而这个依赖关系在调转行列后仍然成立，那么在这种情况下里层外层可以互换；为了保险，完全背包都把物品放在里层即可）
+
+```cpp
+// 物品迭代在里层
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    vector<int> dp (W + 1, 0);
+    for (int j = 1; j < W; ++j) {
+        for (int i = 1; i <= N; ++i) {
+            int w = weights[i-1], v = values[i-1];
+            if (w >= j) dp[j] = max(dp[j], dp[j-w] + v);
+        }
+    }
+    return dp[W];
+}
+
+// 物品迭代在外层 (只有满足矩阵依赖关系才可)
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    vector<int> dp (W + 1, 0);
+    for (int i = 1; i <= N; ++i) {
+        int w = weights[i-1], v = values[i-1];
+        for (int j = w; j <= W; ++j) dp[j] = max(dp[j], dp[j-w] + v);
+    }
+    return dp[W];
+}
+```
 
 **划分数组为和相等的两部分**
 
@@ -2765,9 +2889,7 @@ dict = ["leet", "code"].
 Return true because "leetcode" can be segmented as "leet code".
 ```
 
-dict 中的单词没有使用次数的限制，因此这是一个完全背包问题。
-
-**注意：对于压缩内存的写法，0-1背包对物品的迭代放在外层，里层的重量或价值从后往前遍历；完全背包对物品的迭代放在里层，外层则正常从前往后遍历重量或价值**。（若完全背包的依赖方向在矩阵上是左和上，而这个依赖关系在调转行列后仍然成立，那么在这种情况下里层外层可以互换；为了保险，完全背包都把物品放在里层即可；本题不可以互换）
+dict 中的单词没有使用次数的限制，因此这是一个完全背包问题（本体里外层不可互换）
 
 ```cpp
 bool wordBreak(string s, vector<string>& wordDict) {
@@ -3879,6 +4001,49 @@ bool isHappy(int n) {
         fast = digitsum(digitsum(fast));
     } while (slow != fast);
     return slow == 1;
+}
+```
+
+**判断四个点是否能围成一个正方形**
+
+[593. Valid Square \(Medium\)](https://leetcode.com/problems/valid-square/)
+
+正方形的判断条件是对角线垂直平分且相等。
+
+```cpp
+bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+    vector<pair<int, int>> square{{p1[0], p1[1]}, {p2[0], p2[1]}, {p3[0], p3[1]}, {p4[0], p4[1]}};
+    sort(square.begin(), square.end(), [](pair<int, int>& a, pair<int, int>& b){
+        return a.first < b.first || (a.first == b.first && a.second < b.second);
+    });
+    return dist(square[0], square[3]) == dist(square[1], square[2]) &&
+           bisect(square[3], square[0], square[1], square[2]);
+}
+
+double dist(pair<int, int>& a, pair<int, int>& b){
+    double c = b.second - a.second, d = b.first - a.first;
+    return c * c + d * d;
+}
+
+bool perpendicular(pair<int, int>& a, pair<int, int>& b, pair<int, int>& c, pair<int, int>& d) {
+    double l, r;
+    if (a.first == b.first) {
+        if (a.second == b.second) return false;
+        return c.second == d.second && c.first != d.first;
+    }
+    l = (a.second - b.second) / (double)(a.first - b.first);
+    if (c.first == d.first) {
+        if (c.second == d.second) return false;
+        return a.second == b.second;
+    }
+    r = (c.second - d.second) / (double)(c.first - d.first);
+    return abs(l * r + 1) < 1e-8;
+}
+
+bool bisect(pair<int, int>& a, pair<int, int>& b, pair<int, int>& c, pair<int, int>& d) {
+    if (!perpendicular(a, b, c, d)) return false;
+    return a.second + b.second == c.second + d.second &&
+           a.first + b.first == c.first + d.first;
 }
 ```
 
@@ -6019,6 +6184,7 @@ ListNode* reverseList(ListNode* head) {
 [21. Merge Two Sorted Lists \(Easy\)](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```cpp
+// recursive solution
 ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
     if (!l2) return l1;
     if (!l1) return l2;
@@ -6030,6 +6196,47 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
         return l1;
     }
 }
+
+// non-recursive solution
+ListNode* mergeTwoLists(ListNode *l1, ListNode *l2) {
+    ListNode *dummy = new ListNode(INT_MIN);
+    ListNode *node = dummy;
+    while (l1 && l2) {
+        if (l1->val <= l2->val) {
+            node->next = l1;
+            l1 = l1->next;
+        } else {
+            node->next = l2;
+            l2 = l2->next;
+        }
+        node = node->next;
+    }
+    node->next = l1? l1: l2;
+    return dummy->next;
+}
+```
+
+**链表排序**
+
+[148. Sort List \(Medium\)](https://leetcode.com/problems/sort-list/)
+
+利用快门指针找到中点，进行分治。
+
+```cpp
+ListNode* sortList(ListNode* head) {
+    if (!head|| !head->next) return head;
+    ListNode *slow = head;
+    ListNode *fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = NULL;
+    return mergeTwoLists(sortList(head),sortList(fast));
+}
+
+// mergeTwoLists() same as Q21
 ```
 
 **从有序链表中删除重复节点**
@@ -6220,6 +6427,17 @@ ListNode* oddEvenList(ListNode* head) {
 #### 树递归
 
 一棵树要么是空树，要么有两个指针，每个指针指向一棵树。树是一种递归结构，很多树的问题可以使用递归来处理。
+
+**树内查找值**
+
+```cpp
+TreeNode* find_val(TreeNode* root, int key) {
+    if (!root || root->key == key) return root;
+    TreeNode* ret = find_val(root->left, key);
+    if (!ret) ret = find_val(root->right, key);
+    return ret;
+}
+```
 
 **树的高度**
 
@@ -7042,6 +7260,45 @@ TreeNode* sortedListToBST(ListNode* head) {
 }
 ```
 
+**把二叉查找树压成一个链表**
+
+[897. Increasing Order Search Tree \(Easy\)](https://leetcode.com/problems/increasing-order-search-tree/)
+
+```
+Input: 
+   2
+  / \
+ 1   3
+
+Output: 
+ 1
+  \
+   2
+    \
+     3
+```
+
+注意中序遍历时，必须改右->前进->改左（即要在下一次前进前改左），否则在中序遍历的 helper(root->left) 时会出现环路。
+
+```cpp
+TreeNode *prev, *head;
+
+TreeNode* increasingBST(TreeNode* root) {
+    head = new TreeNode(-1), prev = head;
+    helper(root);
+    return head->right;
+}
+
+void helper(TreeNode* root) {
+    if (!root) return;
+    helper(root->left);
+    prev->right = root;
+    prev = prev->right;
+    prev->left = NULL;
+    helper(root->right);
+}
+```
+
 **在二叉查找树中寻找两个节点，使它们的和为一个给定值**
 
 [653. Two Sum IV - Input is a BST \(Easy\)](https://leetcode.com/problems/two-sum-iv-input-is-a-bst/)
@@ -7119,7 +7376,7 @@ void helper(TreeNode* node, int& prev, int& res) {
 }
 ```
 
-**找到BST被交换的两个节点**
+**找到二叉查找树被交换的两个节点**
 
 [99. Recover Binary Search Tree \(Hard\)](https://leetcode.com/problems/recover-binary-search-tree/)
 
@@ -7167,6 +7424,40 @@ void recoverTree(TreeNode* root) {
         mistake1->val = mistake2->val;  
         mistake2->val = tmp;  
     }  
+}
+```
+
+**在二叉查找树中删除一个值**
+
+[450. Delete Node in a BST (Medium)](https://leetcode.com/problems/delete-node-in-a-bst/)
+
+本题的重点是递归和删除处理。
+
+```cpp
+TreeNode* deleteNode(TreeNode* root, int val) {
+    if (!root) return root;
+    if (val < root->val) root->left = deleteNode(root->left, val);
+    else if (val > root->val) root->right = deleteNode(root->right, val);
+    else {
+        if (!root->left && !root->right) {
+            delete(root);
+            return NULL;
+        }
+        // 1 child case
+        if (!root->left || !root->right) {
+            TreeNode *ret = root->left ? root->left : root->right;
+            delete(root);
+            return ret;
+        }
+        // 2 child case
+        if (root->left && root->right) {
+            TreeNode *tmp = root->right;
+            while (tmp->left) tmp = tmp->left;
+            root->val = tmp->val;
+            root->right = deleteNode(root->right, root->val);
+        }
+    }
+    return root;
 }
 ```
 
