@@ -3420,9 +3420,9 @@ vector<int> diffWaysToCompute(string input) {
 
 这是一个经典的递归问题，分为三步求解：
 
-1. 将 n-1 个圆盘从 from -&gt; buffer
-2. 将 1 个圆盘从 from -&gt; to
-3. 将 n-1 个圆盘从 buffer -&gt; to
+1. 将 n-1 个圆盘 from -&gt; buffer
+2. 将 1 个圆盘 from -&gt; to
+3. 将 n-1 个圆盘 buffer -&gt; to
 
 如果只有一个圆盘，那么只需要进行一次移动操作。
 
