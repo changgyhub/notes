@@ -1,6 +1,3 @@
----
-description: COMP3314 Machine Learning
----
-
 # COMP3314
 
+HKU COMP3314 Machine Learning

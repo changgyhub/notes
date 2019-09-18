@@ -1,8 +1,6 @@
----
-description: 计算机视觉
----
-
 # Computer Vision
+
+计算机视觉知识
 
 ## 1. 图像分割
 

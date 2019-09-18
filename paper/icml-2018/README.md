@@ -1,7 +1,5 @@
 # ICML 2018
 
-
-
 1. [ICML结果解读](https://zhuanlan.zhihu.com/p/38646575)
 2. （待寻找）收录的文章列表和类型
 
