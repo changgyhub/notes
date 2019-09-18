@@ -7564,6 +7564,8 @@ private:
 
 ## 线段树
 
+线段树（segment tree）是一种二叉搜索树，与区间树相似，它将一个区间划分成一些单元区间，每个单元区间对应线段树中的一个叶结点。 使用线段树可以快速的查找某一个节点在若干条线段中出现的次数，时间复杂度为O(logN)。
+
 **可变更值的连续区间和查找**
 
 [307. Range Sum Query - Mutable \(Medium\)](https://leetcode.com/problems/range-sum-query-mutable/)
