@@ -4,20 +4,20 @@
 
 本汇总仅供学习参考，其中部分内容源自网络（见[参考资料](#参考资料)），禁止未经许可的传播或改编。
 
-* [算法](#算法)
-  * [贪心](#贪心)
-  * [双指针](#双指针)
-  * [排序](#排序)
+**[算法](#算法)**
+* [贪心](#贪心)
+* [双指针](#双指针)
+* [排序](#排序)
     * [常用排序算法](#常用排序算法)
     * [快速选择](#快速选择)
     * [桶排序](#桶排序)
     * [荷兰国旗问题](#荷兰国旗问题)
-  * [二分查找](#二分查找)
-  * [搜索](#搜索)
+* [二分查找](#二分查找)
+* [搜索](#搜索)
     * [DFS](#DFS)
     * [Backtracking](#Backtracking)
     * [BFS](#BFS)
-  * [动态规划](#动态规划)
+* [动态规划](#动态规划)
     * [斐波那契数列](#斐波那契数列)
     * [矩阵路径](#矩阵路径)
     * [数组区间](#数组区间)
@@ -27,9 +27,9 @@
     * [背包问题](#背包问题)
     * [股票交易](#股票交易)
     * [字符串编辑](#字符串编辑)
-  * [分治](#分治)
-  * [递归](#递归)
-  * [数学](#数学)
+* [分治](#分治)
+* [递归](#递归)
+* [数学](#数学)
     * [素数](#素数)
     * [最大公约数](#最大公约数)
     * [进制转换](#进制转换)
@@ -39,44 +39,44 @@
     * [多数投票问题](#多数投票问题)
     * [随机与取样](#随机与取样)
     * [其它数学问题](#其它数学问题)
-  * [位运算](#位运算)
-  * [复杂算法](#复杂算法)
+* [位运算](#位运算)
+* [复杂算法](#复杂算法)
     * [凸包](#凸包)
-* [数据结构](#数据结构)
-  * [栈和队列](#栈和队列)
+**[数据结构](#数据结构)**
+* [栈和队列](#栈和队列)
     * [单调栈](#单调栈)
     * [优先队列](#优先队列)
-  * [集合和映射](#集合和映射)
+* [集合和映射](#集合和映射)
     * [哈希表](#哈希表)
     * [多重集合和映射](#多重集合和映射)
-  * [字符串](#字符串)
-  * [数组与矩阵](#数组与矩阵)
+* [字符串](#字符串)
+* [数组与矩阵](#数组与矩阵)
     * [积分图](#积分图)
-  * [链表](#链表)
-  * [树](#树)
+* [链表](#链表)
+* [树](#树)
     * [树递归](#树递归)
     * [层次遍历](#层次遍历)
     * [前中后序遍历](#前中后序遍历)
     * [BST](#BST)
     * [Trie](#Trie)
     * [线段树](#线段树)
-  * [图](#图)
+* [图](#图)
     * [二分图](#二分图)
     * [拓扑排序](#拓扑排序)
     * [MST](#MST)
     * [节点最短距离](#节点最短距离)
-  * [复杂数据结构](#复杂数据结构)
+* [复杂数据结构](#复杂数据结构)
     * [并查集](#并查集)
     * [Rope](#Rope)
     * [复合数据结构](#复合数据结构)
   * [线程安全结构](#线程安全结构)
-* [参考资料](#参考资料)
+**[参考资料](#参考资料)**
 
-## 算法
+# 算法
 
 面试时，如果想不到好的思路，先考虑给出一个brute force solution。
 
-### 贪心
+## 贪心
 
 贪心思想保证每次操作都是局部最优的，并且最后得到的结果是全局最优的。
 
@@ -354,7 +354,7 @@ int maxProfit(vector<int>& prices) {
 }
 ```
 
-### 双指针
+## 双指针
 
 双指针主要用于遍历数组，两个指针指向不同的元素，从而协同完成任务。若两个指针指向同一数组、遍历方向相同且不会相交，则也称为滑动窗口。
 
@@ -597,9 +597,9 @@ int lengthOfLongestSubstringKDistinct(string s, int k) {
 }
 ```
 
-### 排序
+## 排序
 
-#### 常用排序算法
+## 常用排序算法
 
 **Quick Sort**
 
@@ -700,7 +700,7 @@ void sort() {
 }
 ```
 
-#### 快速选择
+## 快速选择
 
 一般用于求解 **Kth Element** 问题，可以在 O\(N\) 时间复杂度，O\(1\) 空间复杂度完成求解工作。
 
@@ -735,7 +735,7 @@ int quickSelection(vector<int>& nums, int l, int r) {
 }
 ```
 
-#### 桶排序
+## 桶排序
 
 **出现频率最多的 k 个数**
 
@@ -805,7 +805,7 @@ string frequencySort(string s) {
 }
 ```
 
-#### 荷兰国旗问题
+## 荷兰国旗问题
 
 荷兰国旗包含三种颜色：红、白、蓝。有这三种颜色的球，算法的目标是将这三种球按颜色顺序正确地排列。
 
@@ -842,7 +842,7 @@ void sortColors(vector<int>& vec) {
 }
 ```
 
-### 二分查找
+## 二分查找
 
 **正常实现**
 
@@ -1155,11 +1155,11 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
 } 
 ```
 
-### 搜索
+## 搜索
 
 深度优先搜索和广度优先搜索广泛运用于树和图中，但是它们的应用远远不止如此。
 
-#### DFS
+## DFS
 
 ![](../.gitbook/assets/image%20%28360%29.png)
 
@@ -1407,7 +1407,7 @@ void dfs(const vector<vector<int>>& matrix, vector<vector<bool>>& can_reach, int
 }
 ```
 
-#### Backtracking
+## Backtracking
 
 Backtracking（回溯）属于 DFS。
 
@@ -1908,7 +1908,7 @@ vector<vector<string>> solveNQueens(int n) {
 }
 ```
 
-#### BFS
+## BFS
 
 ![](../.gitbook/assets/image%20%28249%29.png)
 
@@ -2138,7 +2138,7 @@ void backtrack(const string &src, const string &dst, unordered_map<string, vecto
 }
 ```
 
-### 动态规划
+## 动态规划
 
 递归和动态规划（Dynamic Programming, DP）都是将原问题拆成多个子问题然后求解，他们之间最本质的区别是，动态规划保存了子问题的解，避免重复计算。
 
@@ -2146,7 +2146,7 @@ void backtrack(const string &src, const string &dst, unordered_map<string, vecto
 
 **注意：DFS+Memoization基本等价DP，需要个数的时候用DP，需要输出的时候用DFS/backtracking**
 
-#### 斐波那契数列
+## 斐波那契数列
 
 **爬楼梯**
 
@@ -2264,7 +2264,7 @@ int rob(vector<int>& nums, int first, int last) {
 
 综上所述，错误装信数量方式数量为：dp = \(i - 1\) \* dp \[i - 2\] + \(i - 1\) \* dp \[i - 1\]，dp\[N\] 即为所求。
 
-#### 矩阵路径
+## 矩阵路径
 
 **矩阵的最小路径和**
 
@@ -2370,7 +2370,7 @@ vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
 }
 ```
 
-#### 数组区间
+## 数组区间
 
 **子数组最大的和**
 
@@ -2459,7 +2459,7 @@ int maximalSquare(vector<vector<char>>& matrix) {
 }
 ```
 
-#### 分割整数
+## 分割整数
 
 **分割整数的最大乘积**
 
@@ -2538,7 +2538,7 @@ int numDecodings(string s) {
 }
 ```
 
-#### 最长递增子序列
+## 最长递增子序列
 
 已知一个序列 {S1, S2,...,Sn} ，取出若干数组成新的序列 {Si1, Si2,..., Sim}，其中 i1、i2 ... im 保持递增，即新序列中各个数仍然保持原数列中的先后顺序，称新序列为原序列的一个 **子序列** 。
 
@@ -2678,7 +2678,7 @@ int wiggleMaxLength(vector<int>& nums) {
 }
 ```
 
-#### 最长公共子序列
+## 最长公共子序列
 
 [1143. Longest Commom Subsequence (Medium)](https://leetcode.com/problems/longest-common-subsequence/)
 
@@ -2710,7 +2710,7 @@ int longestCommonSubsequence(string text1, string text2) {
 }
 ```
 
-#### 背包问题
+## 背包问题
 
 有N个物品和容量为W的背包，要用这个背包装下物品的价值最大，这些物品有两个属性：体积 w 和价值 v。
 
@@ -3014,7 +3014,7 @@ int combinationSum4(vector<int>& nums, int target) {
 }
 ```
 
-#### 股票交易
+## 股票交易
 
 **只能进行一次的股票交易**
 
@@ -3172,7 +3172,7 @@ int maxProfit(vector<int>& prices, int fee) {
 }
 ```
 
-#### 字符串编辑
+## 字符串编辑
 
 **删除两个字符串的字符使它们相等**
 
@@ -3320,7 +3320,7 @@ bool dp(int i, int j, string s, string p) {
 }
 ```
 
-### 分治
+## 分治
 
 **主定理**
 
@@ -3410,7 +3410,7 @@ vector<int> diffWaysToCompute(string input) {
 }
 ```
 
-### 递归
+## 递归
 
 有些问题可以使用纯递归来解决。
 
@@ -3442,9 +3442,9 @@ void hanoi(int n) {
 }
 ```
 
-### 数学
+## 数学
 
-#### 素数
+## 素数
 
 **素数分解**
 
@@ -3507,7 +3507,7 @@ int countPrimes(int n) {
 }
 ```
 
-#### 最大公约数
+## 最大公约数
 
 ```cpp
 int gcd(int a, int b) {
@@ -3537,7 +3537,7 @@ int xGCD(int a, int b, int &x, int &y) {
 }
 ```
 
-#### 进制转换
+## 进制转换
 
 **7 进制**
 
@@ -3583,7 +3583,7 @@ string convertToTitle (int n) {
 }
 ```
 
-#### 阶乘
+## 阶乘
 
 **统计阶乘尾部有多少个 0**
 
@@ -3601,7 +3601,7 @@ int trailingZeroes(int n) {
 
 拓展：如果统计的是 N! 的二进制表示中最低位 1 的位置，只要统计有多少个 2 即可。
 
-#### 字符串加减法
+## 字符串加减法
 
 **二进制加法**
 
@@ -3679,7 +3679,7 @@ string addStrings(string num1, string num2) {
 }
 ```
 
-#### 相遇问题
+## 相遇问题
 
 **改变数组元素使所有的数组元素都相等**
 
@@ -3742,7 +3742,7 @@ int quickSelection(vector<int>& nums, int l, int r) {
 }
 ```
 
-#### 多数投票问题
+## 多数投票问题
 
 **数组中出现次数多于 n / 2 的元素**
 
@@ -3766,7 +3766,7 @@ int majorityElement(vector<int> &num) {
 }
 ```
 
-#### 随机与取样
+## 随机与取样
 
 **打乱数组**
 
@@ -3886,7 +3886,7 @@ private:
 };
 ```
 
-#### 其它数学问题
+## 其它数学问题
 
 **平方数**
 
@@ -4063,7 +4063,7 @@ bool bisect(pair<int, int>& a, pair<int, int>& b, pair<int, int>& c, pair<int, i
 }
 ```
 
-### 位运算
+## 位运算
 
 **基本原理**
 
@@ -4393,11 +4393,11 @@ vector<int> countBits(int num) {
 }
 ```
 
-### 复杂算法
+## 复杂算法
 
 这里所涵盖的算法并非十分复杂，只是一般的算法题可能并不会考到，而面试时视岗位不同，有一定概率会问到。
 
-#### 凸包
+## 凸包
 
 Convex hull（凸包）在二维欧几里得空间中可想象为一条刚好包着所有点的橡皮圈。
 
@@ -4447,9 +4447,9 @@ private:
 };
 ```
 
-## 数据结构
+# 数据结构
 
-### 栈和队列
+## 栈和队列
 
 **用栈实现队列**
 
@@ -4622,7 +4622,7 @@ bool isValid(string s) {
 }
 ```
 
-#### 单调栈
+## 单调栈
 
 通过维持栈内值的单调递增/递减性，从而在整体O(n)的时间处理需要大小比较多问题。
 
@@ -4688,7 +4688,7 @@ vector<int> nextGreaterElements(vector<int>& nums) {
 }
 ```
 
-#### 优先队列
+## 优先队列
 
 有的题目需要利用priority queue进行操作，其内部实现可以是heap（堆）。如果同时要求获取最大值和最小值，则可以考虑使用multiset/multimap。
 
@@ -4917,9 +4917,9 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
 }
 ```
 
-### 集合和映射
+## 集合和映射
 
-#### 哈希表
+## 哈希表
 
 哈希表使用 O\(N\) 空间复杂度存储数据，从而能够以 O\(1\) 时间复杂度求解问题。
 
@@ -5127,7 +5127,7 @@ int maxPoints(vector<Point>& points) {
 }
 ```
 
-#### 多重集合和映射
+## 多重集合和映射
 
 unordered_multiset和unordered_multimap可以使得哈希表存多个key。multiset和multimap可以使得红黑树存多个key，从而获得和优先队列类似的功能，并且可以同时获取最大最小值，以及支持删除任意key。
 
@@ -5189,7 +5189,7 @@ vector<string> findItinerary(vector<pair<string, string>> tickets) {
 }
 ```
 
-### 字符串
+## 字符串
 
 注意：substring/subarray一般指的是连续的子串，subsequence一般指的是可以不连续的子序列。
 
@@ -5589,7 +5589,7 @@ int strStr(string haystack, string needle) {
 }
 ```
 
-### 数组与矩阵
+## 数组与矩阵
 
 **把数组中的 0 移到末尾**
 
@@ -5998,7 +5998,7 @@ void wiggleSort(vector<int>& nums) {
 }
 ```
 
-#### 积分图
+## 积分图
 
 一维的前缀和，二维的积分图，都是把每个位置之前的一维线段或二维矩形预先存储，方便加速计算。如果需要对前缀和或积分图的值做寻址，则要存在哈希表里；如果要对每个位置记录前缀和或积分图的值，则可以储存到一维或二维数组里，也常常伴随着动态规划。
 
@@ -6127,7 +6127,7 @@ int sumZeroMatrix(vector<vector<int>> matrix) {
 } 
 ```
 
-### 链表
+## 链表
 
 链表是空节点，或者有一个值和一个指向下一个链表的指针，因此很多链表问题可以用递归来处理。
 
@@ -6438,9 +6438,9 @@ ListNode* oddEvenList(ListNode* head) {
 }
 ```
 
-### 树
+## 树
 
-#### 树递归
+## 树递归
 
 一棵树要么是空树，要么有两个指针，每个指针指向一棵树。树是一种递归结构，很多树的问题可以使用递归来处理。
 
@@ -6786,7 +6786,7 @@ pair<int, int> robDFS(TreeNode* node) {
 }
 ```
 
-#### 层次遍历
+## 层次遍历
 
 使用 BFS 进行层次遍历。不需要使用两个队列来分别存储当前层的节点和下一层的节点，因为在开始遍历一层的节点时，当前队列中的节点数就是当前层的节点数，只要控制遍历这么多节点数，就能保证这次遍历的都是当前层的节点。
 
@@ -6847,7 +6847,7 @@ int findBottomLeftValue(TreeNode* root) {
 }
 ```
 
-#### 前中后序遍历
+## 前中后序遍历
 
 ```markup
     1
@@ -6994,7 +6994,7 @@ vector<int> inorderTraversal(TreeNode* root) {
 }
 ```
 
-#### BST
+## BST
 
 二叉查找树（BST）：根节点大于等于左子树所有节点，小于等于右子树所有节点。
 
@@ -7477,7 +7477,7 @@ TreeNode* deleteNode(TreeNode* root, int val) {
 }
 ```
 
-#### Trie
+## Trie
 
 ![](../.gitbook/assets/image%20%28347%29.png)
 
@@ -7537,7 +7537,7 @@ private:
 };
 ```
 
-#### 线段树
+## 线段树
 
 **可变更值的连续区间和查找**
 
@@ -7621,9 +7621,9 @@ public:
 };
 ```
 
-### 图
+## 图
 
-#### 二分图
+## 二分图
 
 也称为染色法：如果可以用两种颜色对图中的节点进行着色，并且保证相邻的节点颜色不同，那么图为二分。
 
@@ -7670,7 +7670,7 @@ bool isBipartite(vector<vector<int>>& graph) {
 }
 ```
 
-#### 拓扑排序
+## 拓扑排序
 
 常用于在具有先序关系的任务规划中。
 
@@ -7758,7 +7758,7 @@ vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
 }
 ```
 
-#### MST
+## MST
 
 最小生成树（MST），指的是一个连接图内所有点的树，且这种连接是所有可能连接里消耗最小的方式。
 
@@ -7833,7 +7833,7 @@ int minimumCost(int N, vector<vector<int>>& connections) {
 }
 ```
 
-#### 节点最短距离
+## 节点最短距离
 
 **连接图内两节点所需要的最小消耗**
 
@@ -7922,9 +7922,9 @@ void floydWarshall(int N, vector<vector<int>>& connections){
 }
 ```
 
-### 复杂数据结构
+## 复杂数据结构
 
-#### 并查集
+## 并查集
 
 并查集可以动态地连通两个点，并且可以非常快速地判断两个点是否连通。
 
@@ -7994,7 +7994,7 @@ public:
 };
 ```
 
-#### Rope
+## Rope
 
 为了方便储存长度很大的字符串并加速搜索，可以使用rope这种数据结构。
 
@@ -8011,7 +8011,7 @@ public:
 }; 
 ```
 
-#### 复合数据结构
+## 复合数据结构
 
 这一类题采用hashmap或map辅助记录，从而加速寻址；再配上vector或者list进行数据储存，从而加速连续选址或删除值。
 
@@ -8212,7 +8212,7 @@ private:
 };
 ```
 
-### 线程安全结构
+## 线程安全结构
 
 利用mutex lock和condition variable等结构，可以使得算法或数据结构具备线程安全性。
 
@@ -8355,7 +8355,7 @@ public:
 };
 ```
 
-## 参考资料
+# 参考资料
 
 * [LeetCode](https://leetcode.com/)
 * [LeetCode 题解](https://github.com/CyC2018/Interview-Notebook)
