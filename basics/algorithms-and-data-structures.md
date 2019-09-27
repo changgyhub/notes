@@ -2426,19 +2426,18 @@ int numberOfArithmeticSlices(vector<int>& nums) {
 
 **最大正方形**
 
-[85. Maximal Rectangle \(Hard\)](https://leetcode.com/problems/maximal-rectangle/)
+[221. Maximal Square \(Medium\)](https://leetcode.com/problems/maximal-Square/)
 
 给定一个矩阵，找到全为1的最大正方形面积。
 
 ```
-Input:
-[
-  ["1","0","1","0","0"],
-  ["1","0","1","1","1"],
-  ["1","1","1","1","1"],
-  ["1","0","0","1","0"]
-]
-Output: 6
+Input: 
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+
+Output: 4
 ```
 
 ```cpp
@@ -2446,18 +2445,16 @@ int maximalSquare(vector<vector<char>>& matrix) {
     if (matrix.empty() || matrix[0].empty()) return 0;
     int m = matrix.size(), n = matrix[0].size();
     int res = 0;
-    vector<vector<int>> dp(m, vector<int>(n, 0));
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            if (i == 0 || j == 0) { 
-                dp[i][j] = matrix[i][j] - '0';
-            } else if (matrix[i][j] == '1') {
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            if (matrix[i-1][j-1] == '1') {
                 dp[i][j] = min(dp[i-1][j-1], min(dp[i][j-1], dp[i-1][j])) + 1;
             }
             res = max(res, dp[i][j]);
         }
     }
-    return res*res;
+    return res * res;
 }
 ```
 
