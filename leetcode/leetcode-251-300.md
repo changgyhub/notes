@@ -44,6 +44,36 @@ private:
 };
 ```
 
+### 253. Meeting Rooms II
+
+Given an array of meeting time intervals consisting of start and end times `[[s1,e1],[s2,e2],...]` (si < ei), find the minimum number of conference rooms required.
+
+Example:
+
+```
+Input: [[0, 30],[5, 10],[15, 20]]
+Output: 2
+```
+
+Solution: 排序+贪心
+
+```cpp
+int minMeetingRooms(vector<vector<int>>& intervals) {
+    vector<pair<int, int>> pairs;
+    for (const auto & v: intervals) {
+        pairs.emplace_back(v[0], 1);
+        pairs.emplace_back(v[1], -1);
+    }
+    int cnt = 0, max_cnt = 0;
+    sort(pairs.begin(), pairs.end());
+    for (const auto & p: pairs) {
+        cnt += p.second;
+        max_cnt = max(max_cnt, cnt);
+    }
+    return max_cnt;
+}
+```
+
 ### 257. Binary Tree Paths
 
 Given a binary tree, return all root-to-leaf paths.
