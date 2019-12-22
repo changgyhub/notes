@@ -3292,28 +3292,32 @@ p = ".*"
 Output: true
 ```
 
-dp\[i\]\[j\] 表示 s 和 p 是否 match。当 p\[j\] != '\*'时，b\[i + 1\]\[j + 1\] == b\[i\]\[j\] 且 s\[i\] == p\[j\]；当p\[j\] == '\*'时，b\[i\]\[j + 2\] = b\[i\]\[j\]或考虑下一位情况。
+dp\[i\]\[j\] 表示 s 和 p 是否 match。
 
 ```cpp
-vector<vector<int> > vec;
 bool isMatch(string s, string p) {
-    vec = vector<vector<int> >(s.length() + 1, vector<int>(p.length() + 1, -1));
-    return dp(0, 0, s, p);
-}
-bool dp(int i, int j, string s, string p) {
-    if (vec[i][j] != -1) return vec[i][j] == 1;
-    bool res;
-    if (j == p.length()) {
-        res = i == s.length();
-    } else {
-        bool first_match = i < s.length() && (p[j] == s[i] || p[j] == '.');
-        if (j + 1 < p.length() && p[j + 1] == '*')
-            res = dp(i, j + 2, s, p) || (first_match && dp(i + 1, j, s, p));
-        else
-            res = first_match && dp(i + 1, j + 1, s, p);
+    int m = s.size(), n = p.size();
+    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
+    dp[0][0] = true;
+    for (int i = 1; i < n + 1; ++i) {
+        if (p[i-1] == '*') {
+            dp[0][i] = dp[0][i-2];
+        }
     }
-    vec[i][j] = res? 1: 0;
-    return res;
+    for (int i = 1; i < m + 1; ++i) {
+        for (int j = 1; j < n + 1; ++j) {
+            if (p[j-1] == '.') {
+                dp[i][j] = dp[i-1][j-1];
+            } else if (p[j-1] != '*') {
+                dp[i][j] = dp[i-1][j-1] && p[j-1] == s[i-1];
+            } else if (p[j-2] != s[i-1] && p[j-2] != '.') {
+                dp[i][j] = dp[i][j-2];
+            } else {
+                dp[i][j] = dp[i][j-1] || dp[i-1][j] || dp[i][j-2];
+            }
+        }
+    }
+    return dp[m][n];
 }
 ```
 
