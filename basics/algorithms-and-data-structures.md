@@ -2537,6 +2537,32 @@ int numDecodings(string s) {
 }
 ```
 
+**字符串按单词列表分割**
+
+[139. Word Break \(Medium\)](https://leetcode.com/problems/word-break/)
+
+```markup
+s = "leetcode",
+dict = ["leet", "code"].
+Return true because "leetcode" can be segmented as "leet code".
+```
+
+```cpp
+bool wordBreak(string s, vector<string>& wordDict) {
+    int n = s.length();
+    vector<bool> dp(n + 1, false);
+    dp[0] = true;
+    for (int i = 1; i <= n; ++i) {
+        for (const string & word: wordDict) {
+            int len = word.length();
+            if (i < len) continue;
+            if (s.substr(i - len, len) == word) dp[i] = dp[i] || dp[i - len];
+        }
+    }
+    return dp[n];
+}
+```
+
 ## 最长递增子序列
 
 已知一个序列 {S1, S2,...,Sn} ，取出若干数组成新的序列 {Si1, Si2,..., Sim}，其中 i1、i2 ... im 保持递增，即新序列中各个数仍然保持原数列中的先后顺序，称新序列为原序列的一个 **子序列** 。
@@ -2881,34 +2907,6 @@ int subsetSum(vector<int> & nums, int s){
     int dp[s+1] = {1};  // first = 1, others = 0
     for (int n : nums) for(int i = s; i >= n; --i) dp[i] += dp[i-n];
     return dp[s];
-}
-```
-
-**字符串按单词列表分割**
-
-[139. Word Break \(Medium\)](https://leetcode.com/problems/word-break/)
-
-```markup
-s = "leetcode",
-dict = ["leet", "code"].
-Return true because "leetcode" can be segmented as "leet code".
-```
-
-dict 中的单词没有使用次数的限制，因此这是一个完全背包问题（本体里外层不可互换）
-
-```cpp
-bool wordBreak(string s, vector<string>& wordDict) {
-    int n = s.length();
-    vector<bool> dp(n + 1, false);
-    dp[0] = true;
-    for (int i = 1; i <= n; ++i) {
-        for (const string & word: wordDict) {
-            int len = word.length();
-            if (i < len) continue;
-            if (s.substr(i - len, len) == word) dp[i] = dp[i] || dp[i - len];
-        }
-    }
-    return dp[n];
 }
 ```
 
