@@ -2462,7 +2462,7 @@ int maximalSquare(vector<vector<char>>& matrix) {
 
 **分割整数的最大乘积**
 
-[343. Integer Break \(Medim\)](https://leetcode.com/problems/integer-break/)
+[343. Integer Break \(Medium\)](https://leetcode.com/problems/integer-break/)
 
 题目描述：For example, given n = 2, return 1 \(2 = 1 + 1\); given n = 10, return 36 \(10 = 3 + 3 + 4\).
 
@@ -4648,7 +4648,7 @@ bool isValid(string s) {
 
 ## 单调栈
 
-通过维持栈内值的单调递增/递减性，从而在整体O(n)的时间处理需要大小比较多问题。
+通过维持栈内值的单调递增/递减性，从而在整体O(n)的时间处理需要大小比较的问题。
 
 **数组中元素与下一个比它大的元素之间的距离**
 
