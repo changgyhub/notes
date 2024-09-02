@@ -114,6 +114,20 @@ int findContentChildren(vector<int>& g, vector<int>& s) {
 }
 ```
 
+```python
+def findContentChildren(self, g: List[int], s: List[int]) -> int:
+    g.sort()
+    s.sort()
+    g_i = 0
+    g_len = len(g)
+    for cookie in s:
+        if g_i == g_len:
+            break
+        if cookie >= g[g_i]:
+            g_i += 1
+    return g_i
+```
+
 **分配糖果**
 
 [135. Candy \(Hard\)](https://leetcode.com/problems/candy/)
@@ -138,6 +152,19 @@ int candy(vector<int>& ratings) {
         if (ratings[i] < ratings[i-1]) num[i-1] = max(num[i-1], num[i] + 1);
     return accumulate(num.begin(), num.end(), 0);
 }
+```
+
+```python
+def candy(self, ratings_list: List[int]) -> int:
+    n = len(ratings_list)
+    candies = [1 for _ in range(n)]
+    for i in range(1, n):
+        if ratings_list[i] > ratings_list[i-1]:
+            candies[i] = candies[i-1] + 1
+    for i in range(n-2, -1, -1):
+        if ratings_list[i] > ratings_list[i+1]:
+            candies[i] = max(candies[i], candies[i+1] + 1)
+    return sum(candies)
 ```
 
 **不重叠的区间个数**
