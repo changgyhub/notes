@@ -1,4 +1,4 @@
-# Algorithms and Data Structures (C++)
+# Algorithms and Data Structures (C++/Python)
 
 以LeetCode为主要例题来源，以C++作为编程语言，对常见的算法、数据结构、以及一些计算机原理进行汇总。
 
@@ -832,6 +832,39 @@ int quickSelection(vector<int>& nums, int l, int r) {
 }
 ```
 
+```python
+def quickSelection(self, nums: List[int], l: int, r: int) -> int:
+    rand_i = randint(l, r)
+    nums[l], nums[rand_i] = nums[rand_i], nums[l]
+
+    i = l + 1
+    j = r
+    while True:
+        while i < r and nums[i] <= nums[l]:
+            i += 1
+        while l < j and nums[j] >= nums[l]:
+            j -= 1
+        if i >= j:
+            break
+        nums[i], nums[j] = nums[j], nums[i]
+    nums[l], nums[j] = nums[j], nums[l]
+    return j
+
+def findKthLargest(self, nums: List[int], k: int) -> int:
+    l = 0
+    r = len(nums) - 1
+    target = len(nums) - k
+    while l < r:
+        mid = self.quickSelection(nums, l, r)
+        if mid == target:
+            return nums[mid]
+        if mid < target:
+            l = mid + 1
+        else:
+            r = mid - 1
+    return nums[l]
+```
+
 ## 桶排序
 
 **出现频率最多的 k 个数**
@@ -900,6 +933,17 @@ string frequencySort(string s) {
     }
     return output;
 }
+```
+
+```python
+def frequencySort(self, s: str) -> str:
+    freq = dict()
+    for c in s:
+        if c in freq:
+            freq[c] += 1
+        else:
+            freq[c] = 1
+    return "".join(sorted(s, key=lambda c: (freq[c], ord(c)), reverse=True))
 ```
 
 ## 荷兰国旗问题
@@ -1013,6 +1057,22 @@ int mySqrt(int x) {
     }
     return r;
 }
+```
+
+```python
+def mySqrt(self, x: int) -> int:
+    l = 1
+    r = x
+    while l <= r:
+        mid = l + (r - l) // 2
+        sqrt = x // mid
+        if sqrt == mid:
+            return mid
+        if sqrt < mid:
+            r = mid - 1
+        else:
+            l = mid + 1
+    return r
 ```
 
 本题也可以用牛顿迭代法x\_n+1 = x\_n - f\(x\_n\)/f'\(x\_n\), 其中f = x^2 - a = 0
@@ -1309,6 +1369,22 @@ int dfs(vector<vector<int>>& grid, int r, int c) {
     grid[r][c] = 0;
     return 1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) + dfs(grid, r, c + 1) + dfs(grid, r, c - 1);
 }
+```
+
+```python
+def dfs(self, grid: List[List[int]], i: int, j: int) -> int:
+    if i < 0 or i >= len(grid) or j < 0 or j >= len(grid[0]) or grid[i][j] == 0:
+        return 0
+    grid[i][j] = 0
+    return 1 + self.dfs(grid, i+1, j) + self.dfs(grid, i-1, j) + self.dfs(grid, i, j-1) + self.dfs(grid, i, j+1)
+
+def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+    max_area = 0
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == 1:
+                max_area = max(max_area, self.dfs(grid, i, j))
+    return max_area
 ```
 
 **矩阵中的连通分量数目**
