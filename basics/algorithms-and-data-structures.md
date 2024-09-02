@@ -207,6 +207,21 @@ int eraseOverlapIntervals(vector<vector<int>>& intervals) {
 }
 ```
 
+```python
+def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+    if not intervals:
+        return 0
+    intervals.sort(key=lambda x: x[1])
+    res = 0
+    prev_end = intervals[0][1]
+    for i in range(1, len(intervals)):
+        if prev_end > intervals[i][0]:
+            res += 1
+        else:
+            prev_end = intervals[i][1]
+    return res
+```
+
 **投飞镖刺破气球**
 
 [452. Minimum Number of Arrows to Burst Balloons \(Medium\)](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
@@ -445,6 +460,22 @@ vector<int> twoSum(vector<int>& numbers, int target) {
 }
 ```
 
+```python
+def twoSum(self, numbers: List[int], target: int) -> List[int]:
+    n = len(numbers)
+    l = 0
+    r = n - 1
+    while l < r:
+        two_sum = numbers[l] + numbers[r]
+        if two_sum == target:
+            return [l+1, r+1]
+        elif two_sum > target:
+            r -= 1
+        else:
+            l += 1
+    return []
+```
+
 **两数平方和**
 
 [633. Sum of Square Numbers \(Easy\)](https://leetcode.com/problems/sum-of-square-numbers/)
@@ -570,6 +601,24 @@ ListNode *detectCycle(ListNode *head) {
 }
 ```
 
+```python
+def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+    slow = head
+    fast = head
+    is_fisrt_cycle = True
+    while fast != slow or is_fisrt_cycle:
+        if fast is None or fast.next is None:
+            return None
+        fast = fast.next.next
+        slow = slow.next
+        is_fisrt_cycle = False
+    fast = head
+    while fast != slow:
+        fast = fast.next
+        slow = slow.next
+    return fast
+```
+
 **最长子序列**
 
 [524. Longest Word in Dictionary through Deleting \(Medium\)](https://leetcode.com/problems/longest-word-in-dictionary-through-deleting/)
@@ -624,6 +673,25 @@ int lengthOfLongestSubstringKDistinct(string s, int k) {
     }
     return res;
 }
+```
+
+```python
+def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -> int:
+    freq = dict()
+    l = 0
+    maxlen = 0
+    for r in range(len(s)):
+        if s[r] in freq:
+            freq[s[r]] += 1
+        else:
+            freq[s[r]] = 1
+        while(len(freq) > k):
+            freq[s[l]] -= 1
+            if freq[s[l]] == 0:
+                del freq[s[l]]
+            l += 1
+        maxlen = max(maxlen, r - l + 1)
+    return maxlen
 ```
 
 ## 排序
