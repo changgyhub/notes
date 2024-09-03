@@ -1757,6 +1757,22 @@ void backtracking(vector<int> &nums, int level, vector<vector<int>> &res) {
 }
 ```
 
+```python
+def backtracking(self, nums: List[int], level: int, permutations: List[List[int]]):
+    if level == len(nums) - 1:
+        permutations.append(nums[:])  # shallow copy for primitives are okay
+        return
+    for i in range(level, len(nums)):
+        nums[i], nums[level] = nums[level], nums[i]
+        self.backtracking(nums, level+1, permutations)
+        nums[i], nums[level] = nums[level], nums[i]
+
+def permute(self, nums: List[int]) -> List[List[int]]:
+    permutations = []
+    self.backtracking(nums, 0, permutations)
+    return permutations
+```
+
 **含有相同元素求排列**
 
 [47. Permutations II \(Medium\)](https://leetcode.com/problems/permutations-ii/)
@@ -1789,6 +1805,25 @@ void backtracking(vector<int> nums, int level, vector<vector<int>> &res) {
         swap(nums[i], nums[level]);
     }
 }
+```
+
+```python
+def backtracking(self, nums: List[int], level: int, permutations: List[List[int]]):
+    if level == len(nums) - 1:
+        permutations.append(nums[:])  # shallow copy for primitives are okay
+        return
+    nums[level:] = sorted(nums[level:])  # new in Q47 from Q46
+    for i in range(level, len(nums)):
+        if i != level and nums[i] == nums[i-1]:  # new in Q47 from Q46
+            continue
+        nums[i], nums[level] = nums[level], nums[i]
+        self.backtracking(nums[:], level+1, permutations)  # new in Q47 from Q46 (shallow copy)
+        nums[i], nums[level] = nums[level], nums[i]
+
+def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+    permutations = []
+    self.backtracking(nums, 0, permutations)
+    return permutations
 ```
 
 **组合**
