@@ -8881,6 +8881,33 @@ private:
 };
 ```
 
+```python
+class RandomizedSet:
+    import random
+
+    def __init__(self):
+        self.cache = []
+        self.vk = {}
+
+    def insert(self, val: int) -> bool:
+        if val in self.vk:
+            return False
+        self.vk[val] = len(self.cache)
+        self.cache.append(val)
+        return True
+
+    def remove(self, val: int) -> bool:
+        if val not in self.vk:
+            return False
+        self.vk[self.cache[-1]] = self.vk[val]
+        self.cache[self.vk[val]] = self.cache[-1]
+        del self.vk[val]
+        self.cache.pop()
+        return True
+        
+    def getRandom(self) -> int:
+        return self.cache[random.randint(0, len(self.cache)-1)]
+```
 ## 线程安全结构
 
 利用mutex lock和condition variable等结构，可以使得算法或数据结构具备线程安全性。
