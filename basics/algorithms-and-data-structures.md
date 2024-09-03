@@ -1580,6 +1580,44 @@ void dfs(const vector<vector<int>>& matrix, vector<vector<bool>>& can_reach, int
 }
 ```
 
+```python
+def __init__(self):
+    self.di = [-1, 1, 0, 0]
+    self.dj = [0, 0, 1, -1]
+
+def flow(self, heights: List[List[int]], i: int, j: int, reach: List[List[int]]):
+    if reach[i][j]:
+        return
+    reach[i][j] = True
+    m = len(heights)
+    n = len(heights[0])
+    for d in range(4):
+        next_i = i + self.di[d]
+        next_j = j + self.dj[d]
+        if next_i < 0 or next_i >= m or next_j < 0 or next_j >= n or heights[next_i][next_j] < heights[i][j]:
+            continue
+        self.flow(heights, next_i, next_j, reach)
+
+
+def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
+    m = len(heights)
+    n = len(heights[0])
+    reachP = [[False for _ in range(n)] for _ in range(m)]
+    reachA = [[False for _ in range(n)] for _ in range(m)]
+    for i in range(m):
+        self.flow(heights, i, 0, reachP)
+        self.flow(heights, i, n-1, reachA)
+    for j in range(n):
+        self.flow(heights, 0, j, reachP)
+        self.flow(heights, m-1, j, reachA)
+    res = []
+    for i in range(m):
+        for j in range(n):
+            if reachP[i][j] and reachA[i][j]:
+                res.append([i, j])
+    return res
+```
+
 ## 回溯法
 
 回溯法（Backtracking）属于 DFS。
