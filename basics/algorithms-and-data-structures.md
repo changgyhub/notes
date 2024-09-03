@@ -4393,6 +4393,22 @@ bool isHappy(int n) {
     return slow == 1;
 }
 ```
+```python
+def isHappy(self, n: int) -> bool:
+    visited = set()
+    while True:
+        new_num = 0
+        while n > 0:
+            new_num += int(pow(n % 10, 2))
+            n = n // 10
+        if new_num == 1:
+            return True
+        if new_num in visited:
+            return False
+        visited.add(new_num)
+        n = new_num
+    return True
+```
 
 **判断四个点是否能围成一个正方形**
 
@@ -4922,6 +4938,27 @@ public:
 };
 ```
 
+```python
+class MyQueue:
+    def __init__(self):
+        self.queue = []
+
+    def push(self, x: int) -> None:
+        items = self.queue[:]
+        self.queue = [x]
+        for item in items:
+            self.queue.append(item)
+
+    def pop(self) -> int:
+        return self.queue.pop()
+
+    def peek(self) -> int:
+        return self.queue[-1]
+
+    def empty(self) -> bool:
+        return len(self.queue) == 0
+```
+
 **用队列实现栈**
 
 [225. Implement Stack using Queues \(Easy\)](https://leetcode.com/problems/implement-stack-using-queues/)
@@ -5312,6 +5349,29 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
         return l1;
     }
 }
+```
+
+```python
+import heapq
+def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+    if len(lists) == 0:
+        return None
+    list_pq = []        
+    dummy = ListNode()
+    cur = dummy
+    for idx, l in enumerate(lists):
+        if l is not None:
+            list_pq.append((l.val, idx))  # ListNode is not comparable, so we use a unique idx
+    heapq.heapify(list_pq)
+    while len(list_pq) > 0:
+        l_val, l_idx = heapq.heappop(list_pq)
+        cur.next = ListNode()
+        cur = cur.next
+        cur.val = l_val
+        if lists[l_idx].next is not None:
+            lists[l_idx] = lists[l_idx].next
+            heapq.heappush(list_pq, (lists[l_idx].val, l_idx))
+    return dummy.next
 ```
 
 ## 集合和映射
