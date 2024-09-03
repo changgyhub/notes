@@ -5515,6 +5515,21 @@ int findLHS(vector<int>& nums) {
 }
 ```
 
+```python
+def findLHS(self, nums: List[int]) -> int:
+    freq = dict()
+    for num in nums:
+        if num in freq:
+            freq[num] += 1
+        else:
+            freq[num] = 1
+    max_len = 0
+    for key in freq.keys():
+        if key + 1 in freq:
+            max_len = max(max_len, freq[key] + freq[key+1])
+    return max_len
+```
+
 **最长连续序列**
 
 [128. Longest Consecutive Sequence \(Hard\)](https://leetcode.com/problems/longest-consecutive-sequence/)
