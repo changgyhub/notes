@@ -6025,6 +6025,22 @@ int lengthOfLongestSubstring(string s) {
 }
 ```
 
+```python
+def lengthOfLongestSubstring(self, s: str) -> int:
+    bank = dict()
+    max_len = 0
+    l = 0
+    for r, c in enumerate(s):
+        if c in bank:
+            for i in range(l, bank[c]):
+                del bank[s[i]]
+            l = bank[c] + 1
+            del bank[c]
+        bank[c] = r
+        max_len = max(max_len, r - l + 1)
+    return max_len
+```
+
 **KMP**
 
 [28. Implement strStr() \(Easy\)](https://leetcode.com/problems/implement-strstr/)
@@ -6634,6 +6650,16 @@ ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
 }
 ```
 
+```python
+def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+    curA = headA
+    curB = headB
+    while curA != curB:
+        curA = headB if curA is None else curA.next
+        curB = headA if curB is None else curB.next
+    return curA
+```
+
 如果只是判断是否存在交点，则有两种解法：把第一个链表的结尾连接到第二个链表的开头，看第二个链表是否存在环；或者直接比较两个链表的最后一个节点是否相同。
 
 **链表反转**
@@ -6665,6 +6691,17 @@ ListNode* reverseList(ListNode* head) {
     }
     return prev;
 }
+```
+
+```python
+def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+    prev = None
+    while head is not None:
+        temp = head.next
+        head.next = prev
+        prev = head
+        head = temp
+    return prev
 ```
 
 **归并两个有序的链表**
@@ -6992,6 +7029,21 @@ int helper(TreeNode* node, int& diameter) {
     diameter = max(l + r, diameter);
     return max(l, r) + 1;
 }
+```
+
+```python
+def helper(self, node: Optional[TreeNode], diameter: List[int]) -> int:
+    if node is None:
+        return 0
+    l = self.helper(node.left, diameter)
+    r = self.helper(node.right, diameter)
+    diameter[0] = max(diameter[0], l + r)
+    return 1 + max(l, r)
+
+def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+    diameter = [0]
+    self.helper(root, diameter)
+    return diameter[0]
 ```
 
 **翻转树**
@@ -7688,6 +7740,19 @@ TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
     if (l1 && l2) return root;  
     return !l1 ? l2 : l1;  
 }
+```
+
+```python
+def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+    if root is None:
+        return None
+    if root == p or root == q:
+        return root
+    l = self.lowestCommonAncestor(root.left, p, q)
+    r = self.lowestCommonAncestor(root.right, p, q)
+    if l is not None and r is not None:
+        return root
+    return l if l is not None else r
 ```
 
 **从有序数组中构造二叉查找树**
