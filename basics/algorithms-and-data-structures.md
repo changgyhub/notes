@@ -8533,6 +8533,46 @@ public:
 };
 ```
 
+```python
+class Solution:
+
+    def __init__(self):
+        self.n = 0
+        self.id = None
+        self.sz = None
+
+    def find(self, i: int) -> int:
+        while i != self.id[i]:
+            self.id[i] = self.id[self.id[i]]
+            i = self.id[i]
+        return i
+    
+    def connect(self, i: int, j: int):
+        i = self.find(i)
+        j = self.find(j)
+        if i == j:
+            return
+        if self.sz[i] <= self.sz[j]:
+            self.id[j] = i
+            self.sz[i] += self.sz[j]
+        else:
+            self.id[i] = j
+            self.sz[j] += self.sz[i]
+    
+    def isConnected(self, i: int, j: int) -> bool:
+        return self.find(i) == self.find(j)
+
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        self.n = len(edges)
+        self.id = list(range(self.n))
+        self.sz = [1 for _ in range(self.n)]
+        for i, j in edges:
+            if self.isConnected(i-1, j-1):
+                return [i, j]
+            self.connect(i-1, j-1)
+        return []
+```
+
 ## 绳
 
 为了方便储存长度很大的字符串并加速搜索，可以使用绳（rope）这种数据结构。
