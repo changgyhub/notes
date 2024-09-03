@@ -2092,16 +2092,11 @@ bool isPalindrome(const string &s, int start, int end) {
 ```cpp
 bool isValid(vector<vector<char> > &board, int x, int y) {  
         int i, j;  
-        for (i = 0; i < 9; i++)  
-            if (i != x && board[i][y] == board[x][y])  
-                return false;  
-        for (j = 0; j < 9; j++)  
-            if (j != y && board[x][j] == board[x][y])  
-                return false;  
+        for (i = 0; i < 9; i++) if (i != x && board[i][y] == board[x][y]) return false;  
+        for (j = 0; j < 9; j++) if (j != y && board[x][j] == board[x][y]) return false;  
         for (i = 3 * (x / 3); i < 3 * (x / 3 + 1); i++)  
             for (j = 3 * (y / 3); j < 3 * (y / 3 + 1); j++)  
-                if (i != x && j != y && board[i][j] == board[x][y])  
-                    return false;  
+                if (i != x && j != y && board[i][j] == board[x][y]) return false;  
         return true;  
 }
 bool solveSudoku(vector<vector<char> > &board) {  
@@ -2110,16 +2105,44 @@ bool solveSudoku(vector<vector<char> > &board) {
             if ('.' == board[i][j]) {  
                 for (int k = 1; k <= 9; ++k) {  
                     board[i][j] = '0' + k;  
-                    if (isValid(board, i, j) && solveSudoku(board))  
-                        return true;  
-                    board[i][j] = '.';  
-                }  
+                    if (isValid(board, i, j) && solveSudoku(board)) return true;  
+                } 
+                board[i][j] = '.';
                 return false;  
             }  
         }  
     }
     return true;  
 }
+```
+
+```python
+def isValid(self, board: List[List[str]], i: int, j:int) -> bool:
+    for r in range(9):
+        if r != i and board[r][j] == board[i][j]:
+            return False
+    for c in range(9):
+        if c != j and board[i][c] == board[i][j]:
+            return False
+    block_r = i // 3
+    block_c = j // 3
+    for r in range(block_r * 3, block_r * 3 + 3):
+        for c in range(block_c * 3, block_c * 3 + 3):
+            if not (r == i and j == c) and board[r][c] == board[i][j]:
+                return False
+    return True
+
+def solveSudoku(self, board: List[List[str]]) -> None:
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == '.':
+                for k in range(9):
+                    board[i][j] = chr(ord('0') + k + 1)
+                    if self.isValid(board, i, j) and self.solveSudoku(board):
+                        return True
+                board[i][j] = '.'
+                return False
+    return True
 ```
 
 **N 皇后**
@@ -2303,6 +2326,46 @@ vector<int> findMinHeightTrees(int n, vector<vector<int>> &edges) {
         new_q.clear();
     }
 }
+```
+
+```python
+from collections import deque
+
+def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+    if len(edges) == 0:
+        return list(range(n))
+
+    treemap = dict()
+    for edge in edges:
+        node1, node2 = edge
+        if node1 in treemap:
+            treemap[node1].add(node2)
+        else:
+            treemap[node1] = {node2}
+        if node2 in treemap:
+            treemap[node2].add(node1)
+        else:
+            treemap[node2] = {node1}
+
+    leaves = deque()
+    for key in treemap.keys():
+        if len(treemap[key]) == 1:
+            leaves.append((key, 0))
+    max_height = 0
+    roots = []
+    while len(leaves) > 0:
+        node, node_height = leaves.popleft()
+        if max_height == node_height:
+            roots.append(node)
+        else:
+            max_height = node_height
+            roots = [node]
+        for key in treemap[node]:
+            treemap[key].remove(node)
+            if len(treemap[key]) == 1:
+                leaves.append((key, node_height + 1))
+        del treemap[node]
+    return roots
 ```
 
 **最短单词路径**
@@ -2807,6 +2870,20 @@ bool wordBreak(string s, vector<string>& wordDict) {
 }
 ```
 
+```python
+def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+    n = len(s)
+    dp = [False for _ in range(n + 1)]
+    dp[0] = True
+    for i in range(n):
+        for word in wordDict:
+            m = len(word)
+            if not dp[i+1] and i + 1 >= m and dp[i+1-m] and s[i+1-m:i+1] == word:
+                dp[i+1] = True
+                break
+    return dp[-1]
+```
+
 ## 最长递增子序列
 
 已知一个序列 {S1, S2,...,Sn} ，取出若干数组成新的序列 {Si1, Si2,..., Sim}，其中 i1、i2 ... im 保持递增，即新序列中各个数仍然保持原数列中的先后顺序，称新序列为原序列的一个 **子序列** 。
@@ -2977,6 +3054,18 @@ int longestCommonSubsequence(string text1, string text2) {
     }
     return dp[m][n];
 }
+```
+```python
+def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+    m = len(text1)
+    n = len(text2)
+    dp = [[0 for _ in range(n+1)] for _ in range(m+1)]
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if text1[i-1] == text2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            dp[i][j] = max(max(dp[i][j], dp[i-1][j]), dp[i][j-1])
+    return dp[-1][-1]
 ```
 
 ## 背包问题
@@ -3243,16 +3332,28 @@ Note that different sequences are counted as different combinations.
 Therefore the output is 7.
 ```
 
-完全背包。
+因为允许顺序改变，所以不能直接转化成完全背包问题，需要变成一个一维DP（或者也可以回溯法）
 
 ```cpp
 int combinationSum4(vector<int>& nums, int target) {  
     if (!nums.size()) return 0;  
     vector<int> dp(target + 1, 0);  
     dp[0] = 1;  
-    for (int i = 1; i <= target; ++i) for (auto val: nums) if(val <= i) dp[i] += dp[i-val];
+    for (int i = 1; i <= target; ++i) for (auto val: nums) if (val <= i) dp[i] += dp[i-val];
     return dp[target];  
 }
+```
+
+```python
+def combinationSum4(self, nums: List[int], target: int) -> int:
+    n = len(nums)
+    dp = [0 for _ in range(target+1)]
+    dp[0] = 1
+    for i in range(target+1):
+        for val in nums:
+            if i >= val:
+                dp[i] += dp[i-val]
+    return dp[-1]
 ```
 
 ## 股票交易
@@ -3752,11 +3853,26 @@ int countPrimes(int n) {
 }
 ```
 
+```python
+def countPrimes(self, n: int) -> int:
+    if n <= 2:
+        return 0
+    count = n - 2
+    primes = [True for _ in range(n)]
+    for i in range(2, int(sqrt(n) + 1)):
+        if primes[i]:
+            for j in range(2*i, n, i):
+                if primes[j]:
+                    primes[j] = False
+                    count -= 1
+    return count
+```
+
 ## 最大公约数
 
 ```cpp
 int gcd(int a, int b) {
-    return b == 0 ? a : gcd(b, a% b);
+    return b == 0 ? a : gcd(b, a % b);
 }
 ```
 
@@ -4062,6 +4178,19 @@ public:
 private:
     vector<int> sums;
 };
+```
+
+```python
+import random
+import bisect
+def __init__(self, w: List[int]):
+    self.cursum = w[:]
+    for i in range(1, len(w)):
+        self.cursum[i] += self.cursum[i-1]
+
+def pickIndex(self) -> int:
+    val = random.randint(1, self.cursum[-1])
+    return bisect.bisect_left(self.cursum, val, 0, len(self.cursum))
 ```
 
 **水库采样**
