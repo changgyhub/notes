@@ -3356,6 +3356,37 @@ def combinationSum4(self, nums: List[int], target: int) -> int:
     return dp[-1]
 ```
 
+**书架填充**
+[1105. Filling Bookcase Shelves \(Medium\)](https://leetcode.com/problems/filling-bookcase-shelves/)
+
+给定每个书的宽度和高度，和书架的宽度，判断如果按照顺序放，最小高度是多少。
+
+```markup
+Input: books = [[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]], shelfWidth = 4
+Output: 6
+Explanation:
+The sum of the heights of the 3 shelves is 1 + 3 + 2 = 6.
+Notice that book number 2 does not have to be on the first shelf.
+```
+
+变种0-1背包问题, dp\[i\]表示第i本书作为当前层最后一本书的时候的最小高度。
+
+```python
+def minHeightShelves(self, books: List[List[int]], shelfWidth: int) -> int:
+    n = len(books)
+    dp = [0 for _ in range(n + 1)]
+    for i, (w, h) in enumerate(books, 1):
+        dp[i] = dp[i-1] + h
+        for j in range(i-1, 0, -1):
+            w += books[j-1][0]
+            if w > shelfWidth:
+                break
+            h = max(h, books[j-1][1])
+            dp[i] = min(dp[i], dp[j-1] + h)
+    return dp[n]  
+```
+
+
 ## 股票交易
 
 **只能进行一次的股票交易**
@@ -7369,6 +7400,42 @@ int findBottomLeftValue(TreeNode* root) {
     }
     return root->val;
 }
+```
+
+**找到一棵树叶子节点距离最短的对子个数**
+
+[1530. Number of Good Leaf Nodes Pairs \(Medium\)](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/)
+
+要求距离不能超过给定distance。
+
+```markup
+Input:
+distance = 3
+        1
+       / \
+      2   3
+       \
+        4
+
+Output: 1
+Explanation: The leaf nodes of the tree are 3 and 4 and the length of the shortest path between them is 3. This is the only good pair.
+```
+
+```python
+def dfs(self, node: TreeNode, distance:int, count: List[int]):
+    if not node:
+        return []
+    if not node.left and not node.right:
+        return [1]
+    left = self.dfs(node.left, distance, count)
+    right = self.dfs(node.right, distance, count)
+    count[0] += sum(l + r <= distance for l in left for r in right)
+    return [n + 1 for n in left + right if n + 1 < distance]
+
+def countPairs(self, root: TreeNode, distance: int) -> int:       
+    count = [0] 
+    self.dfs(root, distance, count)
+    return count[0]
 ```
 
 ## 前中后序遍历
