@@ -3068,6 +3068,48 @@ def longestCommonSubsequence(self, text1: str, text2: str) -> int:
     return dp[-1][-1]
 ```
 
+**最长重复子字符串**
+
+[1062. Longest Repeating Substring \(Medium\)](https://leetcode.com/problems/longest-repeating-substring/)
+
+```markup
+Input: s = "aabcaabdaab"
+Output: 3
+Explanation: The longest repeating substring is "aab", which occurs 3 times.
+```
+
+注意这里的dp\[i]\[j\]代表双指针i和j遍历到该位置时，以当前指针结尾的最长相同字符串长度。
+
+```cpp
+ int longestRepeatingSubstring(string s) {
+     int n = s.length();
+     vector<vector<int>> dp(n+1, vector<int>(n+1, 0));
+     int maxLength = 0;
+     for(int i = 1; i <= n; i++){
+         for(int j = i + 1; j <= n; j++){
+             if(s[i-1] == s[j-1]){
+                 dp[i][j] = dp[i-1][j-1] + 1;
+                 maxLength = max(maxLength, dp[i][j]);
+             }
+         }
+     }
+     return maxLength;
+ }
+```
+
+```python
+def longestRepeatingSubstring(self, s: str) -> int:
+    n = len(s)
+    dp = [[0 for _ in range(n+1)] for _ in range(n+1)]
+    max_len = 0
+    for i in range(1, n+1):
+        for j in range(i+1, n+1):
+            if s[i-1] == s[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+                max_len = max(max_len, dp[i][j])
+    return max_len
+```
+
 ## 背包问题
 
 有N个物品和容量为W的背包，要用这个背包装下物品的价值最大，这些物品有两个属性：体积 w 和价值 v。
