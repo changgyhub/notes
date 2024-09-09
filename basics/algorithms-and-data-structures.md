@@ -7384,6 +7384,42 @@ pair<int, int> robDFS(TreeNode* node) {
 }
 ```
 
+**找到一棵树叶子节点距离最短的对子个数**
+
+[1530. Number of Good Leaf Nodes Pairs \(Medium\)](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/)
+
+要求距离不能超过给定distance。
+
+```markup
+Input:
+distance = 3
+        1
+       / \
+      2   3
+       \
+        4
+
+Output: 1
+Explanation: The leaf nodes of the tree are 3 and 4 and the length of the shortest path between them is 3. This is the only good pair.
+```
+
+```python
+def dfs(self, node: TreeNode, distance:int, count: List[int]):
+    if not node:
+        return []
+    if not node.left and not node.right:
+        return [1]
+    left = self.dfs(node.left, distance, count)
+    right = self.dfs(node.right, distance, count)
+    count[0] += sum(l + r <= distance for l in left for r in right)
+    return [n + 1 for n in left + right if n + 1 < distance]
+
+def countPairs(self, root: TreeNode, distance: int) -> int:       
+    count = [0] 
+    self.dfs(root, distance, count)
+    return count[0]
+```
+
 ## 层次遍历
 
 使用 BFS 进行层次遍历。不需要使用两个队列来分别存储当前层的节点和下一层的节点，因为在开始遍历一层的节点时，当前队列中的节点数就是当前层的节点数，只要控制遍历这么多节点数，就能保证这次遍历的都是当前层的节点。
@@ -7443,42 +7479,6 @@ int findBottomLeftValue(TreeNode* root) {
     }
     return root->val;
 }
-```
-
-**找到一棵树叶子节点距离最短的对子个数**
-
-[1530. Number of Good Leaf Nodes Pairs \(Medium\)](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/)
-
-要求距离不能超过给定distance。
-
-```markup
-Input:
-distance = 3
-        1
-       / \
-      2   3
-       \
-        4
-
-Output: 1
-Explanation: The leaf nodes of the tree are 3 and 4 and the length of the shortest path between them is 3. This is the only good pair.
-```
-
-```python
-def dfs(self, node: TreeNode, distance:int, count: List[int]):
-    if not node:
-        return []
-    if not node.left and not node.right:
-        return [1]
-    left = self.dfs(node.left, distance, count)
-    right = self.dfs(node.right, distance, count)
-    count[0] += sum(l + r <= distance for l in left for r in right)
-    return [n + 1 for n in left + right if n + 1 < distance]
-
-def countPairs(self, root: TreeNode, distance: int) -> int:       
-    count = [0] 
-    self.dfs(root, distance, count)
-    return count[0]
 ```
 
 ## 前中后序遍历
