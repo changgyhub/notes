@@ -3399,6 +3399,7 @@ def combinationSum4(self, nums: List[int], target: int) -> int:
 ```
 
 **书架填充**
+
 [1105. Filling Bookcase Shelves \(Medium\)](https://leetcode.com/problems/filling-bookcase-shelves/)
 
 给定每个书的宽度和高度，和书架的宽度，判断如果按照顺序放，最小高度是多少。
