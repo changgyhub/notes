@@ -7384,11 +7384,9 @@ pair<int, int> robDFS(TreeNode* node) {
 }
 ```
 
-**找到一棵树叶子节点距离最短的对子个数**
+**找到一棵树叶子节点距离不超过规定距离的对子个数**
 
 [1530. Number of Good Leaf Nodes Pairs \(Medium\)](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/)
-
-要求距离不能超过给定distance。
 
 ```markup
 Input:
