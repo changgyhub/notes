@@ -8661,11 +8661,11 @@ class Solution:
         if i == j:
             return
         if self.sz[i] <= self.sz[j]:
-            self.id[j] = i
-            self.sz[i] += self.sz[j]
-        else:
             self.id[i] = j
             self.sz[j] += self.sz[i]
+        else:
+            self.id[j] = i
+            self.sz[i] += self.sz[j]
     
     def isConnected(self, i: int, j: int) -> bool:
         return self.find(i) == self.find(j)
