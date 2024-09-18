@@ -8590,64 +8590,13 @@ Explanation: The given undirected graph will be like this:
 
 题目描述：在无向图找出一条边，移除它之后该图能够成为一棵树（即无向无环图）。
 
-```cpp
-class UF {
-public:
-    vector<int> id, sz;
-
-    UF(int n) {
-        id = vector<int>(n);
-        sz = vector<int>(n, 1);
-        for (int i = 0; i < n; ++i) id[i] = i;
-    }
-
-    int find(int p) {
-        while (p != id[p]) {
-            id[p] = id[id[p]];
-            p = id[p];
-        }
-        return p;
-    }
-
-    void connect(int p, int q) {
-        int i = find(p), j = find(q);
-        if (i == j) return;
-        if (sz[i] < sz[j]) {
-            id[i] = j;
-            sz[j] += sz[i];
-        } else {
-            id[j] = i;
-            sz[i] += sz[j];
-        }
-    }
-    
-    bool isConnected(int p, int q) {
-        return find(p) == find(q);
-    }
-};
-
-class Solution {
-public:
-    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
-        int n = edges.size();
-        UF uf(n + 1);
-        for (auto e: edges) {
-            int u = e[0], v = e[1];
-            if (uf.isConnected(u, v)) return e;
-            uf.connect(u, v);
-        }
-        return vector<int>{-1, -1};
-    }
-};
-```
-
 ```python
 class Solution:
 
     def __init__(self):
         self.n = 0
         self.id = None
-        self.sz = None
+        self.depth = None
 
     def find(self, i: int) -> int:
         while i != self.id[i]:
@@ -8660,12 +8609,12 @@ class Solution:
         j = self.find(j)
         if i == j:
             return
-        if self.sz[i] <= self.sz[j]:
+        if self.depth[i] <= self.depth[j]:
             self.id[i] = j
-            self.sz[j] += self.sz[i]
+            self.depth[j] = max(self.depth[j], self.depth[i] + 1)
         else:
             self.id[j] = i
-            self.sz[i] += self.sz[j]
+            self.depth[i] = max(self.depth[i], self.depth[j] + 1)
     
     def isConnected(self, i: int, j: int) -> bool:
         return self.find(i) == self.find(j)
@@ -8673,7 +8622,7 @@ class Solution:
     def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
         self.n = len(edges)
         self.id = list(range(self.n))
-        self.sz = [1 for _ in range(self.n)]
+        self.depth = [1 for _ in range(self.n)]
         for i, j in edges:
             if self.isConnected(i-1, j-1):
                 return [i, j]
