@@ -2964,15 +2964,24 @@ def findLadders(beginWord: str, endWord: str,
 
 ```cpp
 int climbStairs(int n) {
-    if (n <= 2) return n;
-    int pre2 = 1, pre1 = 2, cur;
-    for (int i = 2; i < n; ++i) {
-        cur = pre1 + pre2;
-        pre2 = pre1;
-        pre1 = cur;
+    int prev_prev = 1, prev = 1, cur = 1;
+    for (int i = 2; i <= n; ++i) {
+        cur = prev_prev + prev;
+        prev_prev = prev;
+        prev = cur;
     }
-    return pre1;
+    return cur;
 }
+```
+
+```python
+def climbStairs(n: int) -> int:
+    prev_prev = prev = cur = 1
+    for _ in range(2, n + 1):
+        cur = prev_prev + prev
+        prev_prev = prev
+        prev = cur
+    return cur
 ```
 
 **强盗抢劫**
@@ -2984,31 +2993,47 @@ int climbStairs(int n) {
 定义 dp 数组用来存储最大的抢劫量，其中 dp\[i\] 表示抢到第 i 个住户时的最大抢劫量，dp\[i+1\] = max\(dp\[i\], nums\[i\] + dp\[i-1\]\)。对于这种1维的 dp 数组，可以压缩成几个相邻的变量。
 
 ```cpp
-// without compression
+// without compression.
 int rob(vector<int>& nums) {
-    if (nums.empty()) return 0;
     int n = nums.size();
     vector<int> dp(n + 1, 0);
     dp[1] = nums[0];
-    for (int i = 1; i < n; ++i) {
-        dp[i+1] = max(dp[i], nums[i] + dp[i-1]);
+    for (int i = 2; i <= n; ++i) {
+        dp[i] = max(dp[i - 1], nums[i - 1] + dp[i - 2]);
     }
     return dp[n];
 }
 
-// with compression
+// with compression.
 int rob(vector<int>& nums) {
-    if (nums.empty()) return 0;
-    int n = nums.size();
-    if (n == 1) return nums[0];
-    int pre2 = 0, pre1 = 0, cur;
-    for (int i = 0; i < n; ++i) {
-        cur = max(pre2 + nums[i], pre1);
-        pre2 = pre1;
-        pre1 = cur;
+    int prev_prev = 0, prev = 0, cur = 0;
+    for (int i = 0; i < nums.size(); ++i) {
+        cur = max(prev_prev + nums[i], prev);
+        prev_prev = prev;
+        prev = cur;
     }
-    return max(pre1, cur);
+    return cur;
 }
+```
+
+```python
+# without compression.
+def rob(nums: List[int]) -> int:
+    n = len(nums)
+    dp = [0] * (n + 1)
+    dp[1] = nums[0]
+    for i in range(2, n + 1):
+        dp[i] = max(dp[i - 1], nums[i - 1] + dp[i - 2])
+    return dp[n]
+
+# with compression.
+def rob(nums: List[int]) -> int:
+    prev_prev = prev = cur = 0
+    for i in range(len(nums)):
+        cur = max(prev_prev + nums[i], prev)
+        prev_prev = prev
+        prev = cur
+    return cur
 ```
 
 **强盗在环形街区抢劫**
@@ -3016,7 +3041,7 @@ int rob(vector<int>& nums) {
 [213. House Robber II \(Medium\)](https://leetcode.com/problems/house-robber-ii/)
 
 ```cpp
-// without compression
+// without compression.
 int rob(vector<int>& nums) {
     int n = nums.size();
     if (!n) return 0;
@@ -3030,14 +3055,13 @@ int rob(vector<int>& nums) {
     return max(dp1[n-1], dp2[n-1]);
 }
 
-// with compression
+// with compression.
 int rob(vector<int>& nums) {
     int n = nums.size();
     if (!n) return 0;
     if (n == 1) return nums[0];
     return max(rob(nums, 0, n - 1), rob(nums, 1, n));
 }
-    
 int rob(vector<int>& nums, int first, int last) {
     int pre2 = 0, pre1 = 0, cur;
     for (int i = first; i < last; ++i) {
@@ -3086,17 +3110,39 @@ Given the above grid map, return 7. Because the path 1→3→1→1→1 minimizes
 ```cpp
 int minPathSum(vector<vector<int>>& grid) {
     int m = grid.size(), n = grid[0].size();
-    vector<int> dp(n, 0);
+    vector<vector<int>> dp(m, vector<int>(n, 0));
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
-            if (j == 0 && i == 0) dp[j] = grid[i][j];
-            else if (j == 0) dp[j] = dp[j] + grid[i][j];
-            else if (i == 0) dp[j] = dp[j-1] + grid[i][j];
-            else dp[j] = std::min(dp[j], dp[j-1]) + grid[i][j];
+            if (i == 0 && j == 0) {
+                dp[i][j] = grid[i][j];
+            } else if (i == 0) {
+                dp[i][j] = grid[i][j] + dp[i][j - 1];
+            } else if (j == 0) {
+                dp[i][j] = grid[i][j] + dp[i - 1][j];
+            } else {
+                dp[i][j] = grid[i][j] + min(dp[i - 1][j], dp[i][j - 1]);
+            }
         }
     }
-    return dp[n-1];
+    return dp[m - 1][n - 1];
 }
+```
+
+```python
+def minPathSum(grid: List[List[int]]) -> int:
+    m, n = len(grid), len(grid[0])
+    dp = [[0 for _ in range(n)] for _ in range(m)]
+    for i in range(m):
+        for j in range(n):
+            if i == j == 0:
+                dp[i][j] = grid[i][j]
+            elif i == 0:
+                dp[i][j] = grid[i][j] + dp[i][j - 1]
+            elif j == 0:
+                dp[i][j] = grid[i][j] + dp[i - 1][j]
+            else:
+                dp[i][j] = grid[i][j] + min(dp[i][j - 1], dp[i - 1][j])
+    return dp[m - 1][n - 1]
 ```
 
 **矩阵的总路径数**
@@ -3149,29 +3195,59 @@ Output:
 
 ```cpp
 vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
-    if (matrix.empty()) return {};
-    int n = matrix.size(), m = matrix[0].size();
-    vector<vector<int>> dp(n, vector<int>(m, INT_MAX-1));
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            if (!matrix[i][j]) dp[i][j] = 0;
-            else {
-                if (j > 0) dp[i][j] = min(dp[i][j], dp[i][j-1] + 1);
-                if (i > 0) dp[i][j] = min(dp[i][j], dp[i-1][j] + 1);
+    int m = matrix.size(), n = matrix[0].size();
+    vector<vector<int>> dp(m, vector<int>(n, numeric_limits<int>::max() - 1));
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (matrix[i][j] != 0) {
+                if (i > 0) {
+                    dp[i][j] = min(dp[i][j], dp[i - 1][j] + 1);
+                }
+                if (j > 0) {
+                    dp[i][j] = min(dp[i][j], dp[i][j - 1] + 1);
+                }
+            } else {
+                dp[i][j] = 0;
             }
         }
     }
-    for (int i = n - 1; i >= 0; --i) {
-        for (int j = m - 1; j >= 0; --j) {
-            if (!matrix[i][j]) continue;
-            else {
-                if (j < m - 1) dp[i][j] = min(dp[i][j], dp[i][j+1] + 1);
-                if (i < n - 1) dp[i][j] = min(dp[i][j], dp[i+1][j] + 1);
+    for (int i = m - 1; i >= 0; --i) {
+        for (int j = n - 1; j >= 0; --j) {
+            if (matrix[i][j] != 0) {
+                if (i < m - 1) {
+                    dp[i][j] = min(dp[i][j], dp[i + 1][j] + 1);
+                }
+                if (j < n - 1) {
+                    dp[i][j] = min(dp[i][j], dp[i][j + 1] + 1);
+                }
             }
         }
     }
     return dp;
 }
+```
+
+```python
+def updateMatrix(matrix: List[List[int]]) -> List[List[int]]:
+    m, n = len(matrix), len(matrix[0])
+    dp = [[sys.maxsize - 1 for _ in range(n)] for _ in range(m)]
+    for i in range(m):
+        for j in range(n):
+            if matrix[i][j] != 0:
+                if i > 0:
+                    dp[i][j] = min(dp[i][j], dp[i - 1][j] + 1)
+                if j > 0:
+                    dp[i][j] = min(dp[i][j], dp[i][j - 1] + 1)
+            else:
+                dp[i][j] = 0
+    for i in range(m - 1, -1, -1):  # m-1 to 0, reversed
+        for j in range(n - 1, -1, -1):  # n-1 to 0, reversed
+            if matrix[i][j] != 0:
+                if i < m - 1:
+                    dp[i][j] = min(dp[i][j], dp[i + 1][j] + 1)
+                if j < n - 1:
+                    dp[i][j] = min(dp[i][j], dp[i][j + 1] + 1)
+    return dp
 ```
 
 ## 数组区间
@@ -3215,15 +3291,24 @@ dp\[i\] 表示以 A\[i\] 为结尾的等差递增子区间的个数。
 ```cpp
 int numberOfArithmeticSlices(vector<int>& nums) {
     int n = nums.size();
-    if (n < 3) return 0;
     vector<int> dp(n, 0);
     for (int i = 2; i < n; ++i) {
-        if (nums[i] - nums[i-1] == nums[i-1] - nums[i-2]) {
-            dp[i] = dp[i-1] + 1;
+        if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
+            dp[i] = dp[i - 1] + 1;
         }
     }
     return accumulate(dp.begin(), dp.end(), 0);
 }
+```
+
+```python
+def numberOfArithmeticSlices(nums: List[int]) -> int:
+    n = len(nums)
+    dp = [0] * n
+    for i in range(2, n):
+        if nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]:
+            dp[i] = dp[i - 1] + 1
+    return sum(dp)
 ```
 
 **最大正方形**
@@ -3244,20 +3329,31 @@ Output: 4
 
 ```cpp
 int maximalSquare(vector<vector<char>>& matrix) {
-    if (matrix.empty() || matrix[0].empty()) return 0;
     int m = matrix.size(), n = matrix[0].size();
-    int res = 0;
+    int max_side = 0;
     vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
     for (int i = 1; i <= m; ++i) {
         for (int j = 1; j <= n; ++j) {
-            if (matrix[i-1][j-1] == '1') {
-                dp[i][j] = min(dp[i-1][j-1], min(dp[i][j-1], dp[i-1][j])) + 1;
+            if (matrix[i - 1][j - 1] == '1') {
+                dp[i][j] =
+                    min(dp[i - 1][j - 1], min(dp[i][j - 1], dp[i - 1][j])) + 1;
             }
-            res = max(res, dp[i][j]);
+            max_side = max(max_side, dp[i][j]);
         }
     }
-    return res * res;
+    return max_side * max_side;
 }
+```
+
+```python
+def maximalSquare(matrix: List[List[str]]) -> int:
+    m, n = len(matrix), len(matrix[0])
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if matrix[i - 1][j - 1] == "1":
+                dp[i][j] = min(dp[i - 1][j - 1], dp[i][j - 1], dp[i - 1][j]) + 1
+    return max(max(row) for row in dp) ** 2
 ```
 
 ## 分割整数
@@ -3269,19 +3365,19 @@ int maximalSquare(vector<vector<char>>& matrix) {
 题目描述：For example, given n = 2, return 1 \(2 = 1 + 1\); given n = 10, return 36 \(10 = 3 + 3 + 4\).
 
 ```cpp
-// dp solution
-int integerBreak(int n) {
-    vector<int> dp(n + 1, 0);
-    dp[1] = 1;
-    for (int i = 2; i <= n; ++i) {
-        for (int j = 1; j <= i - 1; ++j) {
-            dp[i] = max(dp[i], max(j * dp[i-j], j * (i - j)));
+// dp solution.
+int numSquares(int n) {
+    vector<int> dp(n + 1, numeric_limits<int>::max());
+    dp[0] = 0;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j * j <= i; ++j) {
+            dp[i] = min(dp[i], dp[i - j * j] + 1);
         }
     }
     return dp[n];
 }
 
-// math solution
+// math solution.
 int integerBreak(int n) {
     if (n == 2) return 1;
     if (n == 3) return 2;
@@ -3290,6 +3386,15 @@ int integerBreak(int n) {
     if (n == 6) return 9;
     return 3 * integerBreak(n - 3);
 }
+```
+
+```python
+def numSquares(n: int) -> int:
+    dp = [0] + [sys.maxsize] * n
+    for i in range(1, n + 1):
+        for j in range(1, int(floor(sqrt(i))) + 1):
+            dp[i] = min(dp[i], dp[i - j * j] + 1)
+    return dp[n]
 ```
 
 **按平方数来分割整数**
@@ -3320,23 +3425,66 @@ int numSquares(int n)  {
 ```cpp
 int numDecodings(string s) {
     int n = s.length();
-    if (!n) return 0;
     int prev = s[0] - '0';
-    if (!prev) return 0;
-    if (n == 1) return 1;
-    vector<int> dp(n+1, 1);
+    if (prev == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    vector<int> dp(n + 1, 1);
     for (int i = 2; i <= n; ++i) {
-        int cur = s[i-1] - '0';
-        if ((prev == 0 || prev > 2) && cur == 0) return 0;
-        if ((prev < 2 && prev > 0) || prev == 2 && cur < 7) {
-            if (cur) dp[i] = dp[i-2] + dp[i-1];
-            else dp[i] = dp[i-2];
+        int cur = s[i - 1] - '0';
+        if ((prev == 0 || prev > 2) && cur == 0) {
+            // 00, 30, 40, ..., 90, 非法。
+            return 0;
         }
-        else dp[i] = dp[i-1];
+        if ((prev < 2 && prev > 0) || (prev == 2 && cur <= 6)) {
+            // 10, 11, ..., 25, 26.
+            if (cur == 0) {
+                // 10, 20，只能连续解码两位。
+                dp[i] = dp[i - 2];
+            } else {
+                // 可以解码当前位，也可以连续解码两位。
+                dp[i] = dp[i - 2] + dp[i - 1];
+            }
+        } else {
+            // 合法，但只能解码当前位。
+            dp[i] = dp[i - 1];
+        }
         prev = cur;
     }
-    return dp.back();
+    return dp[n];
 }
+```
+
+```python
+def numDecodings(s: str) -> int:
+    n = len(s)
+    prev = ord(s[0]) - ord("0")
+    if prev == 0:
+        return 0
+    if n == 1:
+        return 1
+    dp = [1] * (n + 1)
+    for i in range(2, n + 1):
+        cur = ord(s[i - 1]) - ord("0")
+        if (prev == 0 or prev > 2) and cur == 0:
+            # 00, 30, 40, ..., 90, 非法。
+            return 0
+        if 0 < prev < 2 or (prev == 2 and cur <= 6):
+            # 10, 11, ..., 25, 26.
+            if cur == 0:
+                # 10, 20，只能连续解码两位。
+                dp[i] = dp[i - 2]
+            else:
+                # 可以解码当前位，也可以连续解码两位。
+                dp[i] = dp[i - 2] + dp[i - 1]
+        else:
+            # 合法，但只能解码当前位。
+            dp[i] = dp[i - 1]
+        prev = cur
+    return dp[n]
 ```
 
 **字符串按单词列表分割**
@@ -3355,10 +3503,16 @@ bool wordBreak(string s, vector<string>& wordDict) {
     vector<bool> dp(n + 1, false);
     dp[0] = true;
     for (int i = 1; i <= n; ++i) {
-        for (const string & word: wordDict) {
-            int len = word.length();
-            if (i < len) continue;
-            if (s.substr(i - len, len) == word) dp[i] = dp[i] || dp[i - len];
+        for (const string& word : wordDict) {
+            int m = word.length();
+            if (i >= m && s.substr(i - m, m) == word) {
+                dp[i] = dp[i - m];
+            }
+            // 提前剪枝，略微加速运算。
+            // 如果不剪枝，上一行代码需要变更为 dp[i] = dp[i] || dp[i - m];
+            if (dp[i]) {
+                break;
+            }
         }
     }
     return dp[n];
@@ -3366,17 +3520,118 @@ bool wordBreak(string s, vector<string>& wordDict) {
 ```
 
 ```python
-def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+def wordBreak(s: str, wordDict: List[str]) -> bool:
     n = len(s)
-    dp = [False for _ in range(n + 1)]
-    dp[0] = True
-    for i in range(n):
+    dp = [True] + [False] * n
+    for i in range(1, n + 1):
         for word in wordDict:
             m = len(word)
-            if not dp[i+1] and i + 1 >= m and dp[i+1-m] and s[i+1-m:i+1] == word:
-                dp[i+1] = True
+            if i >= m and s[i - m : i] == word:
+                dp[i] = dp[i - m]
+            # 提前剪枝，略微加速运算。
+            # 如果不剪枝，上一行代码需要变更为 dp[i] = dp[i] or dp[i-m]
+            if dp[i]:
                 break
-    return dp[-1]
+    return dp[n]
+```
+
+**书架填充**
+
+[1105. Filling Bookcase Shelves \(Medium\)](https://leetcode.com/problems/filling-bookcase-shelves/)
+
+给定每个书的宽度和高度，和书架的宽度，判断如果按照顺序放，最小高度是多少。
+
+```markup
+Input: books = [[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]], shelfWidth = 4
+Output: 6
+Explanation:
+The sum of the heights of the 3 shelves is 1 + 3 + 2 = 6.
+Notice that book number 2 does not have to be on the first shelf.
+```
+
+令dp\[i\]表示放置第i本书时的最小总高度，则dp\[i\]可以是在第i-1本书下面重新放一排，也可以是在满足不超过前一排宽度的情况下放在前一排。
+
+```cpp
+int minHeightShelves(vector<vector<int>>& books, int shelfWidth) {
+    int n = books.size();
+    vector<int> dp(n + 1, 0);
+    for (int i = 1; i <= n; ++i) {
+        int w = books[i - 1][0], h = books[i - 1][1];
+        dp[i] = dp[i - 1] + h;
+        for (int j = i - 1; j > 0; --j) {
+            int prev_w = books[j - 1][0], prev_h = books[j - 1][1];
+            w += prev_w;
+            if (w > shelfWidth) {
+                break;
+            }
+            h = max(h, prev_h);
+            dp[i] = min(dp[i], dp[j - 1] + h);
+        }
+    }
+    return dp[n];
+}
+```
+
+```python
+def minHeightShelves(books: List[List[int]], shelfWidth: int) -> int:
+    n = len(books)
+    dp = [0] * (n + 1)
+    for i, (w, h) in enumerate(books, 1):
+        dp[i] = dp[i - 1] + h
+        for j in range(i - 1, 0, -1):
+            prev_w, prev_h = books[j - 1]
+            w += prev_w
+            if w > shelfWidth:
+                break
+            h = max(h, prev_h)
+            dp[i] = min(dp[i], dp[j - 1] + h)
+    return dp[n]
+```
+
+**组合总和**
+
+[377. Combination Sum IV \(Medium\)](https://leetcode.com/problems/combination-sum-iv/)
+
+```markup
+nums = [1, 2, 3]
+target = 4
+
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+
+Note that different sequences are counted as different combinations.
+Therefore the output is 7.
+```
+
+虽然这道题叫做Combination Sum，但是不同顺序的组合会被当作不同答案，因此本质上是排列。
+
+```cpp
+int combinationSum4(vector<int>& nums, int target) {
+    vector<double> dp(target + 1, 0);
+    dp[0] = 1;
+    for (int i = 1; i <= target; ++i) {
+        for (int num : nums) {
+            if (num <= i) {
+                dp[i] += dp[i - num];
+            }
+        }
+    }
+    return dp[target];
+}
+```
+
+```python
+def combinationSum4(nums: List[int], target: int) -> int:
+    dp = [1] + [0] * target
+    for i in range(1, target + 1):
+        dp[i] = sum(dp[i - num] for num in nums if i >= num)
+    return dp[target]
 ```
 
 ## 最长递增子序列
@@ -3397,19 +3652,29 @@ def wordBreak(self, s: str, wordDict: List[str]) -> bool:
 
 ```cpp
 int lengthOfLIS(vector<int>& nums) {
-    int curmax = 0, n = nums.size();
-    if (n <= 1) return n;
+    int max_len = 0, n = nums.size();
     vector<int> dp(n, 1);
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < i; ++j) {
             if (nums[i] > nums[j]) {
-                dp[i] = max(dp[i], dp[j]+1);
+                dp[i] = max(dp[i], dp[j] + 1);
             }
         }
-        curmax = max(curmax, dp[i]);
+        max_len = max(max_len, dp[i]);
     }
-    return curmax;
+    return max_len;
 }
+```
+
+```python
+def lengthOfLIS(nums: List[int]) -> int:
+    n = len(nums)
+    dp = [1] * n
+    for i in range(n):
+        for j in range(i):
+            if nums[i] > nums[j]:
+                dp[i] = max(dp[i], dp[j] + 1)
+    return max(dp)
 ```
 
 以上解法的时间复杂度为 O\(N^2\) ，可以使用二分查找将时间复杂度降低为 O\(NlogN\)。
@@ -3434,16 +3699,27 @@ tails      len      num
 
 ```cpp
 int lengthOfLIS(vector<int>& nums) {
-    int n = nums.size();
-    if (n <= 1) return n;
-    vector<int> res;
-    res.push_back(nums[0]);
-    for (int i = 1; i < n; ++i) {
-        if (res.back() < nums[i]) res.push_back(nums[i]);
-        else res[lower_bound(res.begin(), res.end(), nums[i]) - res.begin()] = nums[i];
+    vector<int> dp{nums[0]};
+    for (int num: nums) {
+        if (dp.back() < num) {
+            dp.push_back(num);
+        } else {
+            *lower_bound(dp.begin(), dp.end(), num) = num;
+        }
     }
-    return res.size();
+    return dp.size();
 }
+```
+
+```python
+def lengthOfLIS(nums: List[int]) -> int:
+    dp = [nums[0]]
+    for num in nums:
+        if dp[-1] < num:
+            dp.append(num)
+        else:
+            dp[bisect.bisect_left(dp, num, 0, len(dp))] = num
+    return len(dp)
 ```
 
 **一组整数对能够构成的最长链**
@@ -3544,23 +3820,28 @@ int longestCommonSubsequence(string text1, string text2) {
     vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
     for (int i = 1; i <= m; ++i) {
         for (int j = 1; j <= n; ++j) {
-            dp[i][j] = text1[i-1] == text2[j-1]? 1 + dp[i-1][j-1]: max(dp[i-1][j], dp[i][j-1]);
+            if (text1[i - 1] == text2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
         }
     }
     return dp[m][n];
 }
 ```
+
 ```python
-def longestCommonSubsequence(self, text1: str, text2: str) -> int:
-    m = len(text1)
-    n = len(text2)
-    dp = [[0 for _ in range(n+1)] for _ in range(m+1)]
-    for i in range(1, m+1):
-        for j in range(1, n+1):
-            if text1[i-1] == text2[j-1]:
-                dp[i][j] = dp[i-1][j-1] + 1
-            dp[i][j] = max(max(dp[i][j], dp[i-1][j]), dp[i][j-1])
-    return dp[-1][-1]
+def longestCommonSubsequence(text1: str, text2: str) -> int:
+    m, n = len(text1), len(text2)
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if text1[i - 1] == text2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp[m][n]
 ```
 
 **最长重复子字符串**
@@ -3619,20 +3900,33 @@ def longestRepeatingSubstring(self, s: str) -> int:
 综上，0-1 背包的状态转移方程为：dp\[i\]\[j\] = max\(dp\[i - 1\]\[j\], dp\[i-1\]\[j-w\] + v\)。
 
 ```cpp
-int knapsack(vector<int> weights, vector<int> values, int N, int W) {
-    vector<vector<int>> dp (N + 1, vector<int>(W + 1, 0));
-    for (int i = 1; i <= N; ++i) {
-        int w = weights[i-1], v = values[i-1];
-        for (int j = 1; j <= W; ++j) {
-            if (j >= w) {
-                dp[i][j] = max(dp[i-1][j], dp[i-1][j-w] + v);
+int knapsack(vector<int> weights, vector<int> values, int n, int w) {
+    vector<vector<int>> dp(n + 1, vector<int>(w + 1, 0));
+    for (int i = 1; i <= n; ++i) {
+        int weight = weights[i - 1], value = values[i - 1];
+        for (int j = 1; j <= w; ++j) {
+            if (j >= weight) {
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight] + value);
             } else {
-                dp[i][j] = dp[i-1][j];
+                dp[i][j] = dp[i - 1][j];
             }
         }
     }
-    return dp[N][W];
+    return dp[n][w];
 }
+```
+
+```python
+def knapsack(weights: List[int], values: List[int], n: int, w: int) -> int:
+    dp = [[0 for _ in range(w + 1)] for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        weight, value = weights[i - 1], values[i - 1]
+        for j in range(1, w + 1):
+            if j >= weight:
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight] + value)
+            else:
+                dp[i][j] = dp[i - 1][j]
+    return dp[n][w]
 ```
 
 **空间优化**
@@ -3642,14 +3936,26 @@ int knapsack(vector<int> weights, vector<int> values, int N, int W) {
 因为 dp\[j-w\] 表示 dp\[i-1\]\[j-w\]，因此不能先求 dp\[i\]\[j-w\]，以防止将 dp\[i-1\]\[j-w\] 覆盖。也就是说要先计算 dp\[i\]\[j\] 再计算 dp\[i\]\[j-w\]，在程序实现时需要按倒序来循环求解。
 
 ```cpp
-int knapsack(vector<int> weights, vector<int> values, int N, int W) {
-    vector<int> dp (W + 1, 0);
-    for (int i = 1; i <= N; ++i) {
-        int w = weights[i-1], v = values[i-1];
-        for (int j = W; j >= w; --j) dp[j] = max(dp[j], dp[j-w] + v);
+int knapsack(vector<int> weights, vector<int> values, int n, int w) {
+    vector<int> dp(w + 1, 0);
+    for (int i = 1; i <= n; ++i) {
+        int weight = weights[i - 1], value = values[i - 1];
+        for (int j = w; j >= weight; --j) {
+            dp[j] = max(dp[j], dp[j - weight] + value);
+        }
     }
-    return dp[W];
+    return dp[w];
 }
+```
+
+```python
+def knapsack(weights: List[int], values: List[int], n: int, w: int) -> int:
+    dp = [0] * (w + 1)
+    for i in range(1, n + 1):
+        weight, value = weights[i - 1], values[i - 1]
+        for j in range(w, weight - 1, -1):
+            dp[j] = max(dp[j], [j - weight] + value)
+    return dp[w]
 ```
 
 **变种**
@@ -3662,48 +3968,58 @@ int knapsack(vector<int> weights, vector<int> values, int N, int W) {
 **完全背包**
 
 ```cpp
-int knapsack(vector<int> weights, vector<int> values, int N, int W) {
-    vector<vector<int>> dp (N + 1, vector<int>(W + 1, 0));
-    for (int i = 1; i <= N; ++i) {
-        int w = weights[i-1], v = values[i-1];
-        for (int j = 1; j <= W; ++j) {
-            if (j >= w) {
-                dp[i][j] = max(dp[i-1][j], dp[i][j-w] + v);  // i - 1 changed to i
+int knapsack(vector<int> weights, vector<int> values, int n, int w) {
+    vector<vector<int>> dp(n + 1, vector<int>(w + 1, 0));
+    for (int i = 1; i <= n; ++i) {
+        int weight = weights[i - 1], value = values[i - 1];
+        for (int j = 1; j <= w; ++j) {
+            if (j >= weight) {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - weight] + value);
             } else {
-                dp[i][j] = dp[i-1][j];
+                dp[i][j] = dp[i - 1][j];
             }
         }
     }
-    return dp[N][W];
+    return dp[n][w];
 }
 ```
 
-**完全背包 vs 0-1背包的空间优化**
+```python
+def knapsack(weights: List[int], values: List[int], n: int, w: int) -> int:
+    dp = [[0 for _ in range(w + 1)] for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        weight, value = weights[i - 1], values[i - 1]
+        for j in range(1, w + 1):
+            if j >= weight:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - weight] + value)
+            else:
+                dp[i][j] = dp[i - 1][j]
+    return dp[n][w]
+```
 
-对于压缩内存的写法，**0-1背包对物品的迭代放在外层，里层的重量或价值从后往前遍历；完全背包对物品的迭代放在里层，外层则正常从前往后遍历重量或价值**。（若完全背包的依赖方向在矩阵上是左和上，而这个依赖关系在调转行列后仍然成立，那么在这种情况下里层外层可以互换；为了保险，完全背包都把物品放在里层即可）
+**完全背包的空间优化**
 
 ```cpp
-// 物品迭代在里层
-int knapsack(vector<int> weights, vector<int> values, int N, int W) {
-    vector<int> dp (W + 1, 0);
-    for (int j = 1; j < W; ++j) {
-        for (int i = 1; i <= N; ++i) {
-            int w = weights[i-1], v = values[i-1];
-            if (w >= j) dp[j] = max(dp[j], dp[j-w] + v);
+int knapsack(vector<int> weights, vector<int> values, int n, int w) {
+    vector<int> dp(w + 1, 0);
+    for (int i = 1; i <= n; ++i) {
+        int weight = weights[i - 1], value = values[i - 1];
+        for (int j = weight; j <= w; ++j) {
+            dp[j] = max(dp[j], dp[j - weight] + value);
         }
     }
-    return dp[W];
+    return dp[w];
 }
+```
 
-// 物品迭代在外层 (只有满足矩阵依赖关系才可)
-int knapsack(vector<int> weights, vector<int> values, int N, int W) {
-    vector<int> dp (W + 1, 0);
-    for (int i = 1; i <= N; ++i) {
-        int w = weights[i-1], v = values[i-1];
-        for (int j = w; j <= W; ++j) dp[j] = max(dp[j], dp[j-w] + v);
-    }
-    return dp[W];
-}
+```python
+def knapsack(weights: List[int], values: List[int], n: int, w: int) -> int:
+    dp = [0] * (w + 1)
+    for i in range(1, n + 1):
+        weight, value = weights[i - 1], values[i - 1]
+        for j in range(weight, w + 1):
+            dp[j] = max(dp[j], [j - weight] + value)
+    return dp[w]
 ```
 
 **划分数组为和相等的两部分**
@@ -3722,19 +4038,41 @@ Explanation: The array can be partitioned as [1, 5, 5] and [11].
 
 ```cpp
 bool canPartition(vector<int> &nums) {
-    int sum = accumulate(nums.begin(), nums.end(), 0);
-    if (sum % 2) return false;
-    int target = sum / 2;
-    vector<bool> dp(target + 1, false);
-    dp[0] = true;
-    for (int i = 0; i < nums.size(); ++i) {
-        // 注意j要反向，因为原本是dp[i][j] = dp[i-1][j] || dp[i-1][j-nums[i]]
-        for (int j = target; j >= nums[i]; --j) {
-            dp[j] = dp[j] || dp[j-nums[i]];
+    int nums_sum = accumulate(nums.begin(), nums.end(), 0);
+    if (nums_sum % 2 != 0) {
+        return false;
+    }
+    int target = nums_sum / 2, n = nums.size();
+    vector<vector<bool>> dp(n + 1, vector<bool>(target + 1, false));
+    dp[0][0] = true;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 0; j <= target; ++j) {
+            if (j < nums[i - 1]) {
+                dp[i][j] = dp[i - 1][j];
+            } else {
+                dp[i][j] = dp[i - 1][j] || dp[i - 1][j - nums[i - 1]];
+            }
         }
     }
-    return dp.back();
+    return dp[n][target];
 }
+```
+
+```python
+def canPartition(nums: List[int]) -> bool:
+    nums_sum = sum(nums)
+    if nums_sum % 2 != 0:
+        return False
+    target, n = nums_sum // 2, len(nums)
+    dp = [[False for _ in range(target + 1)] for _ in range(n + 1)]
+    dp[0][0] = True
+    for i in range(1, n + 1):
+        for j in range(target + 1):
+            if j < nums[i - 1]:
+                dp[i][j] = dp[i - 1][j]
+            else:
+                dp[i][j] = dp[i - 1][j] or dp[i - 1][j - nums[i - 1]]
+    return dp[n][target]
 ```
 
 **改变一组数的正负号使得它们的和为一给定数**
@@ -3797,19 +4135,35 @@ which are "10","0001","1","0"
 ```cpp
 int findMaxForm(vector<string>& strs, int m, int n) {
     vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
-    for (auto str: strs) {
-        vector<int> cnt = count(str);
-        for (int i = m; i >= cnt[0]; --i)
-            for (int j = n; j >= cnt[1]; --j)
-                dp[i][j] = max(1 + dp[i-cnt[0]][j-cnt[1]], dp[i][j]);
+    for (const string & s: strs) {
+        int zeros = 0, ones = 0;
+        for (char c: s) {
+            if (c == '0') {
+                ++zeros;
+            } else {
+                ++ones;
+            }
+        }
+        for (int i = m; i >= zeros; --i) {
+            for (int j = n; j >= ones; --j) {
+                dp[i][j] = max(dp[i][j], dp[i-zeros][j-ones] + 1);
+            }
+        } 
     }
     return dp[m][n];
 }
-vector<int> count(string & s){
-    vector<int> ans(2, 0);
-    for(char c: s) ++ans[c-'0'];
-    return ans;
-}
+```
+
+```python
+def findMaxForm(strs: List[str], m: int, n: int) -> int:
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+    for s in strs:
+        zeros = len(list(filter(lambda c: c == "0", s)))
+        ones = len(s) - zeros
+        for i in range(m, zeros - 1, -1):
+            for j in range(n, ones - 1, -1):
+                dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1)
+    return dp[m][n]
 ```
 
 **找零钱的方法数**
@@ -3836,252 +4190,30 @@ return -1.
 
 ```cpp
 int coinChange(vector<int>& coins, int amount) {
-    if (coins.empty()) return -1;
-    vector<int> dp(amount+1, amount+2);
+    vector<int> dp(amount + 1, amount + 1);
     dp[0] = 0;
-    for (int coin : coins) {
-        for (int i = coin; i <= amount; i++) {
-            dp[i] = min(dp[i], dp[i-coin] + 1);
-        }   
+    for (int i = 1; i <= amount; ++i) {
+        for (int coin : coins) {
+            if (i >= coin) {
+                dp[i] = min(dp[i], dp[i - coin] + 1);
+            }
+        }
     }
-    return dp[amount] == amount + 2? -1: dp[amount];
-}
-```
-
-**组合总和**
-
-[377. Combination Sum IV \(Medium\)](https://leetcode.com/problems/combination-sum-iv/)
-
-```markup
-nums = [1, 2, 3]
-target = 4
-
-The possible combination ways are:
-(1, 1, 1, 1)
-(1, 1, 2)
-(1, 2, 1)
-(1, 3)
-(2, 1, 1)
-(2, 2)
-(3, 1)
-
-Note that different sequences are counted as different combinations.
-Therefore the output is 7.
-```
-
-因为允许顺序改变，所以不能直接转化成完全背包问题，需要变成一个一维DP（或者也可以回溯法）
-
-```cpp
-int combinationSum4(vector<int>& nums, int target) {  
-    if (!nums.size()) return 0;  
-    vector<int> dp(target + 1, 0);  
-    dp[0] = 1;  
-    for (int i = 1; i <= target; ++i) for (auto val: nums) if (val <= i) dp[i] += dp[i-val];
-    return dp[target];  
+    return dp[amount] != amount + 1 ? dp[amount] : -1;
 }
 ```
 
 ```python
-def combinationSum4(self, nums: List[int], target: int) -> int:
-    n = len(nums)
-    dp = [0 for _ in range(target+1)]
-    dp[0] = 1
-    for i in range(target+1):
-        for val in nums:
-            if i >= val:
-                dp[i] += dp[i-val]
-    return dp[-1]
-```
-
-**书架填充**
-
-[1105. Filling Bookcase Shelves \(Medium\)](https://leetcode.com/problems/filling-bookcase-shelves/)
-
-给定每个书的宽度和高度，和书架的宽度，判断如果按照顺序放，最小高度是多少。
-
-```markup
-Input: books = [[1,1],[2,3],[2,3],[1,1],[1,1],[1,1],[1,2]], shelfWidth = 4
-Output: 6
-Explanation:
-The sum of the heights of the 3 shelves is 1 + 3 + 2 = 6.
-Notice that book number 2 does not have to be on the first shelf.
-```
-
-变种0-1背包问题, dp\[i\]表示第i本书作为当前层最后一本书的时候的最小高度。
-
-```python
-def minHeightShelves(self, books: List[List[int]], shelfWidth: int) -> int:
-    n = len(books)
-    dp = [0 for _ in range(n + 1)]
-    for i, (w, h) in enumerate(books, 1):
-        dp[i] = dp[i-1] + h
-        for j in range(i-1, 0, -1):
-            w += books[j-1][0]
-            if w > shelfWidth:
-                break
-            h = max(h, books[j-1][1])
-            dp[i] = min(dp[i], dp[j-1] + h)
-    return dp[n]  
+def coinChange(coins: List[int], amount: int) -> int:
+    dp = [0] + [amount + 1] * amount
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if i >= coin:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[amount] if dp[amount] != amount + 1 else -1
 ```
 
 
-## 股票交易
-
-**只能进行一次的股票交易**
-
-[121. Best Time to Buy and Sell Stock \(Easy\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
-
-只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    if (prices.empty()) return 0;
-    int min_price = prices[0], max_profit = 0;
-    for (const int& price: prices) {
-        max_profit = max(max_profit, price - min_price);
-        min_price = min(min_price, price);
-    }
-    return max_profit;
-}
-// or to write it in the buy-sell format
-int maxProfit(vector<int>& prices) {
-    int sell = 0, buy = INT_MIN;
-    for (int i = 0; i < prices.size(); ++i) {
-        buy = max(buy, -prices[i]);
-        sell = max(sell, buy + prices[i]);
-    }
-    return sell;
-}
-```
-
-**只能进行两次的股票交易**
-
-[123. Best Time to Buy and Sell Stock III \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/)
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    int sell1 = 0, sell2 = 0, buy1 = INT_MIN, buy2 = INT_MIN;
-    for (int i = 0; i < prices.size(); ++i) {
-        buy1 = max(buy1, -prices[i]);
-        sell1 = max(sell1, buy1 + prices[i]);
-        buy2 = max(buy2, sell1 - prices[i]);
-        sell2 = max(sell2, buy2 + prices[i]);
-    }
-    return sell2;
-}
-```
-
-**只能进行 k 次的股票交易**
-
-[188. Best Time to Buy and Sell Stock IV \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)
-
-```cpp
-int maxProfit(int k, vector<int>& prices) {
-    int days = prices.size();
-    if (days < 2) return 0;
-    if (k >= days) return maxProfitUnlimited(prices);
-    vector<int> buy(k + 1, INT_MIN), sell(k + 1, 0);
-    for (int i = 0; i < days; ++i) {
-        for (int j = 1; j <= k; ++j) {
-            buy[j] = max(buy[j], sell[j-1] - prices[i]);
-            sell[j] = max(sell[j], buy[j] + prices[i]);
-        }
-    }
-    return sell.back();
-}
-
-int maxProfitUnlimited(vector<int> prices) {
-    int maxProfit = 0;
-    for (int i = 1; i < prices.size(); ++i) {
-        if (prices[i] > prices[i-1]) {
-            maxProfit += prices[i] - prices[i-1];
-        }
-    }
-    return maxProfit;
-}
-```
-
-**需要冷却期的股票交易**
-
-[309. Best Time to Buy and Sell Stock with Cooldown\(Medium\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
-
-题目描述：交易之后需要有一天的冷却时间。
-
-![](../.gitbook/assets/image%20%28689%29.png)
-
-```
-Input: [1,2,3,0,2]
-Output: 3 (buy, sell, cooldown, buy, sell)
-```
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    int n = prices.size();
-    if (n == 0) return 0;
-    vector<int> buy(n), sell(n), s1(n), s2(n);
-    s1[0] = buy[0] = -prices[0];
-    sell[0] = s2[0] = 0;
-    for (int i = 1; i < n; i++) {
-        buy[i] = s2[i-1] - prices[i];
-        s1[i] = max(buy[i-1], s1[i-1]);
-        sell[i] = max(buy[i-1], s1[i-1]) + prices[i];
-        s2[i] = max(s2[i-1], sell[i-1]);
-    }
-    return max(sell[n-1], s2[n-1]);
-}
-```
-
-另一种解法是buy[i] = max(buy[i-1], sell[i-2] - cur_price), sell[i] = max(sell[i-1], buy[i-1] + cur_price)
-
-```c++
-int maxProfit(vector<int>& prices) {
-    if (prices.empty()) return 0;
-    int pre_sell = 0, cur_sell = 0, pre_buy = 0, cur_buy = INT_MIN;
-    for (const int& cur_price: prices) {
-        pre_buy = cur_buy;
-        cur_buy = max(pre_buy, pre_sell - cur_price);
-        pre_sell = cur_sell;
-        cur_sell = max(pre_sell, pre_buy + cur_price);
-    }
-    return cur_sell;
-}
-```
-
-**需要交易费用的股票交易**
-
-[714. Best Time to Buy and Sell Stock with Transaction Fee \(Medium\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
-
-```markup
-Input: prices = [1, 3, 2, 8, 4, 9], fee = 2
-Output: 8
-Explanation: The maximum profit can be achieved by:
-Buying at prices[0] = 1
-Selling at prices[3] = 8
-Buying at prices[4] = 4
-Selling at prices[5] = 9
-The total profit is ((8 - 1) - 2) + ((9 - 4) - 2) = 8.
-```
-
-题目描述：每交易一次，都要支付一定的费用。
-
-![](../.gitbook/assets/image%20%2810%29.png)
-
-```cpp
-int maxProfit(vector<int>& prices, int fee) {
-    int n = prices.size();
-    if (n == 0) return 0;
-    vector<int> buy(n), sell(n), s1(n), s2(n);
-    s1[0] = buy[0] = -prices[0];
-    sell[0] = s2[0] = 0;
-    for (int i = 1; i < n; i++) {
-        buy[i] = max(sell[i-1], s2[i-1]) - prices[i];
-        s1[i] = max(buy[i-1], s1[i-1]);
-        sell[i] = max(buy[i-1], s1[i-1]) - fee + prices[i];
-        s2[i] = max(s2[i-1], sell[i-1]);
-    }
-    return max(sell[n-1], s2[n-1]);
-}
-```
 
 ## 字符串编辑
 
@@ -4130,18 +4262,37 @@ exection -> execution (insert 'u')
 ```cpp
 int minDistance(string word1, string word2) {
     int m = word1.length(), n = word2.length();
-    vector<vector<int>> distance(m + 1, vector<int>(n + 1));
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
     for (int i = 0; i <= m; ++i) {
         for (int j = 0; j <= n; ++j) {
-            if (!i) distance[i][j] = j;
-            else if (!j) distance[i][j] = i;
-            else distance[i][j] = min(
-                distance[i-1][j-1] + ((word1[i-1] == word2[j-1])? 0: 1),
-                min(distance[i-1][j] + 1, distance[i][j-1] + 1));
-        }        
+            if (i == 0 || j == 0) {
+                dp[i][j] = i + j;
+            } else {
+                dp[i][j] = dp[i - 1][j - 1] + (word1[i - 1] != word2[j - 1]);
+                dp[i][j] = min(dp[i][j], dp[i - 1][j] + 1);
+                dp[i][j] = min(dp[i][j], dp[i][j - 1] + 1);
+            }
+        }
     }
-    return distance[m][n];
+    return dp[m][n];
 }
+```
+
+```python
+def minDistance(word1: str, word2: str) -> int:
+    m, n = len(word1), len(word2)
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+    for i in range(m + 1):
+        for j in range(n + 1):
+            if i == 0 or j == 0:
+                dp[i][j] = i + j
+            else:
+                dp[i][j] = min(
+                    dp[i - 1][j - 1] + int(word1[i - 1] != word2[j - 1]),
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j] + 1,
+                )
+    return dp[m][n]
 ```
 
 **复制粘贴字符**
@@ -4161,30 +4312,32 @@ In step 3, we use Paste operation to get 'AAA'.
 ```
 
 ```cpp
-// dp
 int minSteps(int n) {
-    vector<int> dp (n + 1);
-    int h = sqrt(n);
+    vector<int> dp(n + 1, 0);
     for (int i = 2; i <= n; ++i) {
         dp[i] = i;
-        for (int j = 2; j <= h; ++j) {
+        for (int j = 2; j * j <= i; ++j) {
             if (i % j == 0) {
-                dp[i] = dp[j] + dp[i / j];
+                dp[i] = dp[j] + dp[i/j];
+                // 提前剪枝，因为j从小到大，因此操作数量一定最小。
                 break;
             }
         }
     }
     return dp[n];
 }
+```
 
-// recursion
-int minSteps(int n) {
-    if (n == 1) return 0;
-    for (int i = 2; i <= sqrt(n); ++i) {
-        if (n % i == 0) return i + minSteps(n / i);
-    }
-    return n;
-}
+```python
+def minSteps(n: int) -> int:
+    dp = [0] * 2 + list(range(2, n + 1))
+    for i in range(2, n + 1):
+        for j in range(2, floor(sqrt(i)) + 1):
+            if i % j == 0:
+                dp[i] = dp[j] + dp[i // j]
+                # 提前剪枝，因为j从小到大，因此操作数量一定最小。
+                break
+    return dp[n]
 ```
 
 **Regex匹配**
@@ -4235,6 +4388,152 @@ bool isMatch(string s, string p) {
 }
 ```
 
+## 股票交易
+
+**只能进行一次的股票交易**
+
+[121. Best Time to Buy and Sell Stock \(Easy\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+
+只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    int min_price = prices[0], max_profit = 0;
+    for (const int& price: prices) {
+        max_profit = max(max_profit, price - min_price);
+        min_price = min(min_price, price);
+    }
+    return max_profit;
+}
+// or to write it in the buy-sell format
+int maxProfit(vector<int>& prices) {
+    int buy = numeric_limits<int>::lowest(), sell = 0;
+    for (int price : prices) {
+        buy = max(buy, -price);
+        sell = max(sell, buy + price);
+    }
+    return sell;
+}
+```
+
+```python
+def maxProfit(prices: List[int]) -> int:
+    buy, sell = -sys.maxsize, 0
+    for price in prices:
+        buy = max(buy, -price)
+        sell = max(sell, buy + price)
+    return sell
+```
+
+**只能进行 k 次的股票交易**
+
+[188. Best Time to Buy and Sell Stock IV \(Hard\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/)
+
+```cpp
+int maxProfit(int k, vector<int>& prices) {
+    int days = prices.size();
+    vector<int> buy(k + 1, numeric_limits<int>::lowest()), sell(k + 1, 0);
+    for (int i = 0; i < days; ++i) {
+        for (int j = 1; j <= k; ++j) {
+            buy[j] = max(buy[j], sell[j - 1] - prices[i]);
+            sell[j] = max(sell[j], buy[j] + prices[i]);
+        }
+    }
+    return sell[k];
+}
+```
+
+```python
+def maxProfit(k: int, prices: List[int]) -> int:
+    days = len(prices)
+    buy, sell = [-sys.maxsize] * (k + 1), [0] * (k + 1)
+    for i in range(days):
+        for j in range(1, k + 1):
+            buy[j] = max(buy[j], sell[j - 1] - prices[i])
+            sell[j] = max(sell[j], buy[j] + prices[i])
+    return sell[k]
+```
+
+**需要冷却期的股票交易**
+
+[309. Best Time to Buy and Sell Stock with Cooldown\(Medium\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+题目描述：交易之后需要有一天的冷却时间。
+
+![](../.gitbook/assets/image%20%28689%29.png)
+
+```
+Input: [1,2,3,0,2]
+Output: 3 (buy, sell, cooldown, buy, sell)
+```
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    int n = prices.size();
+    vector<int> buy(n), sell(n), s1(n), s2(n);
+    s1[0] = buy[0] = -prices[0];
+    sell[0] = s2[0] = 0;
+    for (int i = 1; i < n; ++i) {
+        buy[i] = s2[i - 1] - prices[i];
+        s1[i] = max(buy[i - 1], s1[i - 1]);
+        sell[i] = max(buy[i - 1], s1[i - 1]) + prices[i];
+        s2[i] = max(s2[i - 1], sell[i - 1]);
+    }
+    return max(sell[n - 1], s2[n - 1]);
+}
+```
+
+```python
+def maxProfit(prices: List[int]) -> int:
+    n = len(prices)
+    buy, sell, s1, s2 = [0] * n, [0] * n, [0] * n, [0] * n
+    s1[0] = buy[0] = -prices[0]
+    sell[0] = s2[0] = 0
+    for i in range(1, n):
+        buy[i] = s2[i - 1] - prices[i]
+        s1[i] = max(buy[i - 1], s1[i - 1])
+        sell[i] = max(buy[i - 1], s1[i - 1]) + prices[i]
+        s2[i] = max(s2[i - 1], sell[i - 1])
+    return max(sell[n - 1], s2[n - 1])
+```
+
+**需要交易费用的股票交易**
+
+[714. Best Time to Buy and Sell Stock with Transaction Fee \(Medium\)](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+```markup
+Input: prices = [1, 3, 2, 8, 4, 9], fee = 2
+Output: 8
+Explanation: The maximum profit can be achieved by:
+Buying at prices[0] = 1
+Selling at prices[3] = 8
+Buying at prices[4] = 4
+Selling at prices[5] = 9
+The total profit is ((8 - 1) - 2) + ((9 - 4) - 2) = 8.
+```
+
+题目描述：每交易一次，都要支付一定的费用。
+
+![](../.gitbook/assets/image%20%2810%29.png)
+
+```cpp
+int maxProfit(vector<int>& prices, int fee) {
+    int n = prices.size();
+    if (n == 0) return 0;
+    vector<int> buy(n), sell(n), s1(n), s2(n);
+    s1[0] = buy[0] = -prices[0];
+    sell[0] = s2[0] = 0;
+    for (int i = 1; i < n; i++) {
+        buy[i] = max(sell[i-1], s2[i-1]) - prices[i];
+        s1[i] = max(buy[i-1], s1[i-1]);
+        sell[i] = max(buy[i-1], s1[i-1]) - fee + prices[i];
+        s2[i] = max(s2[i-1], sell[i-1]);
+    }
+    return max(sell[n-1], s2[n-1]);
+}
+```
+
 ## 分治
 
 **主定理**
@@ -4261,7 +4560,7 @@ Output : [0, 2]
 ```
 
 ```cpp
-// without dp
+// without dp.
 vector<int> diffWaysToCompute(string input) {
     vector<int> ways;
     for (int i = 0; i < input.length(); i++) {
@@ -4290,7 +4589,7 @@ vector<int> diffWaysToCompute(string input) {
     return ways;
 }
 
-// with dp
+// with dp.
 vector<int> diffWaysToCompute(string input) {
     vector<int> data;
     vector<char> ops;
@@ -4323,6 +4622,47 @@ vector<int> diffWaysToCompute(string input) {
      }
    return dp[0][size_i-1];
 }
+```
+
+```python
+# without dp.
+def diffWaysToCompute(expression: str) -> List[int]:
+    ways = []
+    op_funcs = {
+        "+": (lambda x, y: x + y),
+        "-": (lambda x, y: x - y),
+        "*": (lambda x, y: x * y),
+    }
+    for i, c in enumerate(expression):
+        if c not in op_funcs:
+            continue
+        left = diffWaysToCompute(expression[:i])
+        right = diffWaysToCompute(expression[i + 1 :])
+        ways += [op_funcs[c](l, r) for l in left for r in right]
+    return [int(expression)] if len(ways) == 0 else ways
+
+# with dp.
+def diffWaysToCompute(expression: str) -> List[int]:
+    # re.split可以将操作符（\D）和数字直接分开。
+    sections = re.split(r"(\D)", expression)
+    nums = [int(num) for num in sections if num.isdigit()]
+    ops = [op for op in sections if not op.isdigit()]
+    n = len(nums)
+    dp = [[[] for _ in range(n)] for _ in range(n)]
+    op_funcs = {
+        "+": (lambda x, y: x + y),
+        "-": (lambda x, y: x - y),
+        "*": (lambda x, y: x * y),
+    }
+    for i in range(n):
+        for j in range(i, -1, -1):
+            if i == j:
+                dp[j][i].append(nums[i])
+                continue
+            for k in range(j, i):
+                dp[j][i] += [op_funcs[ops[k]](l, r)
+                             for l in dp[j][k] for r in dp[k + 1][i]]
+    return dp[0][n - 1]
 ```
 
 ## 递归
@@ -4388,31 +4728,45 @@ x 和 y 的最小公倍数为：lcm\(x,y\) = 2max\(m0,n0\) \* 3max\(m1,n1\) \* 5
 埃拉托斯特尼筛法在每次找到一个素数时，将能被素数整除的数排除掉。
 
 ```cpp
-// optimized
+// optimized.
 int countPrimes(int n) {
-    if (n <= 2) return 0;
-    vector<bool> visited(n, false);
-    int i = 3, sqrtn = sqrt(n), count = n / 2;         // avoid even numbers
-    while (i <= sqrtn) {                               // divisors must less than sqrtn
-        for (int j = i * i; j < n; j += (i << 1)) {    // to avoid even and counted numbers
-            if (!visited[j]) --count;                  // avoid repeated visit
-            visited[j] = true;
+    if (n <= 2) {
+        return 0;
+    }
+    vector<bool> primes(n, true);
+    int sqrtn = sqrt(n);
+    int count = n / 2;  // 偶数一定不是质数
+    int i = 3;
+    // 最小质因子一定小于等于开方数。
+    while (i <= sqrtn) {
+        // 向右找倍数，注意避免偶数和重复遍历。
+        for (int j = i * i; j < n; j += 2 * i) {
+            if (primes[j]) {
+                --count;
+                primes[j] = false;
+            }
         }
-        do i += 2; while (i <= sqrtn && visited[i]);   // avoid repeated visit and even number
+        i += 2;
+        // 向右前进查找位置，注意避免偶数和重复遍历。
+        while (i <= sqrtn && !primes[i]) {
+            i += 2;
+        }
     }
     return count;
 }
 
-// unoptimized
+// unoptimized.
 int countPrimes(int n) {
-    if (n <= 2) return 0;
-    int count = n - 2;  // 1 is not prime
-    vector<bool> prime(n, true);
-    for (int i = 2; i <= sqrt(n); ++i) {
-        if (prime[i]) {
-            for (int j = 2*i; j < n; j += i) {
-                if (prime[j]) {
-                    prime[j] = false;
+    if (n <= 2) {
+        return 0;
+    }
+    vector<bool> primes(n, true);
+    int count = n - 2;  // 去掉不是质数的1
+    for (int i = 2; i < n; ++i) {
+        if (primes[i]) {
+            for (int j = 2 * i; j < n; j += i) {
+                if (primes[j]) {
+                    primes[j] = false;
                     --count;
                 }
             }
@@ -4423,14 +4777,36 @@ int countPrimes(int n) {
 ```
 
 ```python
-def countPrimes(self, n: int) -> int:
+// optimized.
+def countPrimes(n: int) -> int:
     if n <= 2:
         return 0
-    count = n - 2
     primes = [True for _ in range(n)]
-    for i in range(2, int(sqrt(n) + 1)):
+    sqrtn = sqrt(n)
+    count = n // 2  # 偶数一定不是质数
+    i = 3
+    # 最小质因子一定小于等于开方数。
+    while i <= sqrtn:
+        # 向右找倍数，注意避免偶数和重复遍历。
+        for j in range(i * i, n, 2 * i):
+            if primes[j]:
+                count -= 1
+                primes[j] = False
+        i += 2
+        # 向右前进查找位置，注意避免偶数和重复遍历。
+        while i <= sqrtn and not primes[i]:
+            i += 2
+    return count
+
+// unoptimized.
+def countPrimes(n: int) -> int:
+    if n <= 2:
+        return 0
+    primes = [True for _ in range(n)]
+    count = n - 2  # 去掉不是质数的1
+    for i in range(2, n):
         if primes[i]:
-            for j in range(2*i, n, i):
+            for j in range(2 * i, n, i):
                 if primes[j]:
                     primes[j] = False
                     count -= 1
@@ -4445,6 +4821,11 @@ int gcd(int a, int b) {
 }
 ```
 
+```python
+def gcd(a: int, b: int) -> int:
+    return a if b == 0 else gcd(b, a % b)
+```
+
 最小公倍数为两数的乘积除以最大公约数。
 
 ```cpp
@@ -4453,18 +4834,35 @@ int lcm(int a, int b) {
 }
 ```
 
+```python
+def lcm(a: int, b: int) -> int:
+    return (a * b) // gcd(a, b)
+```
+
 扩展欧几里得算法（extended gcd）
 
 ```cpp
 int xGCD(int a, int b, int &x, int &y) {
-    if (!b) {
-       x = 1, y = 0;
-       return a;
+    if (b == 0) {
+        x = 1, y = 0;
+        return a;
     }
-    int x1, y1, gcd = xGCD(b, a % b, x1, y1);
-    x = y1, y = x1 - (a / b) * y1;
+    int x_inner, y_inner;
+    int gcd = xGCD(b, a % b, x_inner, y_inner);
+    x = y_inner, y = x_inner - (a / b) * y_inner;
     return gcd;
 }
+```
+
+```python
+def xGCD(a: int, b: int, x: List[int], y: List[int]) -> int:
+    if b == 0:
+        x[0], y[0] = 1, 0
+        return a
+    x_inner, y_inner = [0], [0]
+    gcd = xGCD(b, a % b, x_inner, y_inner)
+    x[0], y[0] = y_inner, x_inner - (a / b) * y_inner
+    return gcd
 ```
 
 ## 进制转换
