@@ -102,30 +102,32 @@ You need to output 2.
 证明：假设在某次选择中，贪心策略选择给当前满足度最小的孩子分配第 m 个饼干，第 m 个饼干为可以满足该孩子的最小饼干。假设存在一种最优策略，给该孩子分配第 n 个饼干，并且 m &lt; n。我们可以发现，经过这一轮分配，贪心策略分配后剩下的饼干一定有一个比最优策略来得大。因此在后续的分配中，贪心策略一定能满足更多的孩子。也就是说不存在比贪心策略更优的策略，即贪心策略就是最优策略。
 
 ```cpp
-int findContentChildren(vector<int>& g, vector<int>& s) {
-    sort(g.begin(), g.end());
-    sort(s.begin(), s.end());
-    int gi = 0, si = 0;
-    while (gi < g.size() && si < s.size()) {
-        if (g[gi] <= s[si]) ++gi;
-        ++si;
+int findContentChildren(vector<int> &children, vector<int> &cookies) {
+    sort(children.begin(), children.end());
+    sort(cookies.begin(), cookies.end());
+    int child_i = 0, cookie_i = 0;
+    int n_children = children.size(), n_cookies = cookies.size();
+    while (child_i < n_children && cookie_i < n_cookies) {
+        if (children[child_i] <= cookies[cookie_i]) {
+            ++child_i;
+        }
+        ++cookie_i;
     }
-    return gi;
+    return child_i;
 }
 ```
 
 ```python
-def findContentChildren(self, g: List[int], s: List[int]) -> int:
-    g.sort()
-    s.sort()
-    g_i = 0
-    g_len = len(g)
-    for cookie in s:
-        if g_i == g_len:
-            break
-        if cookie >= g[g_i]:
-            g_i += 1
-    return g_i
+def findContentChildren(children: List[int], cookies: List[int]) -> int:
+    children.sort()
+    cookies.sort()
+    child_i, cookie_i = 0, 0
+    n_children, n_cookies = len(children), len(cookies)
+    while child_i < n_children and cookie_i < n_cookies:
+        if children[child_i] <= cookies[cookie_i]:
+            child_i += 1
+        cookie_i += 1
+    return child_i
 ```
 
 **分配糖果**
@@ -143,27 +145,32 @@ Candy allocation is [2, 1, 2]
 
 ```cpp
 int candy(vector<int>& ratings) {
-    int size = ratings.size();
-    if (size < 2) return size;
-    vector<int> num(size, 1);
-    for (int i = 1; i < size; ++i)
-        if (ratings[i] > ratings[i-1]) num[i] = num[i-1] + 1;
-    for (int i = size - 1; i > 0; --i)
-        if (ratings[i] < ratings[i-1]) num[i-1] = max(num[i-1], num[i] + 1);
-    return accumulate(num.begin(), num.end(), 0);
+    int n = ratings.size();
+    vector<int> candies(n, 1);
+    for (int i = 1; i < n; ++i) {
+        if (ratings[i] > ratings[i - 1]) {
+            candies[i] = candies[i - 1] + 1;
+        }
+    }
+    for (int i = n - 1; i > 0; --i) {
+        if (ratings[i] < ratings[i - 1]) {
+            candies[i - 1] = max(candies[i - 1], candies[i] + 1);
+        }
+    }
+    return accumulate(candies.begin(), candies.end(), 0);
 }
 ```
 
 ```python
-def candy(self, ratings_list: List[int]) -> int:
+def candy(ratings_list: List[int]) -> int:
     n = len(ratings_list)
-    candies = [1 for _ in range(n)]
+    candies = [1] * n
     for i in range(1, n):
-        if ratings_list[i] > ratings_list[i-1]:
-            candies[i] = candies[i-1] + 1
-    for i in range(n-2, -1, -1):
-        if ratings_list[i] > ratings_list[i+1]:
-            candies[i] = max(candies[i], candies[i+1] + 1)
+        if ratings_list[i] > ratings_list[i - 1]:
+            candies[i] = candies[i - 1] + 1
+    for i in range(n - 1, 0, -1):
+        if ratings_list[i] < ratings_list[i - 1]:
+            candies[i - 1] = max(candies[i - 1], candies[i] + 1)
     return sum(candies)
 ```
 
@@ -193,33 +200,30 @@ Explanation: You don't need to remove any of the intervals since they're already
 
 ```cpp
 int eraseOverlapIntervals(vector<vector<int>>& intervals) {
-    if (intervals.empty()) return 0;
-    int n = intervals.size();
-    sort(intervals.begin(), intervals.end(), [](vector<int> a, vector<int> b) {
-        return a[1] < b[1];
-    });
-    int total = 0, prev = intervals[0][1];
-    for (int i = 1; i < n; ++i) {
-        if (intervals[i][0] < prev) ++total;
-        else prev = intervals[i][1];
+    sort(intervals.begin(), intervals.end(),
+         [](vector<int>& a, vector<int>& b) { return a[1] < b[1]; });
+    int removed = 0, prev_end = intervals[0][1];
+    for (int i = 1; i < intervals.size(); ++i) {
+        if (intervals[i][0] < prev_end) {
+            ++removed;
+        } else {
+            prev_end = intervals[i][1];
+        }
     }
-    return total;
+    return removed;
 }
 ```
 
 ```python
-def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
-    if not intervals:
-        return 0
+def eraseOverlapIntervals(intervals: List[List[int]]) -> int:
     intervals.sort(key=lambda x: x[1])
-    res = 0
-    prev_end = intervals[0][1]
+    removed, prev_end = 0, intervals[0][1]
     for i in range(1, len(intervals)):
         if prev_end > intervals[i][0]:
-            res += 1
+            removed += 1
         else:
             prev_end = intervals[i][1]
-    return res
+    return removed
 ```
 
 **投飞镖刺破气球**
@@ -449,31 +453,34 @@ Output: index1=1, index2=2
 
 ```cpp
 vector<int> twoSum(vector<int>& numbers, int target) {
-    int l = 0, r = numbers.size() - 1, sum;
+    int l = 0, r = numbers.size() - 1, two_sum;
     while (l < r) {
-        sum = numbers[l] + numbers[r];
-        if (sum == target) break;
-        if (sum < target) ++l;
-        else --r;
+        two_sum = numbers[l] + numbers[r];
+        if (two_sum == target) {
+            break;
+        }
+        if (two_sum < target) {
+            ++l;
+        } else {
+            --r;
+        }
     }
     return vector<int>{l + 1, r + 1};
 }
 ```
 
 ```python
-def twoSum(self, numbers: List[int], target: int) -> List[int]:
-    n = len(numbers)
-    l = 0
-    r = n - 1
+def twoSum(numbers: List[int], target: int) -> List[int]:
+    l, r = 0, len(numbers) - 1
     while l < r:
         two_sum = numbers[l] + numbers[r]
         if two_sum == target:
-            return [l+1, r+1]
-        elif two_sum > target:
-            r -= 1
-        else:
+            break
+        if two_sum < target:
             l += 1
-    return []
+        else:
+            r -= 1
+    return [l + 1, r + 1]
 ```
 
 **两数平方和**
@@ -571,9 +578,29 @@ Output: [1,2,2,3,5,6]
 ```cpp
 void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
     int pos = m-- + n-- - 1;
-    while (m >= 0 && n >= 0) nums1[pos--] = nums1[m] > nums2[n]? nums1[m--]: nums2[n--];
-    while (n >= 0) nums1[pos--] = nums2[n--];
+    while (m >= 0 && n >= 0) {
+        nums1[pos--] = nums1[m] > nums2[n] ? nums1[m--] : nums2[n--];
+    }
+    while (n >= 0) {
+        nums1[pos--] = nums2[n--];
+    }
 }
+```
+
+```python
+def merge(nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+    pos = m + n - 1
+    m -= 1
+    n -= 1
+    while m >= 0 and n >= 0:
+        if nums1[m] > nums2[n]:
+            nums1[pos] = nums1[m]
+            m -= 1
+        else:
+            nums1[pos] = nums2[n]
+            n -= 1
+        pos -= 1
+    nums1[: n + 1] = nums2[: n + 1]
 ```
 
 **获得链表环路所在的节点**
@@ -585,15 +612,19 @@ void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
 ```cpp
 ListNode *detectCycle(ListNode *head) {
     ListNode *slow = head, *fast = head;
-    // 判断是否存在环路
-    do {
-        if (!fast || !fast->next) return NULL;
+    bool is_fisrt_cycle = true;
+    // 检查环路。
+    while (fast != slow || is_fisrt_cycle) {
+        if (fast == nullptr || fast->next == nullptr) {
+            return nullptr;
+        }
         fast = fast->next->next;
         slow = slow->next;
-    } while (fast != slow);
-    // 如果存在，查找环路节点
+        is_fisrt_cycle = false;
+    }
+    // 寻找节点。
     fast = head;
-    while (fast != slow){
+    while (fast != slow) {
         slow = slow->next;
         fast = fast->next;
     }
@@ -602,16 +633,18 @@ ListNode *detectCycle(ListNode *head) {
 ```
 
 ```python
-def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+def detectCycle(head: Optional[ListNode]) -> Optional[ListNode]:
     slow = head
     fast = head
     is_fisrt_cycle = True
+    # 检查环路。
     while fast != slow or is_fisrt_cycle:
         if fast is None or fast.next is None:
             return None
         fast = fast.next.next
         slow = slow.next
         is_fisrt_cycle = False
+    # 寻找节点。
     fast = head
     while fast != slow:
         fast = fast.next
@@ -703,98 +736,113 @@ def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -> int:
 采用左闭右闭的二分写法
 
 ```cpp
-void quick_sort(vector<int> &a, int l, int r) {
-    if (l + 1 >= r) return;
-    int first = l, last = r-1, key = a[first];
-    while (first < last){
-        while(first < last && a[last] >= key) --last;
-        a[first] = a[last];
-
-        while (first < last && a[first] <= key) ++first;
-        a[last] = a[first];
+void quickSort(vector<int> &nums, int l, int r) {
+    if (l >= r) {
+        return;
     }
-    a[first] = key;
-    quick_sort(a, l, first);
-    quick_sort(a, first + 1, r);
+    // 在当前的[l, r]区间中，随机选择一个位置当作pivot。
+    int pivot = l + (rand() % (r - l + 1));
+    int pivot_val = nums[pivot];
+    // 将pivot与l交换。
+    swap(nums[l], nums[pivot]);
+    // 从[l+1, r]两端向内遍历，查找是否有位置不满足递增关系。
+    int i = l + 1, j = r;
+    while (true) {
+        while (i < j && nums[j] >= pivot_val) {
+            --j;
+        }
+        while (i < j && nums[i] <= pivot_val) {
+            ++i;
+        }
+        if (i == j) {
+            break;
+        }
+        // i位置的值大于pivot值，j位置的值小于pivot值，将二者交换。
+        swap(nums[i], nums[j]);
+    }
+    // i和j相遇的位置即为新的pivot，我们将pivot与l重新换回来。
+    // 此时相遇位置左侧一定比pivot值小，右侧一定比pivot值大。
+    int new_pivot = nums[i] <= nums[l] ? i : i - 1;
+    swap(nums[l], nums[new_pivot]);
+    quickSort(nums, l, new_pivot - 1);
+    quickSort(nums, new_pivot + 1, r);
 }
+```
+
+```python
+def quickSort(nums: List[int], l: int, r: int) -> bool:
+    if l >= r:
+        return
+    # 在当前的[l, r]区间中，随机选择一个位置当作pivot。
+    pivot = random.randint(l, r)
+    pivot_val = nums[pivot]
+    # 将pivot与l交换。
+    nums[l], nums[pivot] = nums[pivot], nums[l]
+    # 从[l+1, r]两端向内遍历，查找是否有位置不满足递增关系。
+    i, j = l + 1, r
+    while True:
+        while i < j and nums[j] >= pivot_val:
+            j -= 1
+        while i < j and nums[i] <= pivot_val:
+            i += 1
+        if i == j:
+            break
+        # i位置的值大于pivot值，j位置的值小于pivot值，将二者交换。
+        nums[i], nums[j] = nums[j], nums[i]
+    # i和j相遇的位置即为新的pivot，我们将pivot与l重新换回来。
+    # 此时相遇位置左侧一定比pivot值小，右侧一定比pivot值大。
+    new_pivot = i if nums[i] <= nums[l] else i - 1
+    nums[l], nums[new_pivot] = nums[new_pivot], nums[l]
+    quickSort(nums, l, new_pivot - 1)
+    quickSort(nums, new_pivot + 1, r)
 ```
 
 **Merge Sort**
 
 ```cpp
-void merge_sort(vector<int> &A, int l, int r, vector<int> &T) {
-    if (l + 1 >= r) return;
-    // divide
-    int m = l + (r - l) / 2;
-    merge_sort(A, l, m, T);
-    merge_sort(A, m, r, T);
-    // conquer
-    int p = l, q = m, i = l;
-    while (p < m || q < r) {
-        if (q >= r || (p < m && A[p] <= A[q])) T[i++] = A[p++];
-        else T[i++] = A[q++];
+void mergeSort(vector<int> &nums, vector<int> &cache, int l, int r) {
+    if (l >= r) {
+        return;
     }
-    for (i = l; i < r; ++i) A[i] = T[i];
-}
-```
-
-**Insertion Sort**
-
-```cpp
-// insert to correct position
-void insertion_sort(vector<int> &arr, int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = i; j > 0 && arr[j] < arr[j-1]; --j) swap(arr[j], arr[j-1]);
+    // 分。
+    int mid = l + (r - l) / 2;
+    mergeSort(nums, cache, l, mid);
+    mergeSort(nums, cache, mid + 1, r);
+    // 治。
+    // i和j同时向右前进，i的范围是[l, mid]，j的范围是[mid+1, r]。
+    int i = l, j = mid + 1;
+    for (int pos = l; pos <= r; ++pos) {
+        if (j > r || (i <= mid && nums[i] <= nums[j])) {
+            cache[pos] = nums[i++];
+        } else {
+            cache[pos] = nums[j++];
+        }
+    }
+    for (int pos = l; pos <= r; ++pos) {
+        nums[pos] = cache[pos];
     }
 }
 ```
 
-**Bubble Sort**
-
-```cpp
-// bubble largests to the right end
-void bubble_sort(vector<int> &arr, int n) {
-    bool swapped;
-    for (int i = 1; i < n; ++i) {
-        swapped = false;
-        for (int j = 1; j < n - i + 1; ++j) {
-            if (arr[j] < arr[j-1]) {
-                swap(arr[j], arr[j-1]);
-                   swapped = true;
-            }
-         }
-         if (!swapped) break;
-   }
-}
-```
-
-**Selection Sort**
-
-```cpp
-// select min then swap
-void selection_sort(vector<int> &arr, int n) {
-    int min_idx;
-    for (int i = 0; i < n - 1; ++i) {
-        min_idx = i;
-        for (int j = i + 1; j < n; ++j) if (arr[j] < arr[min_idx]) min_idx = j;
-        swap(arr[min_idx], arr[i]);
-    }
-}
-```
-
-以上排序代码调用方法为
-
-```cpp
-void sort() {
-    vector<int> arr = {1,3,5,7,2,6,4,8,9,2,8,7,6,0,3,5,9,4,1,0};
-    vector<int> arr1(arr), arr2(arr), arr3(arr), arr4(arr), arr5(arr), temp(arr.size());
-    sort(arr.begin(), arr.end());
-    quick_sort(arr1, 0, arr1.size());
-    merge_sort(arr2, 0, arr2.size(), temp);
-    insertion_sort(arr3, arr3.size());
-    bubble_sort(arr4, arr4.size());
-    selection_sort(arr5, arr5.size());
-}
+```python
+def mergeSort(nums: List[int], cache: List[int], l: int, r: int) -> bool:
+    if l >= r:
+        return
+    # 分。
+    mid = (l + r) // 2
+    mergeSort(nums, cache, l, mid)
+    mergeSort(nums, cache, mid + 1, r)
+    # 治。
+    # i和j同时向右前进，i的范围是[l, mid]，j的范围是[mid+1, r]。
+    i, j = l, mid + 1
+    for pos in range(l, r + 1):
+        if j > r or (i <= mid and nums[i] <= nums[j]):
+            cache[pos] = nums[i]
+            i += 1
+        else:
+            cache[pos] = nums[j]
+            j += 1
+    nums[l:r+1] = cache[l:r+1]
 ```
 
 ## 快速选择
@@ -808,61 +856,45 @@ void sort() {
 [215. Kth Largest Element in an Array \(Medium\)](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 
 ```cpp
-int findKthLargest(vector<int>& nums, int k) {
-    int l = 0, r = nums.size() - 1, target = nums.size() - k;
-    while (l < r) {
-        int mid = quickSelection(nums, l, r);
-        if (mid == target) return nums[mid];
-        if (mid < target) l = mid + 1;
-        else r = mid - 1;
+int findKthLargest(vector<int> nums, int k) {
+    int pivot = rand() % nums.size();
+    int pivot_val = nums[pivot];
+    vector<int> larger, equal, smaller;
+    for (int num : nums) {
+        if (num > pivot_val) {
+            larger.push_back(num);
+        } else if (num < pivot_val) {
+            smaller.push_back(num);
+        } else {
+            equal.push_back(num);
+        }
     }
-    return nums[l];
-}
-
-int quickSelection(vector<int>& nums, int l, int r) {
-    int i = l + 1, j = r;
-    while (true) {
-        while (i < r && nums[i] <= nums[l]) ++i;
-        while (l < j && nums[j] >= nums[l]) --j;
-        if (i >= j) break;
-        swap(nums[i], nums[j]);
+    if (k <= larger.size()) {
+        return findKthLargest(larger, k);
     }
-    swap(nums[l], nums[j]);
-    return j;
+    if (k > larger.size() + equal.size()) {
+        return findKthLargest(smaller, k - larger.size() - equal.size());
+    }
+    return pivot_val;
 }
 ```
 
 ```python
-def quickSelection(self, nums: List[int], l: int, r: int) -> int:
-    rand_i = randint(l, r)
-    nums[l], nums[rand_i] = nums[rand_i], nums[l]
-
-    i = l + 1
-    j = r
-    while True:
-        while i < r and nums[i] <= nums[l]:
-            i += 1
-        while l < j and nums[j] >= nums[l]:
-            j -= 1
-        if i >= j:
-            break
-        nums[i], nums[j] = nums[j], nums[i]
-    nums[l], nums[j] = nums[j], nums[l]
-    return j
-
-def findKthLargest(self, nums: List[int], k: int) -> int:
-    l = 0
-    r = len(nums) - 1
-    target = len(nums) - k
-    while l < r:
-        mid = self.quickSelection(nums, l, r)
-        if mid == target:
-            return nums[mid]
-        if mid < target:
-            l = mid + 1
+def findKthLargest(nums: List[int], k: int) -> int:
+    pivot_val = random.choice(nums)
+    larger, equal, smaller = [], [], []
+    for num in nums:
+        if num > pivot_val:
+            larger.append(num)
+        elif num < pivot_val:
+            smaller.append(num)
         else:
-            r = mid - 1
-    return nums[l]
+            equal.append(num)
+    if k <= len(larger):
+        return findKthLargest(larger, k)
+    if k > len(larger) + len(equal):
+        return findKthLargest(smaller, k - len(larger) - len(equal))
+    return pivot_val
 ```
 
 ## 桶排序
@@ -879,21 +911,45 @@ Given [1,1,1,2,2,3] and k = 2, return [1,2].
 
 ```cpp
 vector<int> topKFrequent(vector<int>& nums, int k) {
-    unordered_map<int, int> m;
-    for (int num : nums) ++m[num];
-
-    vector<vector<int>> buckets(nums.size() + 1); 
-    for (auto p : m) buckets[p.second].push_back(p.first);
-
-    vector<int> ans;
-    for (int i = buckets.size() - 1; i >= 0 && ans.size() < k; --i) {
-        for (int num : buckets[i]) {
-            ans.push_back(num);
-            if (ans.size() == k) break;
+    unordered_map<int, int> counts;
+    for (int num : nums) {
+        ++counts[num];
+    }
+    unordered_map<int, vector<int>> buckets;
+    for (auto [num, count] : counts) {
+        buckets[count].push_back(num);
+    }
+    vector<int> top_k;
+    for (int count = nums.size(); count >= 0; --count) {
+        if (buckets.contains(count)) {
+            for (int num : buckets[count]) {
+                top_k.push_back(num);
+                if (top_k.size() == k) {
+                    return top_k;
+                }
+            }
         }
     }
-    return ans;
+    return top_k;
 }
+```
+
+```python
+def topKFrequent(nums: List[int], k: int) -> List[int]:
+    counts = Counter(nums)
+    buckets = dict()
+    for num, count in counts.items():
+        if count in buckets:
+            buckets[count].append(num)
+        else:
+            buckets[count] = [num]
+    top_k = []
+    for count in range(len(nums), 0, -1):
+        if count in buckets:
+            top_k += buckets[count]
+            if len(top_k) >= k:
+                return top_k[:k]
+    return top_k[:k]
 ```
 
 **按照字符出现次数对字符串排序**
@@ -1046,45 +1102,56 @@ the decimal part will be truncated.
 
 ```cpp
 int mySqrt(int x) {
-    if (x <= 1) return x;
-    int l = 1, r = x, mid, sqrt;
+    int l = 1, r = x, mid, x_div_mid;
     while (l <= r) {
         mid = l + (r - l) / 2;
-        sqrt = x / mid;
-        if (sqrt == mid) return mid;
-        else if (mid > sqrt) r = mid - 1;
-        else l = mid + 1;
+        x_div_mid = x / mid;
+        if (mid == x_div_mid) {
+            return mid;
+        }
+        if (mid < x_div_mid) {
+            l = mid + 1;
+        } else {
+            r = mid - 1;
+        }
     }
     return r;
 }
 ```
 
 ```python
-def mySqrt(self, x: int) -> int:
-    l = 1
-    r = x
+def mySqrt(x: int) -> int:
+    l, r = 1, x
     while l <= r:
-        mid = l + (r - l) // 2
-        sqrt = x // mid
-        if sqrt == mid:
+        mid = (l + r) // 2
+        mid_sqr = mid**2
+        if mid_sqr == x:
             return mid
-        if sqrt < mid:
-            r = mid - 1
-        else:
+        if mid_sqr < x:
             l = mid + 1
+        else:
+            r = mid - 1
     return r
 ```
 
 本题也可以用牛顿迭代法x\_n+1 = x\_n - f\(x\_n\)/f'\(x\_n\), 其中f = x^2 - a = 0
 
 ```cpp
-int mySqrt(int sq) {
-    long x = sq, a = sq;
-    while (x * x > a) {
-        x = (x + a / x) / 2;
+int mySqrt(int x) {
+    long t = x;
+    while (t * t > x) {
+        t = (t + x / t) / 2;
     }
-    return x;
+    return t;
 }
+```
+
+```python
+def mySqrt(x: int) -> int:
+    t = x
+    while t**2 > x:
+        t = (t + x // t) // 2
+    return t
 ```
 
 **大于给定元素的最小元素**
@@ -1207,25 +1274,64 @@ Output: true
 
 ```cpp
 bool search(vector<int>& nums, int target) {
-    int start = 0, end = nums.size() - 1;
-    while (start <= end) {
-        int mid = (start + end) / 2;
-        if (nums[mid] == target) return true;
-        if (nums[start] == nums[mid]) {
-            // cannot tell if start == mid
-            start++;
-        } else if (nums[mid] <= nums[end]) {
-            // right half sorted
-            if (target > nums[mid] && target <= nums[end]) start = mid+1;
-            else end = mid-1;
+    int l = 0, r = nums.size() - 1;
+    while (l <= r) {
+        int mid = l + (r - l) / 2;
+        if (nums[mid] == target) {
+            return true;
+        }
+        if (nums[mid] == nums[l]) {
+            // 无法判断哪个区间是增序的，但l位置一定不是target。
+            ++l;
+        } else if (nums[mid] == nums[r]) {
+            // 无法判断哪个区间是增序的，但r位置一定不是target。
+            --r;
+        } else if (nums[mid] < nums[r]) {
+            // 右区间是增序的。
+            if (target > nums[mid] && target <= nums[r]) {
+                l = mid + 1;
+            } else {
+                r = mid - 1;
+            }
         } else {
-            // left half sorted
-            if (target >= nums[start] && target < nums[mid]) end = mid-1;
-            else start = mid+1;
+            // 左区间是增序的。
+            if (target >= nums[l] && target < nums[mid]) {
+                r = mid - 1;
+            } else {
+                l = mid + 1;
+            }
         }
     }
     return false;
 }
+```
+
+```python
+def search(nums: List[int], target: int) -> bool:
+    l, r = 0, len(nums) - 1
+    while l <= r:
+        mid = (l + r) // 2
+        if nums[mid] == target:
+            return True
+        if nums[mid] == nums[l]:
+            # 无法判断哪个区间是增序的，但l位置一定不是target。
+            l += 1
+        elif nums[mid] == nums[r]:
+            # 无法判断哪个区间是增序的，但r位置一定不是target。
+            r -= 1
+        elif nums[mid] < nums[r]:
+            # 右区间是增序的。
+            if nums[mid] < target <= nums[r]:
+                l = mid + 1
+            else:
+                r = mid - 1
+        else:
+            # 左区间是增序的。
+            if nums[l] <= target < nums[mid]:
+                r = mid - 1
+            else:
+                l = mid + 1
+    return False
 ```
 
 **查找区间**
@@ -1241,32 +1347,133 @@ Output: [-1,-1]
 ```
 
 ```cpp
-int lower_bound(vector<int> &nums, int target) {
+int lowerBound(vector<int> &nums, int target) {
     int l = 0, r = nums.size(), mid;
     while (l < r) {
-        mid = (l + r) / 2;
-        if (nums[mid] >= target) r = mid;
-        else l = mid + 1;
+        mid = l + (r - l) / 2;
+        if (nums[mid] < target) {
+            l = mid + 1;
+        } else {
+            r = mid;
+        }
     }
     return l;
 }
-int upper_bound(vector<int> &nums, int target) {
-    int l = 0, r = nums.size(), mid;
-    while (l < r) {
-        mid = (l + r) / 2;
-        if (nums[mid] > target) r = mid;
-        else l = mid + 1;
-    }
-    return l;
 
+int upperBound(vector<int> &nums, int target) {
+    int l = 0, r = nums.size(), mid;
+    while (l < r) {
+        mid = l + (r - l) / 2;
+        if (nums[mid] <= target) {
+            l = mid + 1;
+        } else {
+            r = mid;
+        }
+    }
+    return l;
 }
-vector<int> searchRange(vector<int>& nums, int target) {
-    if (nums.empty()) return vector<int>(2, -1);
-    int lower = lower_bound(nums, target);
-    int upper = upper_bound(nums, target) - 1;  // important!
-    if (lower == nums.size() || nums[lower] != target) return vector<int>(2, -1);
+
+vector<int> searchRange(vector<int> &nums, int target) {
+    if (nums.empty()) {
+        return vector<int>{-1, -1};
+    }
+    int lower = lowerBound(nums, target);
+    int upper = upperBound(nums, target) - 1;
+    if (lower == nums.size() || nums[lower] != target) {
+        return vector<int>{-1, -1};
+    }
     return vector<int>{lower, upper};
 }
+```
+
+```python
+def lowerBound(nums: List[int], target: int) -> int:
+    l, r = 0, len(nums)
+    while l < r:
+        mid = (l + r) // 2
+        if nums[mid] < target:
+            l = mid + 1
+        else:
+            r = mid
+    return l
+
+def upperBound(nums: List[int], target: int) -> int:
+    l, r = 0, len(nums)
+    while l < r:
+        mid = (l + r) // 2
+        if nums[mid] <= target:
+            l = mid + 1
+        else:
+            r = mid
+    return l
+
+def searchRange(nums: List[int], target: int) -> List[int]:
+    if not nums:
+        return [-1, -1]
+    lower = lowerBound(nums, target)
+    upper = upperBound(nums, target) - 1
+    if lower == len(nums) or nums[lower] != target:
+        return [-1, -1]
+    return [lower, upper]
+```
+
+**查找峰值**
+
+[162. Find Peak Element \(Medium\)](https://leetcode.com/problems/find-peak-element/)
+
+给定一个数组，定义峰值为比所有两边都大的数字，求峰值的位置。一个数组里可能存在多个峰值，返回任意一个即可。
+
+```
+Input: nums = [1,2,3,1]
+Output: 2 (peak 3 is at location 2)
+```
+
+```cpp
+int findPeakElement(vector<int>& nums) {
+    int n = nums.size();
+    if (n == 1) {
+        return 0;
+    }
+    if (nums[0] > nums[1]) {
+        return 0;
+    }
+    if (nums[n - 1] > nums[n - 2]) {
+        return n - 1;
+    }
+    int l = 1, r = n - 2, mid;
+    while (l <= r) {
+        mid = l + (r - l) / 2;
+        if (nums[mid] > nums[mid + 1] && nums[mid] > nums[mid - 1]) {
+            return mid;
+        } else if (nums[mid] > nums[mid - 1]) {
+            l = mid + 1;
+        } else {
+            r = mid - 1;
+        }
+    }
+    return -1;
+}
+```
+
+```python
+def findPeakElement(self, nums: List[int]) -> int:
+    n = len(nums)
+    if n == 1:
+        return 0
+    if nums[0] > nums[1]:
+        return 0
+    if nums[n - 1] > nums[n - 2]:
+        return n - 1
+    l, r = 1, n - 2
+    while l <= r:
+        mid = (l + r) // 2
+        if nums[mid] > nums[mid + 1] and nums[mid] > nums[mid - 1]:
+            return mid
+        elif nums[mid] > nums[mid - 1]:
+            l = mid + 1
+        else:
+            r = mid - 1
+    return -1
 ```
 
 **两个排好序数组的中位数**
@@ -1353,8 +1560,19 @@ DFS时记录每个遍历过的节点的父节点，若一个节点被再次遍�
 ```
 
 ```cpp
+// 辅函数。
+int dfs(vector<vector<int>>& grid, int r, int c) {
+    if (r < 0 || r >= grid.size() || c < 0 || c >= grid[0].size() ||
+        grid[r][c] == 0) {
+        return 0;
+    }
+    grid[r][c] = 0;
+    return (1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) +
+            dfs(grid, r, c + 1) + dfs(grid, r, c - 1));
+}
+
+// 主函数。
 int maxAreaOfIsland(vector<vector<int>>& grid) {
-    if (grid.empty() || grid[0].empty()) return 0;
     int max_area = 0;
     for (int i = 0; i < grid.size(); ++i) {
         for (int j = 0; j < grid[0].size(); ++j) {
@@ -1363,27 +1581,23 @@ int maxAreaOfIsland(vector<vector<int>>& grid) {
     }
     return max_area;
 }
-
-int dfs(vector<vector<int>>& grid, int r, int c) {
-    if (r < 0 || r >= grid.size() || c < 0 || c >= grid[0].size() || grid[r][c] == 0) return 0;
-    grid[r][c] = 0;
-    return 1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) + dfs(grid, r, c + 1) + dfs(grid, r, c - 1);
-}
 ```
 
 ```python
-def dfs(self, grid: List[List[int]], i: int, j: int) -> int:
-    if i < 0 or i >= len(grid) or j < 0 or j >= len(grid[0]) or grid[i][j] == 0:
+# 辅函数。
+def dfs(grid: List[List[int]], r: int, c: int) -> int:
+    if r < 0 or r >= len(grid) or c < 0 or c >= len(grid[0]) or grid[r][c] == 0:
         return 0
-    grid[i][j] = 0
-    return 1 + self.dfs(grid, i+1, j) + self.dfs(grid, i-1, j) + self.dfs(grid, i, j-1) + self.dfs(grid, i, j+1)
+    grid[r][c] = 0
+    return (1 + dfs(grid, r + 1, c) + dfs(grid, r - 1, c) +
+            dfs(grid, r, c + 1) + dfs(grid, r, c - 1))
 
-def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+# 主函数。
+def maxAreaOfIsland(grid: List[List[int]]) -> int:
     max_area = 0
     for i in range(len(grid)):
         for j in range(len(grid[0])):
-            if grid[i][j] == 1:
-                max_area = max(max_area, self.dfs(grid, i, j))
+            max_area = max(max_area, dfs(grid, i, j))
     return max_area
 ```
 
@@ -1443,26 +1657,50 @@ The 2nd student himself is in a friend circle. So return 2.
 好友关系可以看成是一个无向图，例如第 0 个人与第 1 个人是好友，那么 M\[0\]\[1\] 和 M\[1\]\[0\] 的值都为 1。
 
 ```cpp
-int findCircleNum(vector<vector<int>>& M) {
-    int n = M.size(), cnt = 0;
+// 辅函数。
+void dfs(vector<vector<int>>& isConnected, int i, vector<bool>& visited) {
+    visited[i] = true;
+    for (int j = 0; j < isConnected.size(); ++j) {
+        if (isConnected[i][j] == 1 && !visited[j]) {
+            dfs(isConnected, j, visited);
+        }
+    }
+}
+
+// 主函数。
+int findCircleNum(vector<vector<int>>& isConnected) {
+    int n = isConnected.size(), count = 0;
+    // 防止重复搜索已被搜索过的节点。
     vector<bool> visited(n, false);
     for (int i = 0; i < n; ++i) {
         if (!visited[i]) {
-            dfs(M, i, visited);
-            ++cnt;
+            dfs(isConnected, i, visited);
+            ++count;
         }
     }
-    return cnt;
+    return count;
 }
+```
 
-void dfs(vector<vector<int>>& M, int i, vector<bool>& visited) {
-    visited[i] = true;
-    for (int k = 0; k < M.size(); ++k) {
-        if (M[i][k] == 1 && !visited[k]) {
-            dfs(M, k, visited);
-        }
-    }
-}
+```python
+# 辅函数。
+def dfs(isConnected: List[List[int]], city: int, visited: Set[int]):
+    visited.add(city)
+    for i in range(len(isConnected)):
+        if isConnected[city][i] == 1 and i not in visited:
+            dfs(isConnected, i, visited)
+
+
+# 主函数。
+def findCircleNum(isConnected: List[List[int]]) -> int:
+    count = 0
+    # 防止重复搜索已被搜索过的节点。
+    visited = set()
+    for i in range(len(isConnected)):
+        if i not in visited:
+            dfs(isConnected, i, visited)
+            count += 1
+    return count
 ```
 
 **填充封闭区域**
@@ -1542,80 +1780,78 @@ Return:
 左边和上边是太平洋，右边和下边是大西洋，内部的数字代表海拔，海拔高的地方的水能够流到低的地方，求解水能够流到太平洋和大西洋的所有位置。
 
 ```cpp
-vector<int> dr {-1, 1, 0, 0};
-vector<int> dc {0, 0, 1, -1};
-vector<vector<int>> pacificAtlantic(vector<vector<int>>& matrix) {
-    if (matrix.empty() || matrix[0].empty()) return {};
-    vector<vector<int>> res;
-    int m = matrix.size(), n = matrix[0].size();
+vector<int> direction{-1, 0, 1, 0, -1};
+
+// 辅函数。
+void dfs(const vector<vector<int>>& heights, vector<vector<bool>>& can_reach,
+         int r, int c) {
+    if (can_reach[r][c]) {
+        return;
+    }
+    can_reach[r][c] = true;
+    for (int i = 0; i < 4; ++i) {
+        int x = r + direction[i], y = c + direction[i + 1];
+        if (x >= 0 && x < heights.size() && y >= 0 && y < heights[0].size() &&
+            heights[r][c] <= heights[x][y]) {
+            dfs(heights, can_reach, x, y);
+        }
+    }
+}
+
+// 主函数。
+vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
+    int m = heights.size(), n = heights[0].size();
     vector<vector<bool>> can_reach_p(m, vector<bool>(n, false));
     vector<vector<bool>> can_reach_a(m, vector<bool>(n, false));
+    vector<vector<int>> can_reach_p_and_a;
     for (int i = 0; i < m; ++i) {
-        dfs(matrix, can_reach_p, i, 0);
-        dfs(matrix, can_reach_a, i, n - 1);
+        dfs(heights, can_reach_p, i, 0);
+        dfs(heights, can_reach_a, i, n - 1);
     }
     for (int i = 0; i < n; ++i) {
-        dfs(matrix, can_reach_p, 0, i);
-        dfs(matrix, can_reach_a, m - 1, i);
+        dfs(heights, can_reach_p, 0, i);
+        dfs(heights, can_reach_a, m - 1, i);
     }
-    for (int i = 0; i < m; i++) {
+    for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
             if (can_reach_p[i][j] && can_reach_a[i][j]) {
-                res.push_back(vector<int>{i, j});
+                can_reach_p_and_a.push_back({i, j});
             }
         }
     }
-    return res;
-}
-
-void dfs(const vector<vector<int>>& matrix, vector<vector<bool>>& can_reach, int r, int c) {
-    if (can_reach[r][c]) return;
-    can_reach[r][c] = true;
-    for (int i = 0; i < 4; ++i) {
-        int next_r = r + dr[i], next_c = c + dc[i];
-        if (next_r < 0 || next_r >= matrix.size() || next_c < 0 || next_c >= matrix[0].size() ||
-            matrix[r][c] > matrix[next_r][next_c]) continue;
-        dfs(matrix, can_reach, next_r, next_c);
-    }
+    return can_reach_p_and_a;
 }
 ```
 
 ```python
-def __init__(self):
-    self.di = [-1, 1, 0, 0]
-    self.dj = [0, 0, 1, -1]
+direction = [-1, 0, 1, 0, -1]
 
-def flow(self, heights: List[List[int]], i: int, j: int, reach: List[List[int]]):
-    if reach[i][j]:
+# 辅函数。
+def dfs(heights: List[List[int]], can_reach: List[List[int]], r: int, c: int):
+    if can_reach[r][c]:
         return
-    reach[i][j] = True
-    m = len(heights)
-    n = len(heights[0])
-    for d in range(4):
-        next_i = i + self.di[d]
-        next_j = j + self.dj[d]
-        if next_i < 0 or next_i >= m or next_j < 0 or next_j >= n or heights[next_i][next_j] < heights[i][j]:
-            continue
-        self.flow(heights, next_i, next_j, reach)
+    can_reach[r][c] = True
+    for i in range(4):
+        x, y = r + direction[i], c + direction[i + 1]
+        if (x >= 0 and x < len(heights) and y >= 0 and y < len(heights[0]) and
+            heights[x][y] >= heights[r][c]):
+            dfs(heights, can_reach, x, y)
 
-
-def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
-    m = len(heights)
-    n = len(heights[0])
-    reachP = [[False for _ in range(n)] for _ in range(m)]
-    reachA = [[False for _ in range(n)] for _ in range(m)]
+# 主函数。
+def pacificAtlantic(heights: List[List[int]]) -> List[List[int]]:
+    m, n = len(heights), len(heights[0])
+    can_reach_p = [[False for _ in range(n)] for _ in range(m)]
+    can_reach_a = [[False for _ in range(n)] for _ in range(m)]
     for i in range(m):
-        self.flow(heights, i, 0, reachP)
-        self.flow(heights, i, n-1, reachA)
+        dfs(heights, can_reach_p, i, 0)
+        dfs(heights, can_reach_a, i, n - 1)
     for j in range(n):
-        self.flow(heights, 0, j, reachP)
-        self.flow(heights, m-1, j, reachA)
-    res = []
-    for i in range(m):
-        for j in range(n):
-            if reachP[i][j] and reachA[i][j]:
-                res.append([i, j])
-    return res
+        dfs(heights, can_reach_p, 0, j)
+        dfs(heights, can_reach_a, m - 1, j)
+    return [
+        [i, j] for i in range(m) for j in range(n)
+        if can_reach_p[i][j] and can_reach_a[i][j]
+    ]
 ```
 
 ## 回溯法
@@ -1650,31 +1886,68 @@ word = "ABCB", -> returns false.
 ```
 
 ```cpp
+// 辅函数。
+bool backtracking(vector<vector<char>>& board, string& word,
+                  vector<vector<bool>>& visited, int i, int j, int word_pos) {
+    if (i < 0 || i >= board.size() || j < 0 || j >= board[0].size() ||
+        visited[i][j] || board[i][j] != word[word_pos]) {
+        return false;
+    }
+    if (word_pos == word.size() - 1) {
+        return true;
+    }
+    visited[i][j] = true;  // 修改当前节点状态
+    if (backtracking(board, word, visited, i + 1, j, word_pos + 1) ||
+        backtracking(board, word, visited, i - 1, j, word_pos + 1) ||
+        backtracking(board, word, visited, i, j + 1, word_pos + 1) ||
+        backtracking(board, word, visited, i, j - 1, word_pos + 1)) {
+        return true;  // 递归子节点
+    }
+    visited[i][j] = false;  // 回改当前节点状态
+    return false;
+}
+
+// 主函数。
 bool exist(vector<vector<char>>& board, string word) {
-    if (board.empty()) return false;
     int m = board.size(), n = board[0].size();
     vector<vector<bool>> visited(m, vector<bool>(n, false));
-    bool find = false;
-    for (int i = 0; i < m; i++)
-        for (int j = 0; j < n; j++)
-            backtracking(i, j, board, word, 0, find, visited);
-    return find;
-}
-void backtracking(int i, int j, vector<vector<char>>& board, string& word, int pos,
-                  bool& find, vector<vector<bool>>& visited) {
-    if (i < 0 || i >= board.size() || j < 0 || j >= board[0].size()) return;
-    if (visited[i][j] || find || board[i][j] != word[pos]) return;
-    if (pos == word.size()-1) {
-        find = true;
-        return;
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (backtracking(board, word, visited, i, j, 0)) {
+                return true;
+            }
+        }
     }
-    visited[i][j] = true;
-    backtracking(i + 1, j, board, word, pos+1, find, visited);
-    backtracking(i - 1, j, board, word, pos+1, find, visited);
-    backtracking(i, j + 1, board, word, pos+1, find, visited);
-    backtracking(i, j - 1, board, word, pos+1, find, visited);
-    visited[i][j] = false;
+    return false;
 }
+```
+
+```python
+# 辅函数。
+def backtracking(board: List[List[str]], word: str,
+                 visited: List[List[bool]], i: int, j: int, word_pos: int):
+    if (i < 0 or i >= len(board) or j < 0 or j >= len(board[0])
+        or visited[i][j] or board[i][j] != word[word_pos]):
+        return False
+    if word_pos == len(word) - 1:
+        return True
+    visited[i][j] = True  # 修改当前节点状态
+    if (backtracking(board, word, visited, i + 1, j, word_pos + 1) or
+        backtracking(board, word, visited, i - 1, j, word_pos + 1) or
+        backtracking(board, word, visited, i, j + 1, word_pos + 1) or
+        backtracking(board, word, visited, i, j - 1, word_pos + 1)):
+        return True  # 递归子节点
+    visited[i][j] = False  # 回改当前节点状态
+    return False
+
+# 主函数。
+def exist(board: List[List[str]], word: str) -> bool:
+    m, n = len(board), len(board[0])
+    visited = [[False for _ in range(n)] for _ in range(m)]
+    return any([
+        backtracking(board, word, visited, i, j, 0)
+        for i in range(m) for j in range(n)
+    ])
 ```
 
 **输出二叉树中所有从根到叶子的路径**
@@ -1738,38 +2011,44 @@ void backtracking(vector<string> &res, TreeNode* root, vector<int> &path) {
 ```
 
 ```cpp
-vector<vector<int>> permute(vector<int>& nums) {
-    vector<vector<int>> res;
-    backtracking(nums, 0, res);
-    return res;
-}
-
-void backtracking(vector<int> &nums, int level, vector<vector<int>> &res) {
+// 辅函数。
+void backtracking(vector<int> &nums, int level,
+                  vector<vector<int>> &permutations) {
     if (level == nums.size() - 1) {
-        res.push_back(nums);
+        permutations.push_back(nums);
         return;
     }
-    for (int i = level; i < nums.size(); i++) {
-        swap(nums[i], nums[level]);
-        backtracking(nums, level+1, res);
-        swap(nums[i], nums[level]);
+    for (int i = level; i < nums.size(); ++i) {
+        swap(nums[i], nums[level]);  // 修改当前节点状态
+        backtracking(nums, level + 1, permutations);  // 递归子节点
+        swap(nums[i], nums[level]);  // 回改当前节点状态
     }
+}
+
+// 主函数。
+vector<vector<int>> permute(vector<int> &nums) {
+    vector<vector<int>> permutations;
+    backtracking(nums, 0, permutations);
+    return permutations;
 }
 ```
 
 ```python
-def backtracking(self, nums: List[int], level: int, permutations: List[List[int]]):
+# 辅函数。
+def backtracking(nums: List[int], level: int, permutations: List[List[int]]):
     if level == len(nums) - 1:
-        permutations.append(nums[:])  # shallow copy for primitives are okay
+        permutations.append(nums[:])  # int为基本类型，可以浅拷贝
         return
     for i in range(level, len(nums)):
-        nums[i], nums[level] = nums[level], nums[i]
-        self.backtracking(nums, level+1, permutations)
-        nums[i], nums[level] = nums[level], nums[i]
+        nums[i], nums[level] = nums[level], nums[i]  # 修改当前节点状态
+        backtracking(nums, level + 1, permutations)  # 递归子节点
+        nums[i], nums[level] = nums[level], nums[i]  # 回改当前节点状态
 
-def permute(self, nums: List[int]) -> List[List[int]]:
+
+# 主函数。
+def permute(nums: List[int]) -> List[List[int]]:
     permutations = []
-    self.backtracking(nums, 0, permutations)
+    backtracking(nums, 0, permutations)
     return permutations
 ```
 
@@ -1843,22 +2122,49 @@ If n = 4 and k = 2, a solution is:
 ```
 
 ```cpp
-vector<vector<int>> combine(int n, int k) {
-    vector<vector<int>> res;
-    vector<int> cur(k, 0);
-    backtracking(res, cur, 1, 0, k, n);
-    return res;
-}
-void backtracking(vector<vector<int>>& res, vector<int>& cur, int pos, int count, int k, int n) {
-    if (!k) {
-        res.push_back(cur);
+// 辅函数。
+void backtracking(vector<vector<int>>& combinations, vector<int>& pick,
+                  int pos, int n, int k) {
+    if (pick.size() == k) {
+        combinations.push_back(pick);
         return;
     }
     for (int i = pos; i <= n; ++i) {
-        cur[count] = i;
-        backtracking(res, cur, i + 1, count + 1, k - 1, n);
+        pick.push_back(i);  // 修改当前节点状态
+        backtracking(combinations, pick, i + 1, n, k);  // 递归子节点
+        pick.pop_back();  // 回改当前节点状态
     }
 }
+
+// 主函数。
+vector<vector<int>> combine(int n, int k) {
+    vector<vector<int>> combinations;
+    vector<int> pick;
+    backtracking(combinations, pick, 1, n, k);
+    return combinations;
+}
+```
+
+```python
+# 辅函数。
+def backtracking(
+    combinations: List[List[int]], pick: List[int], pos: int, n: int, k: int
+):
+    if len(pick) == k:
+        combinations.append(pick[:])  # int为基本类型，可以浅拷贝
+        return
+    for i in range(pos, n + 1):
+        pick.append(i)  # 修改当前节点状态
+        backtracking(combinations, pick, i + 1, n, k)  # 递归子节点
+        pick.pop()  # 回改当前节点状态
+
+
+# 主函数。
+def combine(n: int, k: int) -> List[List[int]]:
+    combinations = []
+    pick = []
+    backtracking(combinations, pick, 1, n, k)
+    return combinations
 ```
 
 **组合求和**
@@ -2154,27 +2460,72 @@ def solveSudoku(self, board: List[List[str]]) -> None:
 在 n\*n 的矩阵中摆放 n 个皇后，并且每个皇后不能在同一行，同一列，同一对角线上，求所有的 n 皇后的解。
 
 ```cpp
-void backtrack(vector<vector<string>> &ret, vector<string> &board, vector<bool> &column,
-               vector<bool> &ldiag, vector<bool> &rdiag, int row, int n) {  
-    if (row == n) {  
-        ret.push_back(board);  
-        return;  
+// 辅函数。
+void backtracking(vector<vector<string>> &solutions, vector<string> &board,
+                  vector<bool> &column, vector<bool> &ldiag,
+                  vector<bool> &rdiag, int row) {
+    int n = board.size();
+    if (row == n) {
+        solutions.push_back(board);
+        return;
     }
     for (int i = 0; i < n; ++i) {
-        if (column[i] || ldiag[n-row+i-1] || rdiag[row+i+1]) continue;
-        board[row][i] = 'Q'; column[i] = ldiag[n-row+i-1] = rdiag[row+i+1] = true;
-        backtrack(ret, board, column, ldiag, rdiag, row+1, n);
-        board[row][i] = '.'; column[i] = ldiag[n-row+i-1] = rdiag[row+i+1] = false;
-    }  
-}  
-vector<vector<string>> solveNQueens(int n) {  
-    vector<vector<string>> ret;
-    if (n == 0) return ret;  
-    vector<string> board(n, string(n, '.'));
-    vector<bool> column(n, false), ldiag(2*n-1, false), rdiag(2*n-1, false);
-    backtrack(ret, board, column, ldiag, rdiag, 0, n);  
-    return ret;  
+        if (column[i] || ldiag[n - row + i - 1] || rdiag[row + i]) {
+            continue;
+        }
+        // 修改当前节点状态。
+        board[row][i] = 'Q';
+        column[i] = ldiag[n - row + i - 1] = rdiag[row + i] = true;
+        // 递归子节点。
+        backtracking(solutions, board, column, ldiag, rdiag, row + 1);
+        // 回改当前节点状态。
+        board[row][i] = '.';
+        column[i] = ldiag[n - row + i - 1] = rdiag[row + i] = false;
+    }
 }
+
+// 主函数。
+vector<vector<string>> solveNQueens(int n) {
+    vector<vector<string>> solutions;
+    vector<string> board(n, string(n, '.'));
+    vector<bool> column(n, false);
+    vector<bool> ldiag(2 * n - 1, false);
+    vector<bool> rdiag(2 * n - 1, false);
+    backtracking(solutions, board, column, ldiag, rdiag, 0);
+    return solutions;
+}
+```
+
+```python
+# 辅函数。
+def backtracking(solutions: List[List[str]], board: List[List[str]],
+    column: List[bool], ldiag: List[bool], rdiag: List[bool], row: int):
+    n = len(board)
+    if row == n:
+        solutions.append(["".join(row) for row in board])
+        return
+    for i in range(n):
+        if column[i] or ldiag[n - row + i - 1] or rdiag[row + i]:
+            continue
+        # 修改当前节点状态。
+        board[row][i] = "Q"
+        column[i] = ldiag[n - row + i - 1] = rdiag[row + i] = True
+        # 递归子节点。
+        backtracking(solutions, board, column, ldiag, rdiag, row + 1)
+        # 回改当前节点状态。
+        board[row][i] = "."
+        column[i] = ldiag[n - row + i - 1] = rdiag[row + i] = False
+
+
+# 主函数。
+def solveNQueens(n: int) -> List[List[str]]:
+    solutions = []
+    board = [["." for _ in range(n)] for _ in range(n)]
+    column = [False] * n
+    ldiag = [False] * (2 * n - 1)
+    rdiag = [False] * (2 * n - 1)
+    backtracking(solutions, board, column, ldiag, rdiag, 0)
+    return solutions
 ```
 
 ## 广度优先搜索
@@ -2224,57 +2575,113 @@ Output: 1
 先dfs找到一个岛，然后bfs找与另外一个岛的最短距离
 
 ```cpp
-void dfs(queue<pair<int, int>>& points, vector<vector<int>>& A, int m, int n, int i, int j) {
-    if (i < 0 || j < 0 || i == m || j == n || A[i][j] == 2) return;
-    if (A[i][j] == 0) {
+vector<int> direction{-1, 0, 1, 0, -1};
+
+// 辅函数。
+void dfs(queue<pair<int, int>>& points, vector<vector<int>>& grid,
+         int i, int j) {
+    int m = grid.size(), n = grid[0].size();
+    if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] == 2) {
+        return;
+    }
+    if (grid[i][j] == 0) {
         points.push({i, j});
         return;
     }
-    A[i][j] = 2;
-    dfs(points, A, m, n, i-1, j);
-    dfs(points, A, m, n, i+1, j);
-    dfs(points, A, m, n, i, j-1);
-    dfs(points, A, m, n, i, j+1);
+    grid[i][j] = 2;
+    for (int k = 0; k < 4; ++k) {
+        dfs(points, grid, i + direction[k], j + direction[k + 1]);
+    }
 }
 
-int shortestBridge(vector<vector<int>>& A) {
-    int m = A.size(), n = A[0].size();
+// 主函数。
+int shortestBridge(vector<vector<int>>& grid) {
+    int m = grid.size(), n = grid[0].size();
     queue<pair<int, int>> points;
+    // DFS寻找第一个岛屿，并把1全部赋值为2。
     bool flipped = false;
-    for (int i = 0; i < m; ++i) {
-        if (flipped) break;
-        for (int j = 0; j < n; ++j) {
-            if (A[i][j] == 1) {
-                dfs(points, A, m, n, i, j);
+    for (int i = 0; i < m && !flipped; ++i) {
+        for (int j = 0; j < n && !flipped; ++j) {
+            if (grid[i][j] == 1) {
+                dfs(points, grid, i, j);
                 flipped = true;
-                break;
             }
         }
-
     }
-    int i, j, idx, jdy;
-    int dx[4] = {-1, 1, 0, 0}, dy[4] = {0, 0, 1, -1};
+    // BFS寻找第二个岛屿，并把过程中经过的0赋值为2。
     int level = 0;
-    while (!points.empty()){
+    while (!points.empty()) {
         ++level;
         int n_points = points.size();
         while (n_points--) {
-            auto point = points.front();
+            auto [r, c] = points.front();
             points.pop();
-            i = point.first, j = point.second;
+            grid[r][c] = 2;
             for (int k = 0; k < 4; ++k) {
-                idx = i + dx[k], jdy = j + dy[k];
-                if (idx >= 0 && jdy >= 0 && idx < m && jdy < n) {
-                    if (A[idx][jdy] == 2) continue;
-                    if (A[idx][jdy] == 1) return level;
-                    points.push({idx, jdy});
-                    A[idx][jdy] = 2;
+                int x = r + direction[k], y = c + direction[k + 1];
+                if (x >= 0 && x < m  && y >= 0 && y < n) {
+                    if (grid[x][y] == 2) {
+                        continue;
+                    }
+                    if (grid[x][y] == 1) {
+                        return level;
+                    }
+                    grid[x][y] = 2;
+                    points.push({x, y});
                 }
             }
         }
     }
     return 0;
 }
+```
+
+```python
+direction = [-1, 0, 1, 0, -1]
+
+# 辅函数。
+def dfs(points: Deque[Tuple[int, int]], grid: List[List[int]], i: int, j: int):
+    m, n = len(grid), len(grid[0])
+    if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] == 2:
+        return
+    if grid[i][j] == 0:
+        points.append((i, j))
+        return
+    grid[i][j] = 2
+    for k in range(4):
+        dfs(points, grid, i + direction[k], j + direction[k + 1])
+
+def shortestBridge(grid: List[List[int]]) -> int:
+    m, n = len(grid), len(grid[0])
+    points = collections.deque()
+    # DFS寻找第一个岛屿，并把1全部赋值为2。
+    flipped = False
+    for i in range(m):
+        if flipped:
+            break
+        for j in range(n):
+            if grid[i][j] == 1:
+                dfs(points, grid, i, j)
+                flipped = True
+                break
+    # BFS寻找第二个岛屿，并把过程中经过的0赋值为2。
+    level = 0
+    while len(points) > 0:
+        level += 1
+        points_at_current_level = len(points)
+        for _ in range(points_at_current_level):
+            r, c = points.popleft()
+            grid[r][c] = 2
+            for k in range(4):
+                x, y = r + direction[k], c + direction[k + 1]
+                if x >= 0 and x < m and y >= 0 and y < n:
+                    if grid[x][y] == 2:
+                        continue
+                    if grid[x][y] == 1:
+                        return level
+                    grid[x][y] = 2
+                    points.append((x, y))
+    return level
 ```
 
 **图中的最小“树“高**
@@ -2388,63 +2795,151 @@ Output:
 找出一条从 beginWord 到 endWord 的最短路径，每次移动规定为改变一个字符，并且改变之后的字符串必须在 wordList 中。先用bfs找最短路径，同时记录children；再用backtracking输出路径。
 
 ```cpp
-vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
-    vector<vector<string>> ans;
-    unordered_set<string> dict;
-    for (const auto &w: wordList) dict.insert(w);
-    if (!dict.count(endWord)) return ans;
-    dict.erase(beginWord);
-    dict.erase(endWord);
-    unordered_set<string> q1{beginWord}, q2{endWord};
-    unordered_map<string, vector<string>> next;
-    bool reversed = false, found = false;
-    while (!q1.empty()) {
+// 辅函数。
+void backtracking(const string &src, const string &dst,
+                  unordered_map<string, vector<string>> &next_words,
+                  vector<string> &path, vector<vector<string>> &ladder) {
+    if (src == dst) {
+        ladder.push_back(path);
+        return;
+    }
+    if (!next_words.contains(src)) {
+        return;
+    }
+    for (const auto &w : next_words[src]) {
+        path.push_back(w);  // 修改当前节点状态
+        backtracking(w, dst, next_words, path, ladder);  // 递归子节点
+        path.pop_back();  // 回改当前节点状态
+    }
+}
+
+// 主函数。
+vector<vector<string>> findLadders(string beginWord, string endWord,
+                                   vector<string> &wordList) {
+    vector<vector<string>> ladder;
+    // 用哈希集合存储字典，方便查找。
+    unordered_set<string> word_dict;
+    for (const auto &w : wordList) {
+        word_dict.insert(w);
+    }
+    if (!word_dict.contains(endWord)) {
+        return ladder;
+    }
+    word_dict.erase(beginWord);
+    word_dict.erase(endWord);
+    // 建立两个queue，从beginWord和endWord同时延展，每次延展最小的。
+    // 因为之后的去重操作需要遍历queue，我们这里用哈希表实现它，
+    // 只要保证是分层次遍历即可。
+    unordered_set<string> q_small{beginWord}, q_large{endWord};
+    unordered_map<string, vector<string>> next_words;
+    bool reversed_path = false, found_path = false;
+    while (!q_small.empty()) {
         unordered_set<string> q;
-        for (const auto &w: q1) {
+        for (const auto &w : q_small) {
             string s = w;
-            for (size_t i = 0; i < s.size(); i++) {
-                char ch = s[i];
-                for (int j = 0; j < 26; j++) {
+            for (int i = 0; i < s.size(); ++i) {
+                for (int j = 0; j < 26; ++j) {
                     s[i] = j + 'a';
-                    if (q2.count(s)) {
-                        reversed? next[s].push_back(w): next[w].push_back(s);
-                        found = true;
+                    if (q_large.contains(s)) {
+                        reversed_path ? next_words[s].push_back(w)
+                                      : next_words[w].push_back(s);
+                        found_path = true;
                     }
-                    if (dict.count(s)) {
-                        reversed? next[s].push_back(w): next[w].push_back(s);
+                    if (word_dict.contains(s)) {
+                        reversed_path ? next_words[s].push_back(w)
+                                      : next_words[w].push_back(s);
                         q.insert(s);
                     }
                 }
-                s[i] = ch;
+                s[i] = w[i];
             }
         }
-        if (found) break;
-        for (const auto &w: q) dict.erase(w);
-        if (q.size() <= q2.size()) {
-            q1 = q;
+        if (found_path) {
+            break;
+        }
+        // 环路一定不是最短解，所以这里需要去重和避免无限循环。
+        for (const auto &w : q) {
+            word_dict.erase(w);
+        }
+        // 更新两个queue，并维持大小关系。
+        if (q.size() <= q_large.size()) {
+            q_small = q;
         } else {
-            reversed = !reversed;
-            q1 = q2;
-            q2 = q;
+            reversed_path = !reversed_path;
+            q_small = q_large;
+            q_large = q;
         }
     }
-    if (!found) return ans;
-    vector<string> path = {beginWord};
-    backtrack(beginWord, endWord, next, path, ans);
-    return ans;
-}
-void backtrack(const string &src, const string &dst, unordered_map<string, vector<string>> &next,
-               vector<string> &path, vector<vector<string>> &ans) {
-    if (src == dst) {
-        ans.push_back(path);
-        return;
+    if (found_path) {
+        vector<string> path{beginWord};
+        backtracking(beginWord, endWord, next_words, path, ladder);
     }
-    for (const auto &s: next[src]) {
-        path.push_back(s);
-        backtrack(s, dst, next, path, ans);
-        path.pop_back();
-    }
+    return ladder;
 }
+```
+
+```python
+# 辅函数。
+def backtracking(src: str, dst: str, next_words: Dict[str, List[str]],
+                 path: List[str], ladder: List[List[str]]):
+    if src == dst:
+        ladder.append(path[:])
+        return
+    if src not in next_words:
+        return
+    for w in next_words[src]:
+        path.append(w)  # 修改当前节点状态
+        backtracking(w, dst, next_words, path, ladder)  # 递归子节点
+        path.pop()  # 回改当前节点状态
+
+# 主函数。
+def findLadders(beginWord: str, endWord: str,
+                wordList: List[str]) -> List[List[str]]:
+    ladder = []
+    # 用哈希集合存储字典，方便查找。
+    word_dict = set(wordList)
+    if endWord not in word_dict:
+        return ladder
+    word_dict = word_dict.difference(set([beginWord, endWord]))
+    # 建立两个queue，从beginWord和endWord同时延展，每次延展最小的。
+    # 因为之后的去重操作需要遍历queue，我们这里用哈希表实现它，
+    # 只要保证是分层次遍历即可。
+    q_small, q_large = set([beginWord]), set([endWord])
+    next_words = dict()
+    reversed_path, found_path = False, False
+    while len(q_small) > 0:
+        q = set()
+        for w in q_small:
+            for i in range(len(w)):
+                for j in range(26):
+                    s = w[:i] + chr(ord("a") + j) + w[i + 1 :]
+                    if s in q_large:
+                        if reversed_path:
+                            next_words[s] = next_words.get(s, []) + [w]
+                        else:
+                            next_words[w] = next_words.get(w, []) + [s]
+                        found_path = True
+                    if s in word_dict:
+                        if reversed_path:
+                            next_words[s] = next_words.get(s, []) + [w]
+                        else:
+                            next_words[w] = next_words.get(w, []) + [s]
+                        q.add(s)
+        if found_path:
+            break
+        # 环路一定不是最短解，所以这里需要去重和避免无限循环。
+        word_dict = word_dict.difference(q)
+        # 更新两个queue，并维持大小关系。
+        if len(q) <= len(q_large):
+            q_small = q
+        else:
+            reversed_path = not reversed_path
+            q_small = q_large
+            q_large = q
+    if found_path:
+        path = [beginWord]
+        backtracking(beginWord, endWord, next_words, path, ladder)
+    return ladder
 ```
 
 ## 动态规划
