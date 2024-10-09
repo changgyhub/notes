@@ -4873,18 +4873,33 @@ def xGCD(a: int, b: int, x: List[int], y: List[int]) -> int:
 
 ```cpp
 string convertToBase7(int num) {
-    if (num == 0) return "0";
-    bool is_negative = num < 0;
-    if (is_negative) num = -num;
-    string res;
-    while (num) {
-        int a = num / 7;
-        int b = num % 7;
-        res = to_string(b) + res;
-        num = a;
+    if (num == 0) {
+        return "0";
     }
-    return is_negative? "-" + res: res;
+    string base7;
+    bool is_negative = num < 0;
+    num = abs(num);
+    while (num) {
+        int quotient = num / 7, remainder = num % 7;
+        base7 = to_string(remainder) + base7;
+        num = quotient;
+    }
+    return is_negative ? "-" + base7 : base7;
 }
+```
+
+```python
+def convertToBase7(num: int) -> str:
+    if num == 0:
+        return "0"
+    base7 = ""
+    is_negative = num < 0
+    num = abs(num)
+    while num:
+        quotient, remainder = num // 7, num % 7
+        base7 = str(remainder) + base7
+        num = quotient
+    return "-" + base7 if is_negative else base7
 ```
 
 **26 进制**
@@ -4923,8 +4938,13 @@ string convertToTitle (int n) {
 
 ```cpp
 int trailingZeroes(int n) {
-    return n? n / 5 + trailingZeroes(n / 5): 0;
+    return n == 0 ? 0 : n / 5 + trailingZeroes(n / 5);
 }
+```
+
+```python
+def trailingZeroes(n: int) -> int:
+    return 0 if n == 0 else n // 5 + trailingZeroes(n // 5)
 ```
 
 拓展：如果统计的是 N! 的二进制表示中最低位 1 的位置，只要统计有多少个 2 即可。
@@ -4979,32 +4999,46 @@ string addBinary (string a, string b) {
 
 ```cpp
 string addStrings(string num1, string num2) {
-    string output("");
+    string added_str;
     reverse(num1.begin(), num1.end());
     reverse(num2.begin(), num2.end());
-    int onelen = num1.length();
-    int twolen = num2.length();
-    if (onelen <= twolen){
+    int len1 = num1.length(), len2 = num2.length();
+    if (len1 <= len2) {
         swap(num1, num2);
-        swap(onelen, twolen);
+        swap(len1, len2);
     }
-    int addbit = 0;
-    for (int i = 0; i < twolen; ++i){
-        int cur_sum = (num1[i]-'0') + (num2[i]-'0') + addbit;
-        output += to_string((cur_sum)%10);
-        if (cur_sum >= 10) addbit = 1;
-        else addbit = 0;
+    int add_bit = 0;
+    for (int i = 0; i < len1; ++i) {
+        int cur_sum =
+            (num1[i] - '0') + (i < len2 ? num2[i] - '0' : 0) + add_bit;
+        added_str += to_string(cur_sum % 10);
+        add_bit = cur_sum >= 10;
     }
-    for (int i = twolen; i < onelen; ++i){
-        int cur_sum = (num1[i]-'0') + addbit;
-        output += to_string((cur_sum)%10);
-        if (cur_sum >= 10) addbit = 1;
-        else addbit = 0;
+    if (add_bit) {
+        added_str += "1";
     }
-    if (addbit) output += "1";
-    reverse(output.begin(), output.end());
-    return output;
+    reverse(added_str.begin(), added_str.end());
+    return added_str;
 }
+```
+
+```python
+def addStrings(num1: str, num2: str) -> str:
+    added_str = ""
+    num1 = num1[::-1]
+    num2 = num2[::-1]
+    len1, len2 = len(num1), len(num2)
+    if len1 <= len2:
+        num1, num2 = num2, num1
+        len1, len2 = len2, len1
+    add_bit = 0
+    for i in range(len1):
+        cur_sum = int(num1[i]) + (int(num2[i]) if i < len2 else 0) + add_bit
+        added_str += str(cur_sum % 10)
+        add_bit = int(cur_sum >= 10)
+    if add_bit:
+        added_str += "1"
+    return added_str[::-1]
 ```
 
 ## 相遇问题
@@ -5100,31 +5134,57 @@ int majorityElement(vector<int> &num) {
 
 [384. Shuffle an Array \(Medium\)](https://leetcode.com/problems/shuffle-an-array/)
 
-从前往后随机交换一遍即可。
-
 ```cpp
 class Solution {
-    vector<int> origin;
-public:
-    Solution(vector<int> nums) {
-        origin = std::move(nums);
-    }
+   public:
+    Solution(vector<int> nums) : nums_(nums) {}
 
     vector<int> reset() {
-        return origin;
+        return nums_;
     }
 
     vector<int> shuffle() {
-        if (origin.empty()) return {};  
-        vector<int> shuffled(origin);
-        int len = origin.size();
-        for (int i = 0; i < len; ++i) {  
-            int pos = rand() % (len - i);  
-            swap(shuffled[i], shuffled[i+pos]);  
-        }  
-        return shuffled;  
+        vector<int> shuffled(nums_);
+        int n = nums_.size();
+        // 可以使用反向或者正向洗牌，效果相同。
+        // 反向洗牌：
+        for (int i = n - 1; i >= 0; --i) {
+            swap(shuffled[i], shuffled[rand() % (i + 1)]);
+        }
+        // 正向洗牌：
+        // for (int i = 0; i < n; ++i) {
+        //     int pos = rand() % (n - i);
+        //     swap(shuffled[i], shuffled[i+pos]);
+        // }
+        return shuffled;
     }
+
+   private:
+    vector<int> nums_;
 };
+```
+
+```python
+class Solution:
+    def __init__(self, nums: List[int]):
+        self.base = nums[:]
+
+    def reset(self) -> List[int]:
+        return self.base[:]
+
+    def shuffle(self) -> List[int]:
+        shuffled = self.base[:]
+        n = len(self.base)
+        # 可以使用反向或者正向洗牌，效果相同。
+        # 反向洗牌：
+        for i in range(n - 1, -1, -1):
+            j = random.randint(0, i)
+            shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+        # 正向洗牌：
+        # for i in range(n):
+        #     j = i + random.randint(0, n - i - 1)
+        #     shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+        return shuffled
 ```
 
 **有权重的随机选择**
@@ -5135,29 +5195,31 @@ public:
 
 ```cpp
 class Solution {
-public:
-    Solution(vector<int> w): sums(w) {
-        partial_sum(sums.begin(), sums.end(), sums.begin());
+   public:
+    Solution(vector<int> weights) : cumsum_(weights) {
+        partial_sum(cumsum_.begin(), cumsum_.end(), cumsum_.begin());
     }
+
     int pickIndex() {
-        return lower_bound(sums.begin(), sums.end(), (rand() % sums.back()) + 1) - sums.begin();
+        int val = (rand() % cumsum_.back()) + 1;
+        return lower_bound(cumsum_.begin(), cumsum_.end(), val) - cumsum_.begin();
     }
-private:
-    vector<int> sums;
+
+   private:
+    vector<int> cumsum_;
 };
 ```
 
 ```python
-import random
-import bisect
-def __init__(self, w: List[int]):
-    self.cursum = w[:]
-    for i in range(1, len(w)):
-        self.cursum[i] += self.cursum[i-1]
+class Solution:
+    def __init__(self, weights: List[int]):
+        self.cumsum = weights[:]
+        for i in range(1, len(weights)):
+            self.cumsum[i] += self.cumsum[i - 1]
 
-def pickIndex(self) -> int:
-    val = random.randint(1, self.cursum[-1])
-    return bisect.bisect_left(self.cursum, val, 0, len(self.cursum))
+    def pickIndex(self) -> int:
+        val = random.randint(1, self.cumsum[-1])
+        return bisect.bisect_left(self.cumsum, val, 0, len(self.cumsum))
 ```
 
 **水库采样**
@@ -5168,23 +5230,43 @@ def pickIndex(self) -> int:
 
 ```cpp
 class Solution {
-    ListNode* head;
-public:
-    Solution(ListNode* n): head(n) {}
+   public:
+    Solution(ListNode* node) : head_(node) {}
 
     int getRandom() {
-        int res = head->val;
-        ListNode* node = head->next;
+        int pick = head_->val;
+        ListNode* node = head_->next;
         int i = 2;
         while (node) {
-            int j = rand() % i;
-            if (!j) res = node->val;
+            if (rand() % i == 0) {
+                pick = node->val;
+            }
             ++i;
             node = node->next;
         }
-        return res;
+        return pick;
     }
+
+   private:
+    ListNode* head_;
 };
+```
+
+```python
+class Solution:
+    def __init__(self, head: Optional[ListNode]):
+        self.head = head
+
+    def getRandom(self) -> int:
+        pick = self.head.val
+        node = self.head.next
+        i = 2
+        while node is not None:
+            if random.randint(0, i - 1) == 0:
+                pick = node.val
+            i += 1
+            node = node.next
+        return pick
 ```
 
 **使用一个随机数生成器生成另一个随机数生成器**
@@ -5253,15 +5335,20 @@ bool isPerfectSquare(int x) {
 [326. Power of Three \(Easy\)](https://leetcode.com/problems/power-of-three/)
 
 ```cpp
-// method 1: log
+// method 1: log.
 bool isPowerOfThree(int n) {
-    return fmod(log10(n)/log10(3), 1) == 0;
+    return fmod(log10(n) / log10(3), 1) == 0;
 }
 
-// method 2: max int
+// method 2: max int.
 bool isPowerOfThree(int n) {
     return n > 0 && 1162261467 % n == 0;
 }
+```
+
+```python
+def isPowerOfThree(n: int) -> bool:
+    return n > 0 and math.fmod(math.log10(n) / math.log10(3), 1) == 0
 ```
 
 **乘积数组**
@@ -5478,7 +5565,7 @@ The above arrows point to positions where the corresponding bits are different.
 ```cpp
 int hammingDistance(int x, int y) {
     int diff = x ^ y, dist = 0;
-    while (diff) {
+    while (diff != 0) {
         dist += diff & 1;
         diff >>= 1;
     }
@@ -5486,12 +5573,22 @@ int hammingDistance(int x, int y) {
 }
 ```
 
-使用 diff&\(diff-1\) 去除 diff 位级表示最低的那一位。
+```python
+def hammingDistance(x: int, y: int) -> int:
+    diff = x ^ y
+    dist = 0
+    while diff != 0:
+        dist += diff & 1
+        diff = diff >> 1
+    return dist
+```
+
+也可以使用 diff&\(diff-1\) 去除 diff 位级表示最低的那一位。
 
 ```cpp
 int hammingDistance(int x, int y) {
     int diff = x ^ y, dist = 0;
-    while (diff) {
+    while (diff != 0) {
         diff &= (diff - 1);
         ++dist;
     }
@@ -5512,10 +5609,34 @@ Output: 4
 
 ```cpp
 int singleNumber(vector<int>& nums) {
-    int result = 0;
-    for (auto i: nums) result ^= i;
-    return result;
+    int single = 0;
+    for (int num : nums) {
+        single ^= num;
+    }
+    return single;
 }
+```
+
+```python
+def singleNumber(nums: List[int]) -> int:
+    single = 0
+    for num in nums:
+        single = single ^ num
+    return single
+```
+
+我们也可以直接使用reduce函数。
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    return reduce(nums.begin(), nums.end(), 0,
+                  [](int x, int y) { return x ^ y; });
+}
+```
+
+```python
+def singleNumber(nums: List[int]) -> int:
+    return functools.reduce(lambda x, y: x ^ y, nums)
 ```
 
 **找出数组中缺失的那个数**
@@ -5572,14 +5693,24 @@ vector<int> singleNumber(vector<int>& nums) {
 
 ```cpp
 uint32_t reverseBits(uint32_t n) {
-    uint32_t res = 0;
-    for (int i = 0; i < 32; i++) {
-        res <<= 1;
-        res += n & 1;
+    uint32_t m = 0;
+    for (int i = 0; i < 32; ++i) {
+        m <<= 1;
+        m += n & 1;
         n >>= 1;
     }
-    return res;
+    return m;
 }
+```
+
+```python
+def reverseBits(n: int) -> int:
+    m = 0
+    for _ in range(32):
+        m = m << 1
+        m += n & 1
+        n = n >> 1
+    return m
 ```
 
 **不用额外变量交换两个整数**
@@ -5722,18 +5853,37 @@ The two words can be "abcw", "xtfn".
 
 ```cpp
 int maxProduct(vector<string>& words) {
-    unordered_map<int, int> hash;
-    int result = 0;
+    unordered_map<int, int> cache;
+    int max_prod = 0;
     for (const string& word : words) {
-        int mask = 0, size = word.size();
-        for (char c : word) mask |= 1 << (c - 'a');
-        hash[mask] = max(hash[mask], size);
-        for (const auto& [h_mask, h_len]: hash) {
-            if (!(mask & h_mask)) result = max(result, size * h_len);
+        int mask = 0, w_len = word.length();
+        for (char c : word) {
+            mask |= 1 << (c - 'a');
+        }
+        cache[mask] = max(cache[mask], w_len);
+        for (auto [h_mask, h_len] : cache) {
+            if ((mask & h_mask) == 0) {
+                max_prod = max(max_prod, w_len * h_len);
+            }
         }
     }
-    return result;
+    return max_prod;
 }
+```
+
+```python
+def maxProduct(words: List[str]) -> int:
+    cache = dict()
+    max_prod = 0
+    for word in words:
+        mask, w_len = 0, len(word)
+        for c in word:
+            mask = mask | (1 << (ord(c) - ord("a")))
+        cache[mask] = max(cache.get(mask, 0), w_len)
+        for h_mask, h_len in cache.items():
+            if (mask & h_mask) == 0:
+                max_prod = max(max_prod, w_len * h_len)
+    return max_prod
 ```
 
 **统计从 0 ~ n 每个数的二进制表示中 1 的个数**
@@ -5741,13 +5891,22 @@ int maxProduct(vector<string>& words) {
 [338. Counting Bits \(Medium\)](https://leetcode.com/problems/counting-bits/)
 
 ```cpp
-vector<int> countBits(int num) {
-    vector<int> ret(num+1, 0);
-    for (int i = 1; i <= num; ++i)
-        ret[i] = i & 1? ret[i-1] + 1: ret[i>>1];
-        // or equally: ret[i] = ret[i&(i-1)] + 1;
-    return ret;
+vector<int> countBits(int n) {
+    vector<int> dp(n + 1, 0);
+    for (int i = 1; i <= n; ++i)
+        // 等价于：dp[i] = dp[i & (i - 1)] + 1;
+        dp[i] = i & 1 ? dp[i - 1] + 1 : dp[i >> 1];
+    return dp;
 }
+```
+
+```python
+def countBits(n: int) -> List[int]:
+    dp = [0] * (n + 1)
+    for i in range(1, n + 1):
+        # 等价于：dp[i] = dp[i & (i - 1)] + 1
+        dp[i] = dp[i - 1] + 1 if i & 1 else dp[i >> 1]
+    return dp
 ```
 
 ## 复杂算法
@@ -5836,94 +5995,71 @@ C++ STL提供的数据结构包括
 [232. Implement Queue using Stacks \(Easy\)](https://leetcode.com/problems/implement-queue-using-stacks/)
 
 ```cpp
-// with two stacks
 class MyQueue {
-    stack<int> in, out;
-public:
+   public:
     MyQueue() {}
-    
+
     void push(int x) {
-        in.push(x);
-    }
-    
-    int pop() {
-        in2out();
-        int x = out.top();
-        out.pop();
-        return x;
-    }
-    
-    int peek() {
-        in2out();
-        return out.top();
+        s_in_.push(x);
     }
 
+    int pop() {
+        in2out();
+        int x = s_out_.top();
+        s_out_.pop();
+        return x;
+    }
+
+    int peek() {
+        in2out();
+        return s_out_.top();
+    }
+
+    bool empty() {
+        return s_in_.empty() && s_out_.empty();
+    }
+
+   private:
     void in2out() {
-        if (out.empty()) {
-            while (!in.empty()) {
-                int x = in.top();
-                in.pop();
-                out.push(x);
-            }
+        if (!s_out_.empty()) {
+            return;
+        }
+        while (!s_in_.empty()) {
+            int x = s_in_.top();
+            s_in_.pop();
+            s_out_.push(x);
         }
     }
 
-    bool empty() {
-        return in.empty() && out.empty();
-    }
-};
-
-// with one stack
-class MyQueue {
-    stack<int> s;
-public:
-    MyQueue() {}
-
-    void push(int x) {
-        if (s.empty()) s.push(x);
-        else {
-            int data = s.top();
-            s.pop();
-            push(x);  // recursive call
-            s.push(data);
-        }
-    }
-
-    int pop() {
-        int x = s.top();
-        s.pop();
-        return x;
-    }
-
-    int peek() {
-        return s.top();
-    }
-
-    bool empty() {
-        return s.empty();
-    }
+    stack<int> s_in_, s_out_;
 };
 ```
 
 ```python
 class MyQueue:
     def __init__(self):
-        self.queue = []
+        self.s_in = []
+        self.s_out = []
+
+    def _in2out(self):
+        if len(self.s_out) > 0:
+            return
+        while len(self.s_in) > 0:
+            self.s_out.append(self.s_in.pop())
 
     def push(self, x: int) -> None:
-        items = self.queue[:]
-        self.queue = [x]
-        for item in items:
-            self.queue.append(item)
+        self.s_in.append(x)
 
     def pop(self) -> int:
-        return self.queue.pop()
+        self._in2out()
+        return self.s_out.pop()
 
     def peek(self) -> int:
-        return self.queue[-1]
+        self._in2out()
+        return self.s_out[-1]
 
     def empty(self) -> bool:
-        return len(self.queue) == 0
+        return len(self.s_in) == 0 and len(self.s_out) == 0
 ```
 
 **用队列实现栈**
@@ -5970,29 +6106,57 @@ public:
 
 ```cpp
 class MinStack {
-public:
+   public:
     MinStack() {}
 
     void push(int x) {
-        sta.push(x);
-        if (min.empty() || min.top() >= x) min.push(x);
+        s_.push(x);
+        if (min_s_.empty() || min_s_.top() >= x) {
+            min_s_.push(x);
+        }
     }
 
     void pop() {
-        if (!min.empty() && min.top() == sta.top()) min.pop();
-        sta.pop();
+        if (!min_s_.empty() && min_s_.top() == s_.top()) {
+            min_s_.pop();
+        }
+        s_.pop();
     }
 
     int top() {
-        return sta.top();
+        return s_.top();
     }
 
     int getMin() {
-        return min.top();
+        return min_s_.top();
     }
-private:
-    stack<int> sta, min;
+
+   private:
+    stack<int> s_, min_s_;
 };
+```
+
+```python
+class MinStack:
+    def __init__(self):
+        self.s = []
+        self.min_s = []
+
+    def push(self, x: int) -> None:
+        self.s.append(x)
+        if len(self.min_s) == 0 or self.min_s[-1] >= x:
+            self.min_s.append(x)
+
+    def pop(self) -> None:
+        if len(self.min_s) != 0 and self.s[-1] == self.min_s[-1]:
+            self.min_s.pop()
+        self.s.pop()
+
+    def top(self) -> int:
+        return self.s[-1]
+
+    def getMin(self) -> int:
+        return self.min_s[-1]
 ```
 
 **用栈实现括号匹配**
@@ -6007,20 +6171,39 @@ Output : true
 
 ```cpp
 bool isValid(string s) {
-    vector<char> v;
-    for (int i = 0; i < s.length(); ++i) {
-        if (s[i] == '{' || s[i] == '[' || s[i] == '(') v.push_back(s[i]);
-        else {
-            if (v.empty()) return false;
-            char c = v.back();
-            if ((s[i] == '}' && c == '{') ||
-                (s[i] == ']' && c == '[') ||
-                (s[i] == ')' && c == '(')) v.pop_back();
-            else return false;
+    stack<char> parsed;
+    unordered_map<char, int> matches{{'(', ')'}, {'{', '}'}, {'[', ']'}};
+    for (char c : s) {
+        if (matches.contains(c)) {
+            parsed.push(c);
+            continue;
         }
+        if (parsed.empty()) {
+            return false;
+        }
+        if (c != matches[parsed.top()]) {
+            return false;
+        }
+        parsed.pop();
     }
-    return v.empty();
+    return parsed.empty();
 }
+```
+
+```python
+def isValid(s: str) -> bool:
+    parsed = []
+    matches = {"{": "}", "(": ")", "[": "]"}
+    for c in s:
+        if c in matches.keys():
+            parsed.append(c)
+            continue
+        if len(parsed) == 0:
+            return False
+        if c != matches[parsed[-1]]:
+            return False
+        parsed.pop()
+    return len(parsed) == 0
 ```
 
 ## 单调栈
@@ -6039,21 +6222,39 @@ Output: [1, 1, 4, 2, 1, 1, 0, 0]
 在遍历数组时用 Stack 把数组中的数存起来，如果当前遍历的数比栈顶元素来的大，说明栈顶元素的下一个比它大的数就是当前元素。
 
 ```cpp
-vector<int> dailyTemperatures(vector<int>& T) {
-    int n = T.size(); 
-    vector<int> res(n);
-    stack<int> indices;
+vector<int> dailyTemperatures(vector<int>& temperatures) {
+    int n = temperatures.size();
+    vector<int> days_to_wait(n, 0);
+    stack<int> mono_stack;
     for (int i = 0; i < n; ++i) {
-        while (!indices.empty()) {
-            int pre_index = indices.top();
-            if (T[i] <= T[pre_index]) break;
-            indices.pop();
-            res[pre_index] = i - pre_index;
+        while (!mono_stack.empty()) {
+            int j = mono_stack.top();
+            if (temperatures[i] <= temperatures[j]) {
+                break;
+            }
+            mono_stack.pop();
+            days_to_wait[j] = i - j;
         }
-        indices.push(i);
+        mono_stack.push(i);
     }
-    return res;
+    return days_to_wait;
 }
+```
+
+```python
+def dailyTemperatures(temperatures: List[int]) -> List[int]:
+    n = len(temperatures)
+    days_to_wait = [0] * n
+    mono_stack = []
+    for i in range(n):
+        while len(mono_stack) > 0:
+            j = mono_stack[-1]
+            if temperatures[i] <= temperatures[j]:
+                break
+            mono_stack.pop()
+            days_to_wait[j] = i - j
+        mono_stack.append(i)
+    return days_to_wait
 ```
 
 **循环数组中比当前元素大的下一个元素**
@@ -6108,41 +6309,99 @@ vector<int> nextGreaterElements(vector<int>& nums) {
 ![](../.gitbook/assets/image%20%28638%29.png)
 
 ```cpp
-vector<int> heap;
+class Heap {
+   public:
+    Heap() {}
 
-void top() {
-    return heap[0];
-}
-
-// 插入时，把新的数字放在最后一位，然后上浮
-void push(int k) {
-    heap.push_back(k);
-    swim(heap.size() - 1);
-}
-
-// 删除时，把最后一个数字挪到开头，然后下沉
-void pop() {
-    heap[0] = heap.back();
-    heap.pop_back();
-    sink(0);
-}
-
-void swim(int pos) {
-    while (pos > 1 && heap[pos/2] < heap[pos])) {
-        swap(heap[pos/2], heap[pos]);
-        pos /= 2;
+    // 上浮。
+    void swim(int pos) {
+        int next_pos = (pos - 1) / 2;
+        while (pos > 0 && heap_[next_pos] < heap_[pos]) {
+            swap(heap_[next_pos], heap_[pos]);
+            pos = next_pos;
+            next_pos = (pos - 1) / 2;
+        }
     }
-}
 
-void sink(int pos) {
-    while (2 * pos <= N) {
-        int i = 2 * pos;
-        if (i < N && heap[i] < heap[i+1]) ++i;
-        if (heap[pos] >= heap[i]) break;
-        swap(heap[pos], heap[i]);
-        pos = i;
+    // 下沉。
+    void sink(int pos) {
+        int n = heap_.size();
+        int next_pos = 2 * pos + 1;
+        while (next_pos < n) {
+            if (next_pos < n - 1 && heap_[next_pos] < heap_[next_pos + 1]) {
+                ++next_pos;
+            }
+            if (heap_[pos] >= heap_[next_pos]) {
+                break;
+            }
+            swap(heap_[next_pos], heap_[pos]);
+            pos = next_pos;
+            next_pos = 2 * pos + 1;
+        }
     }
-}
+
+    // 插入任意值：把新的数字放在最后一位，然后上浮。
+    void push(int k) {
+        heap_.push_back(k);
+        swim(heap_.size() - 1);
+    }
+
+    // 删除最大值：把最后一个数字挪到开头，然后下沉。
+    void pop() {
+        heap_[0] = heap_.back();
+        heap_.pop_back();
+        sink(0);
+    }
+
+    // 获得最大值。
+    int top() {
+        return heap_[0];
+    }
+
+   private:
+    vector<int> heap_;
+};
+```
+
+```python
+class Heap:
+    def __init__(self):
+        self.heap = []
+
+    # 上浮。
+    def swim(self, pos: int):
+        next_pos = (pos - 1) // 2
+        while pos > 0 and self.heap[next_pos] < self.heap[pos]:
+            self.heap[next_pos], self.heap[pos] = self.heap[pos], self.heap[next_pos]
+            pos = next_pos
+            next_pos = (pos - 1) // 2
+
+    # 下沉。
+    def sink(self, pos: int):
+        n = len(self.heap)
+        next_pos = 2 * pos + 1
+        while next_pos < n:
+            if next_pos < n - 1 and self.heap[i] < self.heap[i + 1]:
+                next_pos += 1
+            if self.heap[pos] >= self.heap[next_pos]:
+                break
+            self.heap[next_pos], self.heap[pos] = self.heap[pos], self.heap[next_pos]
+            pos = next_pos
+            next_pos = 2 * pos + 1
+
+    # 插入任意值：把新的数字放在最后一位，然后上浮。
+    def push(self, k: int):
+        self.heap.append(k)
+        self.swim(len(self.heap) - 1)
+
+    # 删除最大值：把最后一个数字挪到开头，然后下沉。
+    def pop(self):
+        self.heap[0] = self.heap.pop()
+        self.sink(0)
+
+    # 获得最大值。
+    def top(self) -> int:
+        return self.heap[0]
 ```
 
 **天际线**
@@ -6162,26 +6421,52 @@ Output: [[2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0]] (Figure B)
 
 ```cpp
 vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
-    vector<vector<int>> ans;
-    priority_queue<pair<int, int>> max_heap;  // <height, right>
-    int i = 0, len = buildings.size();
+    vector<vector<int>> skyline;
+    priority_queue<pair<int, int>> pq;  // <高度, 右端>
+    int i = 0, n = buildings.size();
     int cur_x, cur_h;
-    while (i < len || !max_heap.empty()) {
-        if (max_heap.empty() || i < len && buildings[i][0] <= max_heap.top().second) {
+    while (i < n || !pq.empty()) {
+        if (pq.empty() || (i < n && buildings[i][0] <= pq.top().second)) {
             cur_x = buildings[i][0];
-            while (i < len && cur_x == buildings[i][0]) {
-                max_heap.emplace(buildings[i][2], buildings[i][1]);
+            while (i < n && cur_x == buildings[i][0]) {
+                pq.emplace(buildings[i][2], buildings[i][1]);
                 ++i;
             }
         } else {
-            cur_x = max_heap.top().second;
-            while (!max_heap.empty() && cur_x >= max_heap.top().second) max_heap.pop();
+            cur_x = pq.top().second;
+            while (!pq.empty() && cur_x >= pq.top().second) {
+                pq.pop();
+            }
         }
-        cur_h = (max_heap.empty()) ? 0 : max_heap.top().first;
-        if (ans.empty() || cur_h != ans.back()[1]) ans.push_back({cur_x, cur_h});
+        cur_h = pq.empty() ? 0 : pq.top().first;
+        if (skyline.empty() || cur_h != skyline.back()[1]) {
+            skyline.push_back({cur_x, cur_h});
+        }
     }
-    return ans;
+    return skyline;
 }
+```
+
+```python
+def getSkyline(buildings: List[List[int]]) -> List[List[int]]:
+    skyline = []
+    pq = []  # <负高度，右端>
+    heapq.heapify(pq)
+    i, n = 0, len(buildings)
+    while i < n or len(pq) > 0:
+        if len(pq) == 0 or (i < n and buildings[i][0] <= pq[0][1]):
+            cur_x = buildings[i][0]
+            while i < n and cur_x == buildings[i][0]:
+                heapq.heappush(pq, (-buildings[i][2], buildings[i][1]))
+                i += 1
+        else:
+            cur_x = pq[0][1]
+            while len(pq) > 0 and cur_x >= pq[0][1]:
+                heapq.heappop(pq)
+        cur_h = -pq[0][0] if len(pq) > 0 else 0
+        if len(skyline) == 0 or cur_h != skyline[-1][1]:
+            skyline.append([cur_x, cur_h])
+    return skyline
 ```
 
 **丑数**
@@ -6262,82 +6547,44 @@ Output: 1->1->2->3->4->4->5->6
 理论上本题可以分治地去两两归并，但是最坏情况可能每次都是归并一个长的和一个短的，因此可以用优先队列每次合并最短的两个。更进一步，我们可以直接把各个链表的头端放在优先队列里，每次取出最短的那个并放入其下一个节点。
 
 ```cpp
-// method 1: priority queue
-class Solution {
-public:
-    ListNode* mergeKLists(vector<ListNode*>& lists) {
-        if (lists.empty()) return NULL;
-        priority_queue<ListNode*, vector<ListNode*>, Comp> q;
-        for (ListNode* list: lists) if (list) q.push(list);
-        ListNode* dummy = new ListNode(0), *cur = dummy;
-        while (!q.empty()) {
-            cur->next = q.top();
-            q.pop();
-            cur = cur->next;
-            if (cur->next) q.push(cur->next);
+ListNode* mergeKLists(vector<ListNode*>& lists) {
+    auto comp = [](ListNode* l1, ListNode* l2) { return l1->val > l2->val; };
+    priority_queue<ListNode*, vector<ListNode*>, decltype(comp)> pq;
+    for (ListNode* l : lists) {
+        if (l) {
+            pq.push(l);
         }
-        return dummy->next;
     }
-private:
-    struct Comp {
-        bool operator() (ListNode* l1, ListNode* l2) {
-            return l1->val > l2->val;
+    ListNode *dummy = new ListNode(0), *cur = dummy;
+    while (!pq.empty()) {
+        cur->next = pq.top();
+        pq.pop();
+        cur = cur->next;
+        if (cur->next) {
+            pq.push(cur->next);
         }
-    };
-};
-// method 2: divide and conquer
-ListNode* mergeKLists(vector<ListNode*> &lists) {
-    int size = lists.size();
-    if (!size) return NULL;
-    if (size == 1) return lists[0];
-    int i = 2, j;
-    while (i / 2 < size) {
-        for (j = 0; j < size; j += i) {
-            ListNode* p = lists[j];
-            if (j + i / 2 < size) {
-                p = mergeTwoLists(p, lists[j + i / 2]);
-                lists[j] = p;
-                // optional: lists[j + i / 2] = NULL;
-            }
-        }
-        i *= 2;
     }
-    return lists[0];
-}
-
-ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-    if (!l2) return l1;
-    if (!l1) return l2;
-    if (l1->val > l2->val) {
-        l2->next = mergeTwoLists(l1, l2->next);
-        return l2;
-    } else {
-        l1->next = mergeTwoLists(l1->next, l2);
-        return l1;
-    }
+    return dummy->next;
 }
 ```
 
 ```python
-import heapq
-def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
-    if len(lists) == 0:
-        return None
-    list_pq = []        
-    dummy = ListNode()
-    cur = dummy
+def mergeKLists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+    pq = []
     for idx, l in enumerate(lists):
         if l is not None:
-            list_pq.append((l.val, idx))  # ListNode is not comparable, so we use a unique idx
-    heapq.heapify(list_pq)
-    while len(list_pq) > 0:
-        l_val, l_idx = heapq.heappop(list_pq)
-        cur.next = ListNode()
+            # ListNode不可被哈希，所以这里我们直接记录它在lists中的位置。
+            pq.append((l.val, idx))
+    heapq.heapify(pq)
+    dummy = ListNode()
+    cur = dummy
+    while len(pq) > 0:
+        _, l_idx = heapq.heappop(pq)
+        cur.next = lists[l_idx]
         cur = cur.next
-        cur.val = l_val
-        if lists[l_idx].next is not None:
+        if cur.next is not None:
             lists[l_idx] = lists[l_idx].next
-            heapq.heappush(list_pq, (lists[l_idx].val, l_idx))
+            heapq.heappush(pq, (cur.next.val, l_idx))
     return dummy.next
 ```
 
@@ -6428,17 +6675,27 @@ int hash(const int & key, const int &tableSize) {
 
 ```cpp
 vector<int> twoSum(vector<int>& nums, int target) {
-    unordered_map<int, int> um;
+    unordered_map<int, int> cache;  // <值，位置>
     for (int i = 0; i < nums.size(); ++i) {
-        int num = nums[i];
-        auto pos = um.find(target - num);
-        if (pos != um.end()) {
-            return vector<int>{pos->second, i};
-        } else {
-            um.insert({num, i});
+        int num1 = nums[i], num2 = target - num1;
+        if (cache.contains(num2)) {
+            return vector<int>{cache[num2], i};
         }
+        cache[num1] = i;
     }
+    return {};
 }
+```
+
+```python
+def twoSum(nums: List[int], target: int) -> List[int]:
+    cache = dict()  # <值，位置>
+    for i, num1 in enumerate(nums):
+        num2 = target - num1
+        if num2 in cache:
+            return [cache[num2], i]
+        cache[num1] = i
+    return []
 ```
 
 **判断数组是否含有重复元素**
@@ -6510,19 +6767,40 @@ The longest consecutive elements sequence is [1, 2, 3, 4]. Return its length: 4.
 
 ```cpp
 int longestConsecutive(vector<int>& nums) {
-    unordered_set<int> u_set;
-    for (const int & a: nums) u_set.insert(a);
-    int res = 0;
-    while (!u_set.empty()) {
-        int cur = *(u_set.begin());
-        u_set.erase(cur);
-        int next = cur+1, prev = cur-1;
-        while (u_set.count(next)) u_set.erase(next++);
-        while (u_set.count(prev)) u_set.erase(prev--);
-        res = max(res, next-prev-1);
+    unordered_set<int> cache(nums.begin(), nums.end());
+    int max_len = 0;
+    while (!cache.empty()) {
+        int cur = *(cache.begin());
+        cache.erase(cur);
+        int l = cur - 1, r = cur + 1;
+        while (cache.contains(l)) {
+            cache.erase(l--);
+        }
+        while (cache.contains(r)) {
+            cache.erase(r++);
+        }
+        max_len = max(max_len, r - l - 1);
     }
-    return res;
+    return max_len;
 }
+```
+
+```python
+def longestConsecutive(nums: List[int]) -> int:
+    cache = set(nums)
+    max_len = 0
+    while len(cache) > 0:
+        cur = next(iter(cache))
+        cache.remove(cur)
+        l, r = cur - 1, cur + 1
+        while l in cache:
+            cache.remove(l)
+            l -= 1
+        while r in cache:
+            cache.remove(r)
+            r += 1
+        max_len = max(max_len, r - l - 1)
+    return max_len
 ```
 
 **同一条线段上最多的点数**
@@ -6545,25 +6823,50 @@ Output: 4
 题目描述：给定N个二维点，找到在同一条线段上最多的点数。解法是，对每个基准点，记录和它重复的点、相同横线的点、以及每个斜率上的点。
 
 ```cpp
-int maxPoints(vector<Point>& points) {
-    unordered_map<double, int> slope;  // <slope, cnt>
-    int max_p = 0, same_p = 1, same_y = 1;
-    for (int i = 0; i < points.size(); ++i) {
-        same_p = 1, same_y = 1;
-        for (int j = i + 1; j < points.size(); ++j) {
-            if (points[i].y == points[j].y) {
+int maxPoints(vector<vector<int>>& points) {
+    int max_count = 0, n = points.size();
+    for (int i = 0; i < n; ++i) {
+        unordered_map<double, int> cache;  // <斜率, 点个数>
+        int same_xy = 1, same_y = 1;
+        for (int j = i + 1; j < n; ++j) {
+            if (points[i][1] == points[j][1]) {
                 ++same_y;
-                if (points[i].x == points[j].x) ++same_p;
+                if (points[i][0] == points[j][0]) {
+                    ++same_xy;
+                }
             } else {
-                ++slope[double(points[i].x - points[j].x) / double(points[i].y - points[j].y)];
+                double dx = points[i][0] - points[j][0],
+                       dy = points[i][1] - points[j][1];
+                ++cache[dx / dy];
             }
         }
-        max_p = max(max_p, same_y);
-        for (auto item : slope) max_p = max(max_p, item.second + same_p);
-        slope.clear();
+        max_count = max(max_count, same_y);
+        for (auto item : cache) {
+            max_count = max(max_count, same_xy + item.second);
+        }
     }
-    return max_p;
+    return max_count;
 }
+```
+
+```python
+def maxPoints(points: List[List[int]]) -> int:
+    max_count, n = 0, len(points)
+    for i, point1 in enumerate(points):
+        cache = dict()  # <斜率, 点个数>
+        same_xy, same_y = 1, 1
+        for point2 in points[i + 1 :]:
+            if point1[1] == point2[1]:
+                same_y += 1
+                if point1[0] == point2[0]:
+                    same_xy += 1
+            else:
+                dx, dy = point1[0] - point2[0], point1[1] - point2[1]
+                cache[dx / dy] = cache.get(dx / dy, 0) + 1
+        max_count = max(max_count, same_y)
+        for count in cache.values():
+            max_count = max(max_count, same_xy + count)
+    return max_count
 ```
 
 ## 多重集合和映射
@@ -6606,26 +6909,49 @@ Output: ["JFK","ATL","JFK","SFO","ATL","SFO"]
 题目描述：给定一些机票的起止机场，问如果从JFK起飞，那么这个人是按什么顺序飞的；如果存在多种可能性，返回字母序最小的那种。本题可以用hashmap+multiset，用stack遍历，最后反转输出。
 
 ```c++
-vector<string> findItinerary(vector<pair<string, string>> tickets) {
-    unordered_map<string, multiset<string>> m;
-    vector<string> res;
-    if (tickets.empty()) return res;
-    for (pair<string, string> p: tickets) m[p.first].insert(p.second);
+vector<string> findItinerary(vector<vector<string>>& tickets) {
+    vector<string> itinerary;
+    unordered_map<string, multiset<string>> cache;
+    for (const auto& ticket : tickets) {
+        cache[ticket[0]].insert(ticket[1]);
+    }
     stack<string> s;
     s.push("JFK");
     while (!s.empty()) {
-        string next = s.top();
-        if (m[next].empty()) {
-            res.push_back(next);
+        string t = s.top();
+        if (cache[t].empty()) {
+            itinerary.push_back(t);
             s.pop();
         } else {
-            s.push(*m[next].begin());
-            m[next].erase(m[next].begin());
+            s.push(*cache[t].begin());
+            cache[t].erase(cache[t].begin());
         }
     }
-    reverse(res.begin(), res.end());
-    return res;
+    reverse(itinerary.begin(), itinerary.end());
+    return itinerary;
 }
+```
+
+```python
+def findItinerary(tickets: List[List[str]]) -> List[str]:
+    itinerary = []
+    cache = dict()
+    for ticket in tickets:
+        if ticket[0] not in cache:
+            cache[ticket[0]] = []
+        cache[ticket[0]].append(ticket[1])
+    for ticket in cache.keys():
+        cache[ticket].sort(reverse=True)
+    s = ["JFK"]
+    while len(s) > 0:
+        t = s[-1]
+        if t not in cache or len(cache[t]) == 0:
+            itinerary.append(t)
+            s.pop()
+        else:
+            t_next = cache[t].pop()
+            s.append(t_next)
+    return reversed(itinerary)
 ```
 
 ## 字符串
@@ -7120,17 +7446,29 @@ rotate the input matrix in-place such that it becomes:
 
 ```cpp
 void rotate(vector<vector<int>>& matrix) {
-    int temp = 0, n = matrix.size()-1;
-    for (int i = 0; i <= n/2; i++) {
-        for (int j = i; j < n-i; j++) {
-            temp = matrix[j][n-i];
-            matrix[j][n-i] = matrix[i][j];
-            matrix[i][j] = matrix[n-j][i];
-            matrix[n-j][i] = matrix[n-i][n-j];
-            matrix[n-i][n-j] = temp;
+    int pivot = 0, n = matrix.size() - 1;
+    for (int i = 0; i <= n / 2; ++i) {
+        for (int j = i; j < n - i; ++j) {
+            pivot = matrix[j][n - i];
+            matrix[j][n - i] = matrix[i][j];
+            matrix[i][j] = matrix[n - j][i];
+            matrix[n - j][i] = matrix[n - i][n - j];
+            matrix[n - i][n - j] = pivot;
         }
     }
 }
+```
+
+```python
+def rotate(matrix: List[List[int]]) -> None:
+    n = len(matrix) - 1
+    for i in range(n // 2 + 1):
+        for j in range(i, n - i):
+            pivot = matrix[j][n - i]
+            matrix[j][n - i] = matrix[i][j]
+            matrix[i][j] = matrix[n - j][i]
+            matrix[n - j][i] = matrix[n - i][n - j]
+            matrix[n - i][n - j] = pivot
 ```
 
 **找出数组中最长的连续 1**
@@ -7161,11 +7499,29 @@ Output: [5,6]
 
 ```cpp
 vector<int> findDisappearedNumbers(vector<int>& nums) {
-    vector<int> res;
-    for (auto i: nums) if (nums[abs(i)-1] > 0) nums[abs(i)-1] = -nums[abs(i)-1];
-    for (int i = 0; i < nums.size(); ++i) if (nums[i] > 0) res.push_back(i + 1);
-    return res;
+    vector<int> disappeared;
+    for (int num : nums) {
+        int pos = abs(num) - 1;
+        if (nums[pos] > 0) {
+            nums[pos] = -nums[pos];
+        }
+    }
+    for (int i = 0; i < nums.size(); ++i) {
+        if (nums[i] > 0) {
+            disappeared.push_back(i + 1);
+        }
+    }
+    return disappeared;
 }
+```
+
+```python
+def findDisappearedNumbers(nums: List[int]) -> List[int]:
+    for num in nums:
+        pos = abs(num) - 1
+        if nums[pos] > 0:
+            nums[pos] = -nums[pos]
+    return [i + 1 for i in range(len(nums)) if nums[i] > 0]
 ```
 
 **找出数组中重复的数，数组值在 \[1, n\] 之间**
@@ -7243,17 +7599,33 @@ vector<int> findErrorNums(vector<int>& nums) {
 
 ```cpp
 bool searchMatrix(vector<vector<int>>& matrix, int target) {
-    int m = matrix.size();
-    if (!m) return false;
-    int n = matrix[0].size();
+    int m = matrix.size(), n = matrix[0].size();
     int i = 0, j = n - 1;
     while (i < m && j >= 0) {
-        if (matrix[i][j] == target) return true;
-        else if (matrix[i][j] > target) --j;
-        else ++i;
+        if (matrix[i][j] == target) {
+            return true;
+        } else if (matrix[i][j] < target) {
+            ++i;
+        } else {
+            --j;
+        }
     }
     return false;
 }
+```
+
+```python
+def searchMatrix(matrix: List[List[int]], target: int) -> bool:
+    m, n = len(matrix), len(matrix[0])
+    i, j = 0, n - 1
+    while i < m and j >= 0:
+        if matrix[i][j] == target:
+            return True
+        if matrix[i][j] < target:
+            i += 1
+        else:
+            j -= 1
+    return False
 ```
 
 **有序矩阵的 Kth Element**
@@ -7430,13 +7802,22 @@ However, splitting into [1, 0], [2], [3], [4] is the highest number of chunks po
 
 ```cpp
 int maxChunksToSorted(vector<int>& arr) {
-    int ret = 0, curmax = 0;
+    int chunks = 0, cur_max = 0;
     for (int i = 0; i < arr.size(); ++i) {
-        curmax = max(curmax, arr[i]);
-        if (curmax == i) ++ret;
+        cur_max = max(cur_max, arr[i]);
+        chunks += cur_max == i;
     }
-    return ret;
+    return chunks;
 }
+```
+
+```python
+def maxChunksToSorted(arr: List[int]) -> int:
+    chunks, cur_max = 0, 0
+    for i, num in enumerate(arr):
+        cur_max = max(cur_max, num)
+        chunks += cur_max == i
+    return chunks
 ```
 
 **摆动排序**
@@ -7473,17 +7854,29 @@ sumRange(0, 5) -> -3
 
 ```cpp
 class NumArray {
-public:
-    NumArray(vector<int> nums): psum(nums.size() + 1, 0) {
-        partial_sum(nums.begin(), nums.end(), psum.begin() + 1);
+   public:
+    NumArray(vector<int> nums) : cumsum_(nums.size() + 1, 0) {
+        partial_sum(nums.begin(), nums.end(), cumsum_.begin() + 1);
     }
 
-    int sumRange(int i, int j) {
-        return psum[j+1] - psum[i];
+    int sumRange(int left, int right) {
+        return cumsum_[right + 1] - cumsum_[left];
     }
-private:
-    vector<int> psum;
+
+   private:
+    vector<int> cumsum_;
 };
+```
+
+```python
+class NumArray:
+    def __init__(self, nums: List[int]):
+        self.cumsum = [0] + nums[:]
+        for i in range(2, len(self.cumsum)):
+            self.cumsum[i] += self.cumsum[i - 1]
+
+    def sumRange(self, left: int, right: int) -> int:
+        return self.cumsum[right + 1] - self.cumsum[left]
 ```
 
 **矩阵区间和**
@@ -7503,25 +7896,51 @@ sumRegion(1, 2, 2, 4) -> 12
 ```
 对于矩形，查询(row1, col1)到(row2, col2)的面积的时候可以用sums\[row2+1\][col2+1] - sums\[row2+1][col1] - sums\[row1][col2+1] + sums\[row1][col1]。
 
-```c++
+```cpp
 class NumMatrix {
-private:
-    int row, col;
-    vector<vector<int>> sums;
-public:
+   public:
     NumMatrix(vector<vector<int>> matrix) {
-        row = matrix.size();
-        col = row > 0? matrix[0].size(): 0;
-        sums.resize(row + 1, vector<int>(col + 1, 0));
-        for (int i = 1; i <= row; ++i)
-            for (int j = 1; j <= col; ++j)
-                sums[i][j] = matrix[i-1][j-1] + sums[i-1][j] + sums[i][j-1] - sums[i-1][j-1];
+        int m = matrix.size(), n = matrix[0].size();
+        sat_ = vector<vector<int>>(m + 1, vector<int>(n + 1, 0));
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                sat_[i][j] = matrix[i - 1][j - 1] + sat_[i - 1][j] +
+                            sat_[i][j - 1] - sat_[i - 1][j - 1];
+            }
+        }
     }
 
     int sumRegion(int row1, int col1, int row2, int col2) {
-        return sums[row2+1][col2+1] - sums[row2+1][col1] - sums[row1][col2+1] + sums[row1][col1];
+        return sat_[row2 + 1][col2 + 1] - sat_[row2 + 1][col1] -
+               sat_[row1][col2 + 1] + sat_[row1][col1];
     }
+
+   private:
+    vector<vector<int>> sat_;
 };
+```
+
+```python
+class NumMatrix:
+    def __init__(self, matrix: List[List[int]]):
+        m, n = len(matrix), len(matrix[0])
+        self.sat = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                self.sat[i][j] = (
+                    matrix[i - 1][j - 1]
+                    + self.sat[i - 1][j]
+                    + self.sat[i][j - 1]
+                    - self.sat[i - 1][j - 1]
+                )
+
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+        return (
+            self.sat[row2 + 1][col2 + 1]
+            - self.sat[row2 + 1][col1]
+            - self.sat[row1][col2 + 1]
+            + self.sat[row1][col1]
+        )
 ```
 
 **记录前缀和的位置或频率**
@@ -7537,16 +7956,27 @@ Output: 2
 
 ```cpp
 int subarraySum(vector<int>& nums, int k) {
-    int count = 0, sum = 0;
-    unordered_map<int, int> hash;
-    hash[0] = 1;  // 初始化很重要
-    for (int i: nums) {
-        sum += i;
-        count += hash[sum-k];
-        ++hash[sum];
+    int count = 0, cumsum = 0;
+    unordered_map<int, int> cache;  // <cumsum, frequency>
+    cache[0] = 1;
+    for (int num : nums) {
+        cumsum += num;
+        count += cache[cumsum - k];
+        ++cache[cumsum];
     }
     return count;
 }
+```
+
+```python
+def subarraySum(nums: List[int], k: int) -> int:
+    count, cur_sum = 0, 0
+    cache = {0: 1}  # <cumsum, frequency>
+    for num in nums:
+        cur_sum += num
+        count += cache.get(cur_sum - k, 0)
+        cache[cur_sum] = cache.get(cur_sum, 0) + 1
+    return count
 ```
 
 **数组和为0的最大连续长度/矩阵和为0的最大矩阵面积**
