@@ -6971,15 +6971,25 @@ s = "rat", t = "car", return false.
 
 ```cpp
 bool isAnagram(string s, string t) {
-    if (s.length() != t.length()) return false;
-    int counts[26] = {0};
-    for (int i = 0; i < s.length(); ++i) { 
-        ++counts[s[i]-'a'];
-        --counts[t[i]-'a'];
+    if (s.length() != t.length()) {
+        return false;
     }
-    for (int i = 0; i < 26; ++i) if (counts[i]) return false;
-    return true;
+    vector<int> counts(26, 0);
+    for (int i = 0; i < s.length(); ++i) {
+        ++counts[s[i] - 'a'];
+        --counts[t[i] - 'a'];
+    }
+    return all_of(counts.begin(), counts.end(), [](int c) { return c == 0; });
 }
+```
+
+```python
+def isAnagram(s: str, t: str) -> bool:
+    if len(s) != len(t):
+        return False
+    counter = Counter(s)
+    counter.subtract(t)
+    return all(v == 0 for v in counter.values())
 ```
 
 **计算一组字符集合可以组成的回文字符串的最大长度**
@@ -7025,14 +7035,25 @@ Given "paper", "title", return true.
 
 ```cpp
 bool isIsomorphic(string s, string t) {
-    vector<int> s_first_index (256, 0), t_first_index (256, 0);
+    vector<int> s_init(128, 0), t_init(128, 0);
     for (int i = 0; i < s.length(); ++i) {
-        if (s_first_index[s[i]] != t_first_index[t[i]]) return false;
-        s_first_index[s[i]] = i + 1;
-        t_first_index[t[i]] = i + 1;
+        if (s_init[s[i]] != t_init[t[i]]) {
+            return false;
+        }
+        s_init[s[i]] = t_init[t[i]] = i + 1;
     }
     return true;
 }
+```
+
+```python
+def isIsomorphic(s: str, t: str) -> bool:
+    s_init, t_init = [0] * 128, [0] * 128
+    for i in range(len(s)):
+        if s_init[ord(s[i])] != t_init[ord(t[i])]:
+            return False
+        s_init[ord(s[i])] = t_init[ord(t[i])] = i + 1
+    return True
 ```
 
 **回文子字符串**
@@ -7048,24 +7069,45 @@ Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
 从字符串的某一位开始，尝试着去扩展子字符串。
 
 ```cpp
-int countSubstrings(string s) {
-    int cnt = 0;
-    for (int i = 0; i < s.length(); ++i) {
-        cnt += extendSubstrings(s, i, i);  // 奇数长度
-        cnt += extendSubstrings(s, i, i + 1);  // 偶数长度
-    }
-    return cnt;
-}
-
+// 辅函数。
 int extendSubstrings(string s, int l, int r) {
-    int cnt = 0;
-    while (l >= 0 && r < s.length() && s[l] == s[r]) {
+    int count = 0, n = s.length();
+    while (l >= 0 && r < n && s[l] == s[r]) {
         --l;
         ++r;
-        ++cnt;
+        ++count;
     }
-    return cnt;
+    return count;
 }
+
+// 主函数。
+int countSubstrings(string s) {
+    int count = 0;
+    for (int i = 0; i < s.length(); ++i) {
+        count += extendSubstrings(s, i, i);      // 奇数长度
+        count += extendSubstrings(s, i, i + 1);  // 偶数长度
+    }
+    return count;
+}
+```
+
+```python
+# 辅函数。
+def extendSubstrings(s: str, l: int, r: int) -> int:
+    count, n = 0, len(s)
+    while l >= 0 and r < n and s[l] == s[r]:
+        l -= 1
+        r += 1
+        count += 1
+    return count
+
+# 主函数。
+def countSubstrings(s: str) -> int:
+    return sum(
+        # 奇数长度 + 偶数长度。
+        extendSubstrings(s, i, i) + extendSubstrings(s, i, i + 1)
+        for i in range(len(s))
+    )
 ```
 
 **最长回文子字符串**
@@ -7157,18 +7199,34 @@ Explanation: There are 6 substrings that have equal number of consecutive 1's an
 
 ```cpp
 int countBinarySubstrings(string s) {
-    int pre = 0, cur = 1, cnt = 0;
+    int prev = 0, cur = 1, count = 0;
     for (int i = 1; i < s.length(); ++i) {
-        if (s[i] == s[i-1]) {
+        if (s[i] == s[i - 1]) {
             ++cur;
         } else {
-            pre = cur;
+            prev = cur;
             cur = 1;
         }
-        if (pre >= cur) ++cnt;
+        if (prev >= cur) {
+            ++count;
+        }
     }
-    return cnt;
+    return count;
 }
+```
+
+```python
+def countBinarySubstrings(s: str) -> int:
+    prev, cur, count = 0, 1, 0
+    for i in range(1, len(s)):
+        if s[i] == s[i - 1]:
+            cur += 1
+        else:
+            prev = cur
+            cur = 1
+        if prev >= cur:
+            count += 1
+    return count
 ```
 
 **字符串循环移位包含**
@@ -7217,35 +7275,86 @@ Output: 5
 在字符串前面加上加号，则可以把整个字符串分解成多个（op，数字）的pair。
 
 ```cpp
-int calculate(string s) {
-    int i = 0;
-    return parseExpr(s, i);
-}
-
-int parseExpr(const string& s, int& i) {
-    char op = '+';
-    long base = 0, temp = 0;
-    while (i < s.length()) {
-        if (s[i] != ' ') {
-            long n = parseNum(s, i);
-            switch (op) {
-                case '+' : base += temp; temp = n; break;
-                case '-' : base += temp; temp = -n; break;
-                case '*' : temp *= n; break;
-                case '/' : temp /= n; break;
-            }            
-            if (i < s.length()) op = s[i];
-        }
-        ++i;
+// 辅函数 - parse从位置i开始的一个数字。
+int parseNum(const string& s, int& i) {
+    int num = 0, n = s.length();
+    while (i < n && isdigit(s[i])) {
+        num = 10 * num + (s[i++] - '0');
     }
-    return base + temp;
+    return num;
 }
 
-long parseNum(const string& s, int& i) {
-    long n = 0;
-    while (i < s.length() && isdigit(s[i])) n = 10 * n + (s[i++] - '0');
-    return n;
+// 主函数。
+int calculate(string s) {
+    char op = '+';
+    long global_num = 0, local_num = 0;
+    int i = -1, n = s.length();
+    while (++i < n) {
+        if (s[i] == ' ') {
+            continue;
+        }
+        long num = parseNum(s, i);
+        switch (op) {
+            case '+':
+                global_num += local_num;
+                local_num = num;
+                break;
+            case '-':
+                global_num += local_num;
+                local_num = -num;
+                break;
+            case '*':
+                local_num *= num;
+                break;
+            case '/':
+                local_num /= num;
+                break;
+        }
+        if (i < n) {
+            op = s[i];
+        }
+    }
+    return global_num + local_num;
 }
+```
+
+```python
+# 辅函数 - parse从位置i开始的一个数字。
+# 返回(数字, 下一个i位置)
+def parseNum(s: str, i: int) -> Tuple[int, int]:
+    num, n = 0, len(s)
+    while i < n and s[i].isdigit():
+        num = 10 * num + int(s[i])
+        i += 1
+    return (num, i)
+
+
+# 主函数。
+def calculate(s: str) -> int:
+    op = "+"
+    global_num, local_num = 0, 0
+    i, n = 0, len(s)
+    while i < n:
+        if s[i] == " ":
+            i += 1
+            continue
+        num, i = parseNum(s, i)
+        match op:
+            case "+":
+                global_num += local_num
+                local_num = num
+            case "-":
+                global_num += local_num
+                local_num = -num
+            case "*":
+                local_num *= num
+            case "/":
+                # int()会实现向0取整，而//对负数会远离0取整。
+                local_num = int(local_num / num)
+        if i < n:
+            op = s[i]
+        i += 1
+    return global_num + local_num
 ```
 
 [772. Basic Calculator III \(Hard\)](https://leetcode.com/problems/basic-calculator-iii/)
@@ -7346,28 +7455,69 @@ Output: 2
 使用Knuth-Morris-Pratt（KMP）算法，可以在O(m+n)时间完成匹配。
 
 ```cpp
-void calNext(const string &needle, vector<int> &next) {
-    // e.g. ababaca 的 next 数组是 [-1,-1,0,1,2,-1,0]
-    for (int j = 1, p = -1; j < needle.length(); ++j) {
-        while (p > -1 && needle[p+1] != needle[j]) p = next[p];  // 如果下一位不同，往前回溯
-        if (needle[p+1] == needle[j]) ++p;  // 如果下一位相同
-        next[j] = p;  // 把算的k的值（就是相同的最大前缀和最大后缀长）赋给next[q]
+// 辅函数。
+vector<int> computeDp(const string &needle) {
+    int n = needle.length();
+    vector<int> dp(n, -1);
+    for (int j = 1, k = -1; j < n; ++j) {
+        while (k > -1 && needle[k + 1] != needle[j]) {
+            k = dp[k];  // 如果下一位不同，回溯到前一个前缀片段
+        }
+        if (needle[k + 1] == needle[j]) {
+            ++k;  // 前缀和后缀片段相同，匹配长度加1
+        }
+        dp[j] = k;  // 更新前缀匹配位置
     }
+    return dp;
 }
 
-int strStr(string haystack, string needle) {
-    if (needle.empty()) return 0;
-    vector<int> next(needle.length(), -1); // next[0]初始化为-1，-1表示不存在相同的最大前缀和最大后缀
-    calNext(needle, next);  //计算next数组
-
-    int k = -1, n = haystack.length(), p = needle.length();
-    for (int i = 0; i < n; ++i) {
-        while (k > -1 && needle[k+1] != haystack[i]) k = next[k]; // 有部分匹配，往前回溯
-        if (needle[k+1] == haystack[i]) ++k;
-        if (k == p-1) return i-p+1;  // 说明k移动到needle的最末端，返回相应的位置
+// 主函数。
+int strStr(const string &haystack, const string &needle) {
+    int m = haystack.length(), n = needle.length();
+    vector<int> dp = computeDp(needle);
+    for (int i = 0, k = -1; i < m; ++i) {
+        while (k > -1 && needle[k + 1] != haystack[i]) {
+            k = dp[k];  // 如果下一位不同，回溯到前一个相同片段
+        }
+        if (needle[k + 1] == haystack[i]) {
+            ++k;  // 片段相同，匹配长度加1
+        }
+        if (k == n - 1) {
+            return i - n + 1;  // 匹配结束
+        }
     }
-    return -1;         
+    return -1;
 }
+```
+
+```python
+# 辅函数。
+def computeDp(needle: str) -> List[int]:
+    n = len(needle)
+    dp = [-1] * n
+    k = -1
+    for j in range(1, n):
+        while k > -1 and needle[k + 1] != needle[j]:
+            k = dp[k]  # 如果下一位不同，回溯到前一个前缀片段
+        if needle[k + 1] == needle[j]:
+            k += 1  # 前缀和后缀片段相同，匹配长度加1
+        dp[j] = k  # 更新前缀匹配位置
+    return dp
+
+
+# 主函数。
+def strStr(haystack: str, needle: str) -> int:
+    m, n = len(haystack), len(needle)
+    dp = computeDp(needle)
+    k = -1
+    for i in range(m):
+        while k > -1 and needle[k + 1] != haystack[i]:
+            k = dp[k]  # 如果下一位不同，回溯到前一个相同片段
+        if needle[k + 1] == haystack[i]:
+            k += 1  # 片段相同，匹配长度加1
+        if k == n - 1:
+            return i - n + 1  # 匹配结束
+    return -1
 ```
 
 ## 数组与矩阵
@@ -8040,21 +8190,23 @@ B:    b1 → b2 → b3
 ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
     ListNode *l1 = headA, *l2 = headB;
     while (l1 != l2) {
-        l1 = l1? l1->next: headB;
-        l2 = l2? l2->next: headA;
+        l1 = l1 != nullptr ? l1->next : headB;
+        l2 = l2 != nullptr ? l2->next : headA;
     }
     return l1;
 }
 ```
 
 ```python
-def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
-    curA = headA
-    curB = headB
-    while curA != curB:
-        curA = headB if curA is None else curA.next
-        curB = headA if curB is None else curB.next
-    return curA
+def getIntersectionNode(
+    headA: ListNode, headB: ListNode
+) -> Optional[ListNode]:
+    l1 = headA
+    l2 = headB
+    while l1 != l2:
+        l1 = l1.next if l1 is not None else headB
+        l2 = l2.next if l2 is not None else headA
+    return l1
 ```
 
 如果只是判断是否存在交点，则有两种解法：把第一个链表的结尾连接到第二个链表的开头，看第二个链表是否存在环；或者直接比较两个链表的最后一个节点是否相同。
@@ -8066,39 +8218,51 @@ def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[List
 递归
 
 ```cpp
-// call node = reverseList(mode, NULL);
-ListNode* reverseList(ListNode* head, ListNode* prev) {
-    if (!head) return prev;
-    ListNode* next = head->next;
-    head->next = prev;
-    return reverseList(next, head);
+ListNode* reverseList(ListNode* head, ListNode* head_prev = nullptr) {
+    if (head == nullptr) {
+        return head_prev;
+    }
+    ListNode* head_next = head->next;
+    head->next = head_prev;
+    return reverseList(head_next, head);
 }
+```
+
+```python
+def reverseList(
+    head: Optional[ListNode], head_prev: Optional[ListNode] = None
+) -> Optional[ListNode]:
+    if head is None:
+        return head_prev
+    head_next = head.next
+    head.next = head_prev
+    return reverseList(head_next, head)
 ```
 
 头插法
 
 ```cpp
 ListNode* reverseList(ListNode* head) {
-    ListNode *prev = NULL, *next;
+    ListNode *head_prev = nullptr, *head_next;
     while (head) {
-        next = head->next;
-        head->next = prev;
-        prev = head;
-        head = next;
+        head_next = head->next;
+        head->next = head_prev;
+        head_prev = head;
+        head = head_next;
     }
-    return prev;
+    return head_prev;
 }
 ```
 
 ```python
-def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
-    prev = None
+def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
+    head_prev = None
     while head is not None:
-        temp = head.next
-        head.next = prev
-        prev = head
-        head = temp
-    return prev
+        head_next = head.next
+        head.next = head_prev
+        head_prev = head
+        head = head_next
+    return head_prev
 ```
 
 **归并两个有序的链表**
@@ -8106,36 +8270,33 @@ def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
 [21. Merge Two Sorted Lists \(Easy\)](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```cpp
-// recursive solution
 ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-    if (!l2) return l1;
-    if (!l1) return l2;
-    if (l1->val > l2->val) {
-        l2->next = mergeTwoLists(l1, l2->next);
+    if (l2 == nullptr) {
+        return l1;
+    }
+    if (l1 == nullptr) {
         return l2;
-    } else {
+    }
+    if (l1->val < l2->val) {
         l1->next = mergeTwoLists(l1->next, l2);
         return l1;
     }
+    l2->next = mergeTwoLists(l1, l2->next);
+    return l2;    
 }
+```
 
-// non-recursive solution
-ListNode* mergeTwoLists(ListNode *l1, ListNode *l2) {
-    ListNode *dummy = new ListNode(INT_MIN);
-    ListNode *node = dummy;
-    while (l1 && l2) {
-        if (l1->val <= l2->val) {
-            node->next = l1;
-            l1 = l1->next;
-        } else {
-            node->next = l2;
-            l2 = l2->next;
-        }
-        node = node->next;
-    }
-    node->next = l1? l1: l2;
-    return dummy->next;
-}
+```python
+def mergeTwoLists(
+    l1: Optional[ListNode], l2: Optional[ListNode]
+) -> Optional[ListNode]:
+    if l1 is None or l2 is None:
+        return l1 or l2
+    if l1.val < l2.val:
+        l1.next = mergeTwoLists(l1.next, l2)
+        return l1
+    l2.next = mergeTwoLists(l1, l2.next)
+    return l2
 ```
 
 **链表排序**
@@ -8222,22 +8383,39 @@ Given 1->2->3->4, you should return the list as 2->1->4->3.
 
 ```cpp
 ListNode* swapPairs(ListNode* head) {
-    ListNode *p=head, *s;  
-    if (p && p->next) {  
-        s = p->next;  
-        p->next = s->next;  
-        s->next = p;  
-        head = s;  
-        while (p->next && p->next->next) {  
-            s = p->next->next;  
-            p->next->next = s->next;  
-            s->next = p->next;  
-            p->next = s;  
-            p = s->next;  
-        }  
-    }  
+    ListNode *node1 = head, *node2;
+    if (node1 && node1->next) {
+        node2 = node1->next;
+        node1->next = node2->next;
+        node2->next = node1;
+        head = node2;
+        while (node1->next && node1->next->next) {
+            node2 = node1->next->next;
+            node1->next->next = node2->next;
+            node2->next = node1->next;
+            node1->next = node2;
+            node1 = node2->next;
+        }
+    }
     return head;
 }
+```
+
+```python
+def swapPairs(head: Optional[ListNode]) -> Optional[ListNode]:
+    node1 = head
+    if node1 is not None and node1.next is not None:
+        node2 = node1.next
+        node1.next = node2.next
+        node2.next = node1
+        head = node2
+        while node1.next is not None and node1.next.next is not None:
+            node2 = node1.next.next
+            node1.next.next = node2.next
+            node2.next = node1.next
+            node1.next = node2
+            node1 = node2.next
+    return head
 ```
 
 **链表求和**
@@ -8292,31 +8470,43 @@ stack<int> buildStack(ListNode* l) {
 
 ```cpp
 bool isPalindrome(ListNode* head) {
-    if (!head || !head->next) return true;
+    if (head == nullptr || head->next == nullptr) {
+        return true;
+    }
     ListNode *slow = head, *fast = head;
     while (fast->next && fast->next->next) {
         slow = slow->next;
         fast = fast->next->next;
     }
-    slow->next = reverseList(slow->next);
+    slow->next = reverseList(slow->next);  // 见题目206
     slow = slow->next;
-    while (slow) {
-        if (head->val != slow->val) return false;
+    while (slow != nullptr) {
+        if (head->val != slow->val) {
+            return false;
+        }
         head = head->next;
         slow = slow->next;
     }
     return true;
 }
-ListNode* reverseList(ListNode* head) {
-    ListNode *pre = NULL, *next = NULL;
-    while (head) {
-        next = head->next;
-        head->next = pre;
-        pre = head;
-        head = next;
-    }
-    return pre;
-}
+```
+
+```python
+def isPalindrome(head: Optional[ListNode]) -> bool:
+    if head is None or head.next is None:
+        return True
+    slow, fast = head, head
+    while fast.next is not None and fast.next.next is not None:
+        slow = slow.next
+        fast = fast.next.next
+    slow.next = reverseList(slow.next)  # 见题目206
+    slow = slow.next
+    while slow is not None:
+        if head.val != slow.val:
+            return False
+        head = head.next
+        slow = slow.next
+    return True
 ```
 
 **链表元素按奇偶聚集**
@@ -8367,8 +8557,18 @@ TreeNode* find_val(TreeNode* root, int key) {
 
 ```cpp
 int maxDepth(TreeNode* root) {
-    return root? 1 + max(maxDepth(root->left), maxDepth(root->right)): 0;
+    if (root == nullptr) {
+        return 0;
+    }
+    return max(maxDepth(root->left), maxDepth(root->right)) + 1;
 }
+```
+
+```python
+def maxDepth(root: Optional[TreeNode]) -> int:
+    if root is None:
+        return 0
+    return max(maxDepth(root.left), maxDepth(root.right)) + 1
 ```
 
 **平衡树**
@@ -8386,15 +8586,38 @@ int maxDepth(TreeNode* root) {
 平衡树左右子树高度差都小于等于 1
 
 ```cpp
+// 辅函数。
+int balancedDepth(TreeNode* root) {
+    if (root == nullptr) {
+        return 0;
+    }
+    int left = balancedDepth(root->left);
+    int right = balancedDepth(root->right);
+    if (left == -1 || right == -1 || abs(left - right) > 1) {
+        return -1;
+    }
+    return max(left, right) + 1;
+}
+// 主函数。
 bool isBalanced(TreeNode* root) {
-    return helper(root) != -1;
+    return balancedDepth(root) != -1;
 }
-int helper(TreeNode* root) {
-    if (!root) return 0;
-    int left = helper(root->left), right = helper(root->right);
-    if (left == -1 || right == -1 || abs(left - right) > 1) return -1;
-    return 1 + max(left, right);
-}
+```
+
+```python
+# 辅函数。
+def balancedDepth(root: Optional[TreeNode]) -> int:
+    if root is None:
+        return 0
+    left = balancedDepth(root.left)
+    right = balancedDepth(root.right)
+    if left == -1 or right == -1 or abs(left - right) > 1:
+        return -1
+    return max(left, right) + 1
+
+# 主函数。
+def isBalanced(root: Optional[TreeNode]) -> bool:
+    return balancedDepth(root) != -1
 ```
 
 **两节点的最长路径**
@@ -8414,32 +8637,39 @@ Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
 ```
 
 ```cpp
+// 辅函数。
+int updateDiameter(TreeNode* node, int& diameter) {
+    if (node == nullptr) {
+        return 0;
+    }
+    int left = updateDiameter(node->left, diameter);
+    int right = updateDiameter(node->right, diameter);
+    diameter = max(diameter, left + right);
+    return max(left, right) + 1;
+}
+
+// 主函数。
 int diameterOfBinaryTree(TreeNode* root) {
     int diameter = 0;
-    helper(root, diameter);
+    updateDiameter(root, diameter);
     return diameter;
-}
-int helper(TreeNode* node, int& diameter) {
-    if (!node) return 0;
-    int l = helper(node->left, diameter)；
-    int r = helper(node->right, diameter);
-    diameter = max(l + r, diameter);
-    return max(l, r) + 1;
 }
 ```
 
 ```python
-def helper(self, node: Optional[TreeNode], diameter: List[int]) -> int:
+# 辅函数。
+def updateDiameter(node: Optional[TreeNode], diameter: List[int]) -> int:
     if node is None:
         return 0
-    l = self.helper(node.left, diameter)
-    r = self.helper(node.right, diameter)
-    diameter[0] = max(diameter[0], l + r)
-    return 1 + max(l, r)
+    left = updateDiameter(node.left, diameter)
+    right = updateDiameter(node.right, diameter)
+    diameter[0] = max(diameter[0], left + right)
+    return max(left, right) + 1
 
-def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+# 主函数。
+def diameterOfBinaryTree(root: Optional[TreeNode]) -> int:
     diameter = [0]
-    self.helper(root, diameter)
+    updateDiameter(root, diameter)
     return diameter[0]
 ```
 
@@ -8540,17 +8770,47 @@ Return 3. The paths that sum to 8 are:
 路径不一定以 root 开头，也不一定以 leaf 结尾，但是必须连续。
 
 ```cpp
-int pathSum(TreeNode* root, int sum) {
-    return root? pathSumStartWithRoot(root, sum) + pathSum(root->left, sum) + pathSum(root->right, sum): 0;
+// 辅函数。
+// long long防止test case中大数溢出，一般情况下用int即可。
+long long pathSumStartWithRoot(TreeNode* root, long long targetSum) {
+    if (root == nullptr) {
+        return 0;
+    }
+    return (root->val == targetSum) +
+           pathSumStartWithRoot(root->left, targetSum - root->val) +
+           pathSumStartWithRoot(root->right, targetSum - root->val);
 }
 
-int pathSumStartWithRoot(TreeNode* root, int sum) {
-    if (!root) return 0;
-    int ret = root->val == sum? 1: 0;
-    ret += pathSumStartWithRoot(root->left, sum - root->val);
-    ret += pathSumStartWithRoot(root->right, sum - root->val);
-    return ret;
+// 主函数。
+int pathSum(TreeNode* root, int targetSum) {
+    if (root == nullptr) {
+        return 0;
+    }
+    return pathSumStartWithRoot(root, targetSum) +
+           pathSum(root->left, targetSum) + pathSum(root->right, targetSum);
 }
+```
+
+```python
+# 辅函数。
+def pathSumStartWithRoot(root: Optional[TreeNode], targetSum: int) -> int:
+    if root is None:
+        return 0
+    return (
+        int(root.val == targetSum)
+        + pathSumStartWithRoot(root.left, targetSum - root.val)
+        + pathSumStartWithRoot(root.right, targetSum - root.val)
+    )
+
+# 主函数。
+def pathSum(root: Optional[TreeNode], targetSum: int) -> int:
+    if root is None:
+        return 0
+    return (
+        pathSumStartWithRoot(root, targetSum)
+        + pathSum(root.left, targetSum)
+        + pathSum(root.right, targetSum)
+    )
 ```
 
 **子树**
@@ -8597,15 +8857,51 @@ bool compare(TreeNode* a, TreeNode* b){
 ```
 
 ```cpp
-bool isSymmetric(TreeNode *root) {
-    return root? isSymmetric(root->left, root->right): true;
+// 辅函数。
+bool isLeftRightSymmetric(TreeNode* left, TreeNode* right) {
+    if (left == nullptr && right == nullptr) {
+        return true;
+    }
+    if (left == nullptr or right == nullptr) {
+        return false;
+    }
+    if (left->val != right->val) {
+        return false;
+    }
+    return isLeftRightSymmetric(left->left, right->right) &&
+           isLeftRightSymmetric(left->right, right->left);
 }
-bool isSymmetric(TreeNode* left, TreeNode* right) {
-    if (!left && !right) return true;
-    if (!left || !right) return false;
-    if (left->val != right->val) return false;
-    return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left);
+
+// 主函数。
+bool isSymmetric(TreeNode* root) {
+    if (root == nullptr) {
+        return true;
+    }
+    return isLeftRightSymmetric(root->left, root->right);
 }
+```
+
+```python
+# 辅函数。
+def isLeftRightSymmetric(
+    left: Optional[TreeNode], right: Optional[TreeNode]
+) -> bool:
+    if left is None and right is None:
+        return True
+    if left is None or right is None:
+        return False
+    if left.val != right.val:
+        return False
+    return (
+        isLeftRightSymmetric(left.left, right.right) and
+        isLeftRightSymmetric(left.right, right.left)
+    )
+
+# 主函数。
+def isSymmetric(root: Optional[TreeNode]) -> bool:
+    if root is None:
+        return True
+    return isLeftRightSymmetric(root.left, root.right)
 ```
 
 **最小路径**
@@ -8751,23 +9047,53 @@ def countPairs(self, root: TreeNode, distance: int) -> int:
 
 ```cpp
 vector<double> averageOfLevels(TreeNode* root) {
-    vector<double> ret;
-    if (!root) return ret;
+    vector<double> level_avg;
+    if (root == nullptr) {
+        return level_avg;
+    }
     queue<TreeNode*> q;
     q.push(root);
-    while (!q.empty()) {
-        int cnt = q.size();
-        double sum = 0;
-        for (int i = 0; i < cnt; ++i) {
-            TreeNode* node = q.front(); q.pop();
-            sum += node->val;
-            if (node->left) q.push(node->left);
-            if (node->right) q.push(node->right);
+    int count = q.size();
+    while (count > 0) {
+        double level_sum = 0;
+        for (int i = 0; i < count; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+            level_sum += node->val;
+            if (node->left != nullptr) {
+                q.push(node->left);
+            }
+            if (node->right != nullptr) {
+                q.push(node->right);
+            }
         }
-        ret.push_back(sum / cnt);
+        level_avg.push_back(level_sum / count);
+        count = q.size();
     }
-    return ret;
+    return level_avg;
 }
+```
+
+```python
+def averageOfLevels(root: Optional[TreeNode]) -> List[float]:
+    level_avg = []
+    if root is None:
+        return level_avg
+    q = collections.deque()
+    q.append(root)
+    count = len(q)
+    while count > 0:
+        level_sum = 0
+        for _ in range(count):
+            node = q.popleft()
+            level_sum += node.val
+            if node.left is not None:
+                q.append(node.left)
+            if node.right is not None:
+                q.append(node.right)
+        level_avg.append(level_sum / count)
+        count = len(q)
+    return level_avg
 ```
 
 **得到左下角的节点**
@@ -8857,19 +9183,41 @@ void dfs(TreeNode* root) {
 
 ```cpp
 vector<int> preorderTraversal(TreeNode* root) {
-    vector<int> ret;
-    if (!root) return ret;
+    vector<int> po;
+    if (root == nullptr) {
+        return po;
+    }
     stack<TreeNode*> s;
     s.push(root);
     while (!s.empty()) {
         TreeNode* node = s.top();
         s.pop();
-        ret.push_back(node->val);
-        if (node->right) s.push(node->right);  // 先右后左，保证左子树先遍历
-        if (node->left) s.push(node->left);
+        po.push_back(node->val);
+        if (node->right) {
+            s.push(node->right);  // 先右后左，保证左子树先遍历
+        }
+        if (node->left) {
+            s.push(node->left);
+        }
     }
-    return ret;        
+    return po;
 }
+```
+
+```python
+def preorderTraversal(root: Optional[TreeNode]) -> List[int]:
+    po = []
+    if root is None:
+        return po
+    s = [root]
+    while len(s) > 0:
+        node = s.pop()
+        po.append(node.val)
+        if node.right is not None:
+            s.append(node.right)  # 先右后左，保证左子树先遍历
+        if node.left is not None:
+            s.append(node.left)
+    return po
 ```
 
 **非递归实现二叉树的后序遍历**
@@ -9071,14 +9419,33 @@ Output:
 题目描述：只保留值在 L ~ R 之间的节点
 
 ```cpp
-TreeNode* trimBST(TreeNode* root, int L, int R) {
-    if (!root) return root;
-    if (root->val > R) return trimBST(root->left, L, R);
-    if (root->val < L) return trimBST(root->right, L, R);
-    root->left = trimBST(root->left, L, R);
-    root->right = trimBST(root->right, L, R);
+TreeNode* trimBST(TreeNode* root, int low, int high) {
+    if (root == nullptr) {
+        return root;
+    }
+    if (root->val > high) {
+        return trimBST(root->left, low, high);
+    }
+    if (root->val < low) {
+        return trimBST(root->right, low, high);
+    }
+    root->left = trimBST(root->left, low, high);
+    root->right = trimBST(root->right, low, high);
     return root;
 }
+```
+
+```python
+def trimBST(root: Optional[TreeNode], low: int, high: int) -> Optional[TreeNode]:
+    if root is None:
+        return None
+    if root.val > high:
+        return trimBST(root.left, low, high)
+    if root.val < low:
+        return trimBST(root.right, low, high)
+    root.left = trimBST(root.left, low, high)
+    root.right = trimBST(root.right, low, high)
+    return root
 ```
 
 **把二叉查找树每个节点的值都加上比它大的节点的值**
@@ -9385,30 +9752,58 @@ Output: [2,1,4,null,null,3], 2 and 3 are interchanged
 中序遍历二叉树，设置一个prev指针，记录当前节点中序遍历时的前节点，如果当前节点大于prev节点的值，说明需要调整次序。有一个技巧是如果遍历整个序列过程中只出现了一次次序错误，说明就是这两个相邻节点需要被交换；如果出现了两次次序错误，那就需要交换这两个节点。
 
 ```cpp
-TreeNode *mistake1, *mistake2, *prev;
-void recursive_traversal(TreeNode* root) {  
-    if (!root) return;
-    if (root->left) recursive_traversal(root->left);
-    if (prev && root->val < prev->val) {  
-        if (!mistake1) {  
-            mistake1 = prev;  
-            mistake2 = root;  
-        } else {  
-            mistake2 = root;  
-        }  
-    }  
-    prev = root; // in-order traversal here!
-    if (root->right) recursive_traversal(root->right);
-}  
-
-void recoverTree(TreeNode* root) {
-    recursive_traversal(root);  
-    if (mistake1 && mistake2) {  
-        int tmp = mistake1->val;  
-        mistake1->val = mistake2->val;  
-        mistake2->val = tmp;  
-    }  
+// 辅函数。
+void inorder(TreeNode* root, TreeNode*& mistake1, TreeNode*& mistake2,
+             TreeNode*& prev) {
+    if (root == nullptr) {
+        return;
+    }
+    inorder(root->left, mistake1, mistake2, prev);
+    if (prev != nullptr && root->val < prev->val) {
+        if (mistake1 == nullptr) {
+            mistake1 = prev;
+        }
+        mistake2 = root;
+    }
+    prev = root;
+    inorder(root->right, mistake1, mistake2, prev);
 }
+
+// 主函数。
+void recoverTree(TreeNode* root) {
+    TreeNode *mistake1 = nullptr, *mistake2 = nullptr, *prev = nullptr;
+    inorder(root, mistake1, mistake2, prev);
+    if (mistake1 != nullptr && mistake2 != nullptr) {
+        swap(mistake1->val, mistake2->val);
+    }
+}
+```
+
+```python
+# 辅函数。
+# 注意，Python中并不方便在辅函数中直接传指针，因此我们建造长度为1的list进行传引用。
+def inorder(
+    root: Optional[TreeNode],
+    mistake1=List[Optional[TreeNode]],
+    mistake2=List[Optional[TreeNode]],
+    prev=List[Optional[TreeNode]],
+):
+    if root is None:
+        return
+    inorder(root.left, mistake1, mistake2, prev)
+    if prev[0] is not None and root.val < prev[0].val:
+        if mistake1[0] is None:
+            mistake1[0] = prev[0]
+        mistake2[0] = root
+    prev[0] = root
+    inorder(root.right, mistake1, mistake2, prev)
+
+# 主函数。
+def recoverTree(root: Optional[TreeNode]) -> None:
+    mistake1, mistake2, prev = [None], [None], [None]
+    inorder(root, mistake1, mistake2, prev)
+    if mistake1[0] is not None and mistake2[0] is not None:
+        mistake1[0].val, mistake2[0].val = mistake2[0].val, mistake1[0].val
 ```
 
 **在二叉查找树中删除一个值**
@@ -9456,53 +9851,89 @@ TreeNode* deleteNode(TreeNode* root, int val) {
 [208. Implement Trie \(Prefix Tree\) \(Medium\)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 ```cpp
-class TrieNode {
-public:
-    TrieNode* childNode[26];
-    bool isVal;
-    TrieNode() {
-        isVal = false;
-        for (int i = 0; i < 26; ++i) childNode[i] = NULL;
-    }
+struct TrieNode {
+    bool word_ends;
+    vector<TrieNode*> children;
+    TrieNode() : word_ends(false), children(26, nullptr) {}
 };
 
 class Trie {
-public:
-    Trie() {root = new TrieNode();}
+   public:
+    Trie() : root_(new TrieNode()) {}
 
-    // Inserts a word into the trie
     void insert(string word) {
-        TrieNode* temp = root;
-        for (int i = 0; i < word.size(); ++i) {
-            if (!temp->childNode[word[i]-'a']) temp->childNode[word[i]-'a'] = new TrieNode();
-            temp = temp->childNode[word[i]-'a'];
+        TrieNode* node = root_;
+        for (char c : word) {
+            int pos = c - 'a';
+            if (node->children[pos] == nullptr) {
+                node->children[pos] = new TrieNode();
+            }
+            node = node->children[pos];
         }
-        temp->isVal = true;
+        node->word_ends = true;
     }
 
-    // Returns if the word is in the trie
     bool search(string word) {
-        TrieNode* temp = root;
-        for (int i = 0; i < word.size(); ++i) {
-            if (!temp) break;
-            temp = temp->childNode[word[i]-'a'];
+        TrieNode* node = root_;
+        for (char c : word) {
+            if (node == nullptr) {
+                break;
+            }
+            node = node->children[c - 'a'];
         }
-        return temp? temp->isVal: false;
+        return node != nullptr && node->word_ends;
     }
 
-    // Returns if there is any word in the trie that starts with the given prefix
     bool startsWith(string prefix) {
-        TrieNode* temp = root;
-        for (int i = 0; i < prefix.size(); ++i) {
-            if (!temp) break;
-            temp = temp->childNode[prefix[i]-'a'];
+        TrieNode* node = root_;
+        for (char c : prefix) {
+            if (node == nullptr) {
+                break;
+            }
+            node = node->children[c - 'a'];
         }
-        return temp;
+        return node != nullptr;
     }
 
-private:
-    TrieNode* root;
+   private:
+    TrieNode* root_;
 };
+```
+
+```python
+class TrieNode:
+    def __init__(self):
+        self.word_ends = False
+        self.children = [None] * 26
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for c in word:
+            pos = ord(c) - ord("a")
+            if node.children[pos] is None:
+                node.children[pos] = TrieNode()
+            node = node.children[pos]
+        node.word_ends = True
+
+    def search(self, word: str) -> bool:
+        node = self.root
+        for c in word:
+            if node is None:
+                break
+            node = node.children[ord(c) - ord("a")]
+        return node is not None and node.word_ends
+
+    def startsWith(self, prefix: str) -> bool:
+        node = self.root
+        for c in prefix:
+            if node is None:
+                break
+            node = node.children[ord(c) - ord("a")]
+        return node is not None
 ```
 
 ## 线段树
@@ -9616,77 +10047,53 @@ We can divide the vertices into two groups: {0, 2} and {1, 3}.
 ```cpp
 bool isBipartite(vector<vector<int>>& graph) {
     int n = graph.size();
-    if (!n) return true;
     vector<int> color(n, 0);
     queue<int> q;
-    for (int i = 0; i < n; i++) {
-        if (!color[i]) {
+    for (int i = 0; i < n; ++i) {
+        if (color[i] == 0) {
             q.push(i);
             color[i] = 1;
         }
         while (!q.empty()) {
-            auto node = q.front();
+            int node = q.front();
             q.pop();
-            for (auto j: graph[node]) {
+            for (int j : graph[node]) {
                 if (color[j] == 0) {
                     q.push(j);
                     color[j] = color[node] == 2 ? 1 : 2;
+                } else if (color[j] == color[node]) {
+                    return false;
                 }
-                else if (color[node] == color[j]) return false;
             }
         }
     }
-    return true; 
+    return true;
 }
+```
+
+```python
+def isBipartite(graph: List[List[int]]) -> bool:
+    n = len(graph)
+    color = [0] * n
+    q = collections.deque()
+    for i in range(n):
+        if color[i] == 0:
+            q.append(i)
+            color[i] = 1
+        while len(q) > 0:
+            node = q.popleft()
+            for j in graph[node]:
+                if color[j] == 0:
+                    q.append(j)
+                    color[j] = 1 if color[node] == 2 else 2
+                elif color[j] == color[node]:
+                    return False
+    return True
 ```
 
 ## 拓扑排序
 
 常用于在具有先序关系的任务规划中。
-
-**课程安排的合法性**
-
-[207. Course Schedule \(Medium\)](https://leetcode.com/problems/course-schedule/)
-
-```markup
-2, [[1,0]]
-return true
-```
-
-```markup
-2, [[1,0],[0,1]]
-return false
-```
-
-题目描述：一个课程可能会先修课程，判断给定的先修课程规定是否合法。
-
-```cpp
-bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
-    vector<vector<int>> graph(numCourses,vector<int>(0));
-    vector<int> indegree(numCourses, 0);
-    for (auto u: prerequisites) {
-        graph[u.second].push_back(u.first);
-        ++indegree[u.first];
-    }
-    queue<int> q;
-    for (int i = 0; i < indegree.size(); ++i) {
-        if (!indegree[i]) q.push(i);
-    }
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        for (auto v: graph[u]) {
-            --indegree[v];
-            if (!indegree[v]) q.push(v);
-        }
-
-    }
-    for (int i = 0; i < indegree.size(); ++i) {
-        if (indegree[i]) return false;
-    }
-    return true;
-}
-```
 
 **课程安排的顺序**
 
@@ -9700,32 +10107,56 @@ So one correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
 ```
 
 ```cpp
-vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
-    vector<vector<int>> graph(numCourses,vector<int>(0));
-    vector<int> indegree(numCourses, 0), res;
-    for (auto u: prerequisites) {
-        graph[u.second].push_back(u.first);
-        ++indegree[u.first];
+vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> graph(numCourses, vector<int>());
+    vector<int> indegree(numCourses, 0), schedule;
+    for (const auto& pr : prerequisites) {
+        graph[pr[1]].push_back(pr[0]);
+        ++indegree[pr[0]];
     }
     queue<int> q;
     for (int i = 0; i < indegree.size(); ++i) {
-        if (!indegree[i]) q.push(i);
+        if (indegree[i] == 0) {
+            q.push(i);
+        }
     }
     while (!q.empty()) {
-        int u = q.front();
-        res.push_back(u);
+        int u = q.front();        
         q.pop();
-        for (auto v: graph[u]) {
+        schedule.push_back(u);
+        for (int v : graph[u]) {
             --indegree[v];
-            if (!indegree[v]) q.push(v);
+            if (indegree[v] == 0) {
+                q.push(v);
+            }
         }
-
     }
     for (int i = 0; i < indegree.size(); ++i) {
-        if (indegree[i]) return vector<int>();
+        if (indegree[i] != 0) {
+            return vector<int>();
+        }
     }
-    return res;
+    return schedule;
 }
+```
+
+```python
+def findOrder(numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+    graph = [[] for _ in range(numCourses)]
+    indegree = [0] * numCourses
+    schedule = []
+    for pr_from, pr_to in prerequisites:
+        graph[pr_to].append(pr_from)
+        indegree[pr_from] += 1
+    q = collections.deque([i for i, deg in enumerate(indegree) if deg == 0])
+    while len(q) > 0:
+        u = q.popleft()
+        schedule.append(u)
+        for v in graph[u]:
+            indegree[v] -= 1
+            if indegree[v] == 0:
+                q.append(v)
+    return schedule if all(deg == 0 for deg in indegree) else []
 ```
 
 ## 最小生成树
@@ -9913,43 +10344,99 @@ Explanation: The given undirected graph will be like this:
 
 题目描述：在无向图找出一条边，移除它之后该图能够成为一棵树（即无向无环图）。
 
+```cpp
+class Solution {
+   public:
+    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+        n_ = edges.size();
+        id_ = vector<int>(n_);
+        depth_ = vector<int>(n_, 1);
+        for (int i = 0; i < n_; ++i) {
+            id_[i] = i;
+        }
+        for (auto& edge : edges) {
+            int i = edge[0], j = edge[1];
+            if (linked(i - 1, j - 1)) {
+                return vector<int>{i, j};
+            }
+            connect(i - 1, j - 1);
+        }
+        return vector<int>();
+    }
+
+   private:
+    int find(int i) {
+        // 路径压缩。
+        while (i != id_[i]) {
+            id_[i] = id_[id_[i]];
+            i = id_[i];
+        }
+        return i;
+    }
+
+    void connect(int i, int j) {
+        i = find(i), j = find(j);
+        if (i == j) {
+            return;
+        }
+        // 按秩合并。
+        if (depth_[i] <= depth_[j]) {
+            id_[i] = j;
+            depth_[j] = max(depth_[j], depth_[i] + 1);
+        } else {
+            id_[j] = i;
+            depth_[i] = max(depth_[i], depth_[j] + 1);
+        }
+    }
+
+    bool linked(int i, int j) {
+        return find(i) == find(j);
+    }
+
+    int n_;
+    vector<int> id_;
+    vector<int> depth_;
+};
+```
+
 ```python
 class Solution:
-
     def __init__(self):
         self.n = 0
         self.id = None
         self.depth = None
 
     def find(self, i: int) -> int:
+        # 路径压缩。
         while i != self.id[i]:
             self.id[i] = self.id[self.id[i]]
             i = self.id[i]
         return i
-    
+
     def connect(self, i: int, j: int):
         i = self.find(i)
         j = self.find(j)
         if i == j:
             return
+        # 按秩合并。
         if self.depth[i] <= self.depth[j]:
             self.id[i] = j
             self.depth[j] = max(self.depth[j], self.depth[i] + 1)
         else:
             self.id[j] = i
             self.depth[i] = max(self.depth[i], self.depth[j] + 1)
-    
-    def isConnected(self, i: int, j: int) -> bool:
+
+    def linked(self, i: int, j: int) -> bool:
         return self.find(i) == self.find(j)
 
     def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
         self.n = len(edges)
         self.id = list(range(self.n))
-        self.depth = [1 for _ in range(self.n)]
+        self.depth = [1] * self.n
         for i, j in edges:
-            if self.isConnected(i-1, j-1):
+            if self.linked(i - 1, j - 1):
                 return [i, j]
-            self.connect(i-1, j-1)
+            self.connect(i - 1, j - 1)
         return []
 ```
 
@@ -9997,34 +10484,37 @@ cache.get(4);       // returns 4
 采用复合数据结构 list<pair<int, int>>和hashmap<int, list<pair<int, int>>::iterator>，存iterator的原因是方便调用list的splice函数来直接更新cash hit的pair。
 
 ```cpp
-class LRUCache{  
-public:  
-    LRUCache(int capacity):size(capacity) {}  
+class LRUCache {
+   public:
+    LRUCache(int capacity) : n_(capacity) {}
 
-    int get(int key) {  
-        auto it = hash.find(key);  
-        if (it == hash.end()) return -1;  
-        cache.splice(cache.begin(), cache, it->second);  
-        return it->second->second;  
-    }  
+    int get(int key) {
+        auto it = key_to_cache_it_.find(key);
+        if (it == key_to_cache_it_.end()) {
+            return -1;
+        }
+        cache_.splice(cache_.begin(), cache_, it->second);
+        return it->second->second;
+    }
 
-    void put(int key, int value) {  
-        auto it = hash.find(key);  
-        if (it != hash.end()) {  
-            it->second->second = value;  
-            return cache.splice(cache.begin(), cache, it->second);  
-        }  
-        cache.insert(cache.begin(), make_pair(key, value));  
-        hash[key] = cache.begin();  
-        if (cache.size() > size) {  
-            hash.erase(cache.back().first);  
-            cache.pop_back();  
+    void put(int key, int value) {
+        auto it = key_to_cache_it_.find(key);
+        if (it != key_to_cache_it_.end()) {
+            it->second->second = value;
+            return cache_.splice(cache_.begin(), cache_, it->second);
+        }
+        cache_.insert(cache_.begin(), make_pair(key, value));
+        key_to_cache_it_[key] = cache_.begin();
+        if (cache_.size() > n_) {
+            key_to_cache_it_.erase(cache_.back().first);
+            cache_.pop_back();
         }
     }
-private:  
-    unordered_map<int, list<pair<int, int>>::iterator> hash;  
-    list<pair<int, int>> cache;  
-    int size;  
+
+   private:
+    list<pair<int, int>> cache_;
+    unordered_map<int, list<pair<int, int>>::iterator> key_to_cache_it_;
+    int n_;
 };
 ```
 
@@ -10032,33 +10522,31 @@ private:
 ## Method 1: OrderedDict (dict() is ordered in Python 3.7+)
 class LRUCache:
     def __init__(self, capacity: int):
-        self.capacity = capacity
+        self.n = capacity
         self.cache = {}
 
     def get(self, key: int) -> int:
         if key not in self.cache:
             return -1
-
         self.cache[key] = self.cache.pop(key)
         return self.cache[key]
 
     def put(self, key: int, value: int) -> None:
         if key in self.cache:
             self.cache.pop(key)
-
         self.cache[key] = value
-        if len(self.cache) > self.capacity:
+        if len(self.cache) > self.n:
             self.cache.pop(next(iter(self.cache)))
 
-## Method 2: LinkedList
+## Method 2: LinkedList.
 class Node:
-    def __init__(self, key = -1, val = -1):
+    def __init__(self, key=-1, val=-1):
         self.key = key
         self.val = val
         self.prev = None
         self.next = None
 
-class DLL:
+class LinkedList:
     def __init__(self):
         self.dummy_start = Node()
         self.dummy_end = Node()
@@ -10071,14 +10559,12 @@ class DLL:
         right.prev = node
         left.next = node
         node.prev = left
-        
         return node
 
     def remove(self, node) -> Node:
         left, right = node.prev, node.next
         left.next = right
         right.prev = left
-        
         return node
 
     def move_to_start(self, node):
@@ -10086,36 +10572,33 @@ class DLL:
 
     def pop(self):
         return self.remove(self.dummy_end.prev)
-    
+
     def peek(self):
         return self.dummy_end.prev.val
 
 class LRUCache:
     def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.cache = dict()
-        self.dll = DLL()
+        self.n = capacity
+        self.key_to_node = dict()
+        self.cache_nodes = LinkedList()
 
     def get(self, key: int) -> int:
-        if key not in self.cache: return -1
-        
-        node = self.cache[key]
-        self.dll.move_to_start(node)
-        
+        if key not in self.key_to_node:
+            return -1
+        node = self.key_to_node[key]
+        self.cache_nodes.move_to_start(node)
         return node.val
 
     def put(self, key: int, value: int) -> None:
-        if key in self.cache:
-            node = self.dll.remove(self.cache[key])
+        if key in self.key_to_node:
+            node = self.cache_nodes.remove(self.key_to_node[key])
             node.val = value
         else:
             node = Node(key, value)
-            self.cache[key] = node
-        
-        self.dll.appendleft(node)
-        
-        if len(self.cache) > self.capacity:
-            self.cache.pop(self.dll.pop().key)
+            self.key_to_node[key] = node
+        self.cache_nodes.appendleft(node)
+        if len(self.key_to_node) > self.n:
+            self.key_to_node.pop(self.cache_nodes.pop().key)
 ```
 
 **O(1)数据结构**
@@ -10231,62 +10714,59 @@ private:
 
 ```cpp
 class RandomizedSet {
-public:
-    RandomizedSet() {}
-
+   public:
     bool insert(int val) {
-        if (hash.count(val)) return false;
-        hash[val] = vec.size();
-        vec.push_back(val);
+        if (v_to_k_.contains(val)) {
+            return false;
+        }
+        v_to_k_[val] = nums_.size();
+        nums_.push_back(val);
         return true;
     }
 
     bool remove(int val) {
-        if (!hash.count(val)) return false;
-        int pos = hash[val];
-        hash[vec.back()] = pos;
-        hash.erase(val);
-        swap(vec[pos], vec[vec.size()-1]);
-        vec.pop_back();
+        if (!v_to_k_.contains(val)) {
+            return false;
+        }
+        v_to_k_[nums_.back()] = v_to_k_[val];
+        nums_[v_to_k_[val]] = nums_.back();
+        v_to_k_.erase(val);
+        nums_.pop_back();
         return true;
     }
 
-    int getRandom() {
-        return vec[rand()%vec.size()];
-    }
+    int getRandom() { return nums_[rand() % nums_.size()]; }
 
-private:
-    unordered_map<int, int> hash;
-    vector<int> vec;
+   private:
+    unordered_map<int, int> v_to_k_;
+    vector<int> nums_;
 };
 ```
 
 ```python
 class RandomizedSet:
-    import random
-
     def __init__(self):
-        self.cache = []
-        self.vk = {}
+        self.nums = []
+        self.v_to_k = {}
 
     def insert(self, val: int) -> bool:
-        if val in self.vk:
+        if val in self.v_to_k:
             return False
-        self.vk[val] = len(self.cache)
-        self.cache.append(val)
+        self.v_to_k[val] = len(self.nums)
+        self.nums.append(val)
         return True
 
     def remove(self, val: int) -> bool:
-        if val not in self.vk:
+        if val not in self.v_to_k:
             return False
-        self.vk[self.cache[-1]] = self.vk[val]
-        self.cache[self.vk[val]] = self.cache[-1]
-        del self.vk[val]
-        self.cache.pop()
+        self.v_to_k[self.nums[-1]] = self.v_to_k[val]
+        self.nums[self.v_to_k[val]] = self.nums[-1]
+        del self.v_to_k[val]
+        self.nums.pop()
         return True
-        
+
     def getRandom(self) -> int:
-        return self.cache[random.randint(0, len(self.cache)-1)]
+        return self.nums[random.randint(0, len(self.nums) - 1)]
 ```
 ## 线程安全结构
 
