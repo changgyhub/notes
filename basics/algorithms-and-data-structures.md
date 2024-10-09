@@ -4777,7 +4777,7 @@ int countPrimes(int n) {
 ```
 
 ```python
-// optimized.
+# optimized.
 def countPrimes(n: int) -> int:
     if n <= 2:
         return 0
@@ -4798,7 +4798,7 @@ def countPrimes(n: int) -> int:
             i += 2
     return count
 
-// unoptimized.
+# unoptimized.
 def countPrimes(n: int) -> int:
     if n <= 2:
         return 0
